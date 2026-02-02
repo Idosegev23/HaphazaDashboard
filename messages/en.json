@@ -1,0 +1,77 @@
+{
+  "common": {
+    "appName": "LEADERS",
+    "welcome": "Welcome",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "actions": "Actions"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?"
+  },
+  "roles": {
+    "creator": "Content Creator",
+    "brand": "Brand",
+    "admin": "Administrator"
+  },
+  "campaign": {
+    "title": "Campaign",
+    "campaigns": "Campaigns",
+    "create": "Create Campaign",
+    "status": {
+      "draft": "Draft",
+      "open": "Open",
+      "closed": "Closed",
+      "archived": "Archived"
+    }
+  },
+  "task": {
+    "title": "Task",
+    "tasks": "Tasks",
+    "myTasks": "My Tasks",
+    "status": {
+      "selected": "Selected",
+      "in_production": "In Production",
+      "uploaded": "Uploaded",
+      "needs_edits": "Needs Edits",
+      "approved": "Approved",
+      "paid": "Paid"
+    }
+  },
+  "payment": {
+    "payments": "Payments",
+    "amount": "Amount",
+    "status": {
+      "pending": "Pending",
+      "approved_for_payment": "Approved for Payment",
+      "paid": "Paid",
+      "failed": "Failed"
+    }
+  },
+  "shipping": {
+    "shipping": "Shipping",
+    "address": "Address",
+    "trackingNumber": "Tracking Number",
+    "status": {
+      "not_requested": "Not Requested",
+      "waiting_address": "Waiting for Address",
+      "address_received": "Address Received",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "issue": "Issue"
+    }
+  }
+}

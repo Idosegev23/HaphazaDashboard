@@ -1,26 +1,128 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+/* Design Tokens - LEADERS Platform */
+@layer theme {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Colors */
+    --color-primary: #f2cc0d;
+    --color-primary-hover: #dcb900;
+    
+    --color-background-light: #f8f8f5;
+    --color-background-dark: #121212;
+    --color-background-dark-alt: #232010;
+    
+    --color-surface-dark: #1E1E1E;
+    --color-surface-dark-alt: #2e2a1b;
+    
+    --color-border-dark: #494222;
+    --color-glass-border: rgba(255, 255, 255, 0.08);
+    
+    --color-text-muted: #cbc190;
+    
+    /* Status Colors */
+    --color-status-active: #f2cc0d;
+    --color-status-review: #3b82f6;
+    --color-status-urgent: #ef4444;
+    --color-status-success: #10b981;
+    --color-status-warning: #f59e0b;
+    
+    /* Fonts */
+    --font-display: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Heebo', 'Noto Sans Hebrew', ui-sans-serif, system-ui, sans-serif;
+    
+    /* Border Radius */
+    --radius-sm: 0.125rem;
+    --radius: 0.25rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-full: 9999px;
+    
+    /* Shadows */
+    --shadow-primary: 0 0 15px rgba(242, 204, 13, 0.2);
+    --shadow-primary-lg: 0 0 25px rgba(242, 204, 13, 0.3);
   }
 }
 
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  background: var(--color-background-dark);
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+
+/* RTL Support */
+[dir="rtl"] {
+  direction: rtl;
+}
+
+[dir="ltr"] {
+  direction: ltr;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-background-dark);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-dark);
+  border-radius: var(--radius);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Glassmorphism Utility Classes */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Status Stripe (RTL Aware) */
+.status-stripe {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  z-index: 20;
+}
+
+[dir="rtl"] .status-stripe {
+  right: 0;
+}
+
+[dir="ltr"] .status-stripe {
+  left: 0;
 }

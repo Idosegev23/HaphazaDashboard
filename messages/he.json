@@ -1,0 +1,77 @@
+{
+  "common": {
+    "appName": "LEADERS",
+    "welcome": "ברוך הבא",
+    "loading": "טוען...",
+    "error": "שגיאה",
+    "success": "הצלחה",
+    "save": "שמור",
+    "cancel": "ביטול",
+    "delete": "מחק",
+    "edit": "ערוך",
+    "create": "צור",
+    "search": "חיפוש",
+    "filter": "סנן",
+    "actions": "פעולות"
+  },
+  "auth": {
+    "login": "התחבר",
+    "logout": "התנתק",
+    "register": "הרשם",
+    "email": "אימייל",
+    "password": "סיסמה",
+    "forgotPassword": "שכחת סיסמה?"
+  },
+  "roles": {
+    "creator": "יוצר תוכן",
+    "brand": "מותג",
+    "admin": "מנהל"
+  },
+  "campaign": {
+    "title": "קמפיין",
+    "campaigns": "קמפיינים",
+    "create": "צור קמפיין",
+    "status": {
+      "draft": "טיוטה",
+      "open": "פתוח",
+      "closed": "סגור",
+      "archived": "בארכיון"
+    }
+  },
+  "task": {
+    "title": "משימה",
+    "tasks": "משימות",
+    "myTasks": "המשימות שלי",
+    "status": {
+      "selected": "נבחר",
+      "in_production": "בייצור",
+      "uploaded": "הועלה",
+      "needs_edits": "דרוש עריכה",
+      "approved": "אושר",
+      "paid": "שולם"
+    }
+  },
+  "payment": {
+    "payments": "תשלומים",
+    "amount": "סכום",
+    "status": {
+      "pending": "ממתין",
+      "approved_for_payment": "אושר לתשלום",
+      "paid": "שולם",
+      "failed": "נכשל"
+    }
+  },
+  "shipping": {
+    "shipping": "משלוח",
+    "address": "כתובת",
+    "trackingNumber": "מספר מעקב",
+    "status": {
+      "not_requested": "לא התבקש",
+      "waiting_address": "ממתין לכתובת",
+      "address_received": "כתובת התקבלה",
+      "shipped": "נשלח",
+      "delivered": "נמסר",
+      "issue": "בעיה"
+    }
+  }
+}
