@@ -13,8 +13,7 @@ export default function NewCampaignPage() {
     title: '',
     objective: '',
     concept: '',
-    budgetMin: '',
-    budgetMax: '',
+    fixedPrice: '',
     deadline: '',
   });
   const [loading, setLoading] = useState(false);
@@ -53,8 +52,7 @@ export default function NewCampaignPage() {
         title: formData.title,
         objective: formData.objective,
         concept: formData.concept,
-        budget_min: formData.budgetMin ? Number(formData.budgetMin) : null,
-        budget_max: formData.budgetMax ? Number(formData.budgetMax) : null,
+        fixed_price: formData.fixedPrice ? Number(formData.fixedPrice) : null,
         currency: 'ILS',
         deadline: formData.deadline || null,
         status: 'draft',
@@ -117,22 +115,14 @@ export default function NewCampaignPage() {
               />
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <Input
-                label="תקציב מינימום (₪)"
-                type="number"
-                value={formData.budgetMin}
-                onChange={(e) => setFormData({ ...formData, budgetMin: e.target.value })}
-                placeholder="500"
-              />
-              <Input
-                label="תקציב מקסימום (₪)"
-                type="number"
-                value={formData.budgetMax}
-                onChange={(e) => setFormData({ ...formData, budgetMax: e.target.value })}
-                placeholder="2000"
-              />
-            </div>
+            <Input
+              label="מחיר למשפיען (₪)"
+              type="number"
+              value={formData.fixedPrice}
+              onChange={(e) => setFormData({ ...formData, fixedPrice: e.target.value })}
+              placeholder="1000"
+              required
+            />
 
             <Input
               label="תאריך יעד"

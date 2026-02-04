@@ -59,7 +59,6 @@ export type Database = {
           id: string
           message: string | null
           portfolio_links: string | null
-          proposed_price: number | null
           status: Database["public"]["Enums"]["application_status"] | null
           updated_at: string | null
         }
@@ -72,7 +71,6 @@ export type Database = {
           id?: string
           message?: string | null
           portfolio_links?: string | null
-          proposed_price?: number | null
           status?: Database["public"]["Enums"]["application_status"] | null
           updated_at?: string | null
         }
@@ -85,7 +83,6 @@ export type Database = {
           id?: string
           message?: string | null
           portfolio_links?: string | null
-          proposed_price?: number | null
           status?: Database["public"]["Enums"]["application_status"] | null
           updated_at?: string | null
         }
@@ -370,12 +367,11 @@ export type Database = {
       campaigns: {
         Row: {
           brand_id: string
-          budget_max: number | null
-          budget_min: number | null
           concept: string | null
           created_at: string | null
           currency: string | null
           deadline: string | null
+          fixed_price: number | null
           id: string
           objective: string | null
           status: Database["public"]["Enums"]["campaign_status"] | null
@@ -384,12 +380,11 @@ export type Database = {
         }
         Insert: {
           brand_id: string
-          budget_max?: number | null
-          budget_min?: number | null
           concept?: string | null
           created_at?: string | null
           currency?: string | null
           deadline?: string | null
+          fixed_price?: number | null
           id?: string
           objective?: string | null
           status?: Database["public"]["Enums"]["campaign_status"] | null
@@ -398,12 +393,11 @@ export type Database = {
         }
         Update: {
           brand_id?: string
-          budget_max?: number | null
-          budget_min?: number | null
           concept?: string | null
           created_at?: string | null
           currency?: string | null
           deadline?: string | null
+          fixed_price?: number | null
           id?: string
           objective?: string | null
           status?: Database["public"]["Enums"]["campaign_status"] | null
@@ -1214,9 +1208,9 @@ export type Database = {
         Args: { p_campaign_id: string; p_creator_id: string }
         Returns: Json
       }
-      is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
+      is_admin: { Args: never; Returns: boolean }
       is_brand_member: { Args: { brand_uuid: string }; Returns: boolean }
-      is_creator: { Args: Record<PropertyKey, never>; Returns: boolean }
+      is_creator: { Args: never; Returns: boolean }
       log_audit: {
         Args: {
           p_action: string

@@ -12,8 +12,7 @@ type Campaign = {
   title: string;
   objective: string | null;
   concept: string | null;
-  budget_min: number | null;
-  budget_max: number | null;
+  fixed_price: number | null;
   deadline: string | null;
   status: string | null;
 };
@@ -30,8 +29,7 @@ export default function CampaignDetailPage() {
     title: '',
     objective: '',
     concept: '',
-    budgetMin: '',
-    budgetMax: '',
+    fixedPrice: '',
     deadline: '',
   });
 
@@ -59,8 +57,7 @@ export default function CampaignDetailPage() {
       title: data.title || '',
       objective: data.objective || '',
       concept: data.concept || '',
-      budgetMin: data.budget_min?.toString() || '',
-      budgetMax: data.budget_max?.toString() || '',
+      fixedPrice: data.fixed_price?.toString() || '',
       deadline: data.deadline || '',
     });
     setLoading(false);
@@ -76,8 +73,7 @@ export default function CampaignDetailPage() {
         title: formData.title,
         objective: formData.objective,
         concept: formData.concept,
-        budget_min: formData.budgetMin ? Number(formData.budgetMin) : null,
-        budget_max: formData.budgetMax ? Number(formData.budgetMax) : null,
+        fixed_price: formData.fixedPrice ? Number(formData.fixedPrice) : null,
         deadline: formData.deadline || null,
       })
       .eq('id', campaignId);
@@ -232,23 +228,13 @@ export default function CampaignDetailPage() {
                 />
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <Input
-                  label="תקציב מינימלי (₪)"
-                  type="number"
-                  value={formData.budgetMin}
-                  onChange={(e) => setFormData({ ...formData, budgetMin: e.target.value })}
-                  placeholder="1000"
-                />
-
-                <Input
-                  label="תקציב מקסימלי (₪)"
-                  type="number"
-                  value={formData.budgetMax}
-                  onChange={(e) => setFormData({ ...formData, budgetMax: e.target.value })}
-                  placeholder="5000"
-                />
-              </div>
+              <Input
+                label="מחיר למשפיען (₪)"
+                type="number"
+                value={formData.fixedPrice}
+                onChange={(e) => setFormData({ ...formData, fixedPrice: e.target.value })}
+                placeholder="1000"
+              />
 
               <Input
                 label="תאריך יעד"

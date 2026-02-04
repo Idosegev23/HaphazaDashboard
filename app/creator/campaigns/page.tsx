@@ -10,8 +10,7 @@ type Campaign = {
   id: string;
   title: string;
   concept: string | null;
-  budget_min: number | null;
-  budget_max: number | null;
+  fixed_price: number | null;
   currency: string | null;
   deadline: string | null;
   brands: {
@@ -67,7 +66,7 @@ export default function CreatorCampaignsPage() {
     // Get open campaigns
     const { data: campaignsData } = await supabase
       .from('campaigns')
-      .select('id, title, concept, budget_min, budget_max, currency, deadline, brands(name)')
+      .select('id, title, concept, fixed_price, currency, deadline, brands(name)')
       .eq('status', 'open')
       .order('created_at', { ascending: false });
 
@@ -143,9 +142,9 @@ export default function CreatorCampaignsPage() {
 
                       <div className="flex items-center justify-between pt-4 border-t border-[#494222]">
                         <div className="text-[#f2cc0d] font-bold">
-                          {campaign.budget_min && campaign.budget_max
-                            ? `₪${campaign.budget_min}-${campaign.budget_max}`
-                            : 'תקציב גמיש'}
+                          {campaign.fixed_price
+                            ? `₪${campaign.fixed_price.toLocaleString()}`
+                            : 'מחיר לא הוגדר'}
                         </div>
                       </div>
                       {appStatus && (

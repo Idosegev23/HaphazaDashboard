@@ -68,9 +68,9 @@ export default async function BrandCampaignsPage() {
 
                     <div className="pt-4 border-t border-[#494222]">
                       <div className="text-[#f2cc0d] font-bold">
-                        {campaign.budget_min && campaign.budget_max
-                          ? `₪${campaign.budget_min}-${campaign.budget_max}`
-                          : 'תקציב לא הוגדר'}
+                        {campaign.fixed_price
+                          ? `₪${campaign.fixed_price.toLocaleString()}`
+                          : 'מחיר לא הוגדר'}
                       </div>
                     </div>
                   </div>

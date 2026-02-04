@@ -11,13 +11,11 @@ type Application = {
   message: string;
   status: string;
   created_at: string;
-  proposed_price: number | null;
   availability: string | null;
   portfolio_links: string | null;
   campaigns: {
     title: string;
-    budget_min: number | null;
-    budget_max: number | null;
+    fixed_price: number | null;
   } | null;
   creators: {
     niches: string[] | null;
@@ -70,10 +68,9 @@ export default function ApplicationDetailPage() {
         status,
         created_at,
         creator_id,
-        proposed_price,
         availability,
         portfolio_links,
-        campaigns(title, budget_min, budget_max)
+        campaigns(title, fixed_price)
       `)
       .eq('id', applicationId)
       .single();
@@ -120,7 +117,7 @@ export default function ApplicationDetailPage() {
     // Get application details with campaign info
     const { data: appData, error: appError } = await supabase
       .from('applications')
-      .select('campaign_id, creator_id, proposed_price, campaigns(title, end_date, requires_product)')
+      .select('campaign_id, creator_id, campaigns(title, deadline, fixed_price)')
       .eq('id', applicationId)
       .single();
 
@@ -146,9 +143,8 @@ export default function ApplicationDetailPage() {
     }
 
     // Create task automatically
-    const campaignData = appData.campaigns as any;
-    const taskTitle = `משימה לקמפיין ${campaignData?.title || 'ללא שם'}`;
-    const requiresProduct = campaignData?.requires_product || false;
+    const taskTitle = `משימה לקמפיין ${appData.campaigns?.title || 'ללא שם'}`;
+    const requiresProduct = false; // Default to false, can be updated later
     
     const { data: taskData, error: taskError } = await supabase
       .from('tasks')
@@ -157,9 +153,9 @@ export default function ApplicationDetailPage() {
         creator_id: appData.creator_id,
         title: taskTitle,
         status: 'selected',
-        due_at: campaignData?.end_date || null,
+        due_at: appData.campaigns?.deadline || null,
         requires_product: requiresProduct,
-        payment_amount: appData.proposed_price || 0,
+        payment_amount: appData.campaigns?.fixed_price || 0,
       })
       .select('id')
       .single();
@@ -194,7 +190,7 @@ export default function ApplicationDetailPage() {
       p_action: 'approved',
       p_metadata: {
         task_id: taskData.id,
-        payment_amount: appData.proposed_price
+        payment_amount: appData.campaigns?.fixed_price
       }
     });
 
@@ -462,18 +458,16 @@ export default function ApplicationDetailPage() {
           <Card>
             <h2 className="text-xl font-bold text-white mb-4">פרטי ההצעה</h2>
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Proposed Price */}
-              {application.proposed_price && (
+              {/* Fixed Price */}
+              {application.campaigns?.fixed_price && (
                 <div className="bg-[#2e2a1b] rounded-lg p-4 border-2 border-[#f2cc0d]">
-                  <span className="text-[#cbc190] text-sm block mb-1">מחיר מוצע</span>
+                  <span className="text-[#cbc190] text-sm block mb-1">תשלום למשפיען</span>
                   <div className="text-3xl font-bold text-[#f2cc0d]">
-                    ₪{application.proposed_price.toLocaleString()}
+                    ₪{application.campaigns.fixed_price.toLocaleString()}
                   </div>
-                  {application.campaigns?.budget_min && application.campaigns?.budget_max && (
-                    <div className="text-xs text-[#cbc190] mt-1">
-                      תקציב הקמפיין: ₪{application.campaigns.budget_min}-{application.campaigns.budget_max}
-                    </div>
-                  )}
+                  <div className="text-xs text-[#cbc190] mt-1">
+                    מחיר קבוע לקמפיין
+                  </div>
                 </div>
               )}
 

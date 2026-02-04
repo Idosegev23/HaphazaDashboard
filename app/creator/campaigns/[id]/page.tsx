@@ -13,7 +13,6 @@ export default function CampaignDetailPage() {
   const [campaign, setCampaign] = useState<any>(null);
   const [application, setApplication] = useState<any>(null);
   const [message, setMessage] = useState('');
-  const [proposedPrice, setProposedPrice] = useState('');
   const [availability, setAvailability] = useState('');
   const [portfolioLinks, setPortfolioLinks] = useState('');
   const [loading, setLoading] = useState(true);
@@ -32,7 +31,7 @@ export default function CampaignDetailPage() {
     // Load campaign
     const { data: campaignData } = await supabase
       .from('campaigns')
-      .select('id, title, concept, objective, budget_min, budget_max, deadline, status, brands(name)')
+      .select('id, title, concept, objective, fixed_price, deadline, status, brands(name)')
       .eq('id', params.id as string)
       .single();
 
@@ -63,7 +62,6 @@ export default function CampaignDetailPage() {
       campaign_id: params.id as string,
       creator_id: user.id,
       message,
-      proposed_price: proposedPrice ? parseFloat(proposedPrice) : null,
       availability,
       portfolio_links: portfolioLinks,
       status: 'submitted',
@@ -106,12 +104,14 @@ export default function CampaignDetailPage() {
           )}
 
           <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-[#494222]">
-            <div>
-              <span className="text-[#cbc190]">תקציב: </span>
-              <span className="text-[#f2cc0d] font-bold">
-                ₪{campaign.budget_min}-{campaign.budget_max}
-              </span>
-            </div>
+            {campaign.fixed_price && (
+              <div>
+                <span className="text-[#cbc190]">תשלום: </span>
+                <span className="text-[#f2cc0d] font-bold">
+                  ₪{campaign.fixed_price.toLocaleString()}
+                </span>
+              </div>
+            )}
             {campaign.deadline && (
               <div>
                 <span className="text-[#cbc190]">תאריך יעד: </span>
@@ -127,29 +127,6 @@ export default function CampaignDetailPage() {
           <Card>
             <h2 className="text-xl font-bold text-white mb-6">הגשת בקשה לקמפיין</h2>
             <form onSubmit={handleApply} className="space-y-6">
-              {/* Proposed Price */}
-              <div>
-                <label htmlFor="proposed_price" className="block text-sm font-medium text-white mb-2">
-                  מחיר מוצע (₪) *
-                </label>
-                <input
-                  id="proposed_price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={proposedPrice}
-                  onChange={(e) => setProposedPrice(e.target.value)}
-                  placeholder="כמה אתם מבקשים עבור הקמפיין?"
-                  required
-                  className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
-                />
-                {campaign.budget_min && campaign.budget_max && (
-                  <p className="text-xs text-[#cbc190] mt-1">
-                    תקציב הקמפיין: ₪{campaign.budget_min}-{campaign.budget_max}
-                  </p>
-                )}
-              </div>
-
               {/* Message */}
               <div>
                 <label htmlFor="message" className="block text-sm font-medium text-white mb-2">
