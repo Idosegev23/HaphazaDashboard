@@ -107,7 +107,15 @@ export default function ApplicationDetailPage() {
   };
 
   const handleApprove = async () => {
-    if (!confirm('האם אתה בטוח שברצונך לאשר את הבקשה? זה ייצור משימה אוטומטית עבור המשפיען.')) {
+    if (!application) return;
+    
+    // הודעת אזהרה שונה אם משנים החלטה קיימת
+    const isChangingDecision = application.status === 'rejected';
+    const confirmMessage = isChangingDecision
+      ? 'האם אתה בטוח שברצונך לשנות את ההחלטה ולאשר את הבקשה?\n\nשים לב: אם כבר נדחית הבקשה, זה ישנה את ההחלטה ויצור משימה למשפיען.'
+      : 'האם אתה בטוח שברצונך לאשר את הבקשה? זה ייצור משימה אוטומטית עבור המשפיען.';
+    
+    if (!confirm(confirmMessage)) {
       return;
     }
 
@@ -202,31 +210,55 @@ export default function ApplicationDetailPage() {
   };
 
   const handleReject = async () => {
-    // ולידציה חובה
-    if (!rejectReasonCode) {
-      alert('יש לבחור סיבת דחייה');
-      return;
+    if (!application) return;
+    
+    // בדיקה אם יש פידבק קיים
+    const supabase = createClient();
+    const { data: existingFeedback } = await supabase
+      .from('application_feedback')
+      .select('id')
+      .eq('application_id', applicationId)
+      .eq('decision', 'reject')
+      .single();
+
+    const hasExistingFeedback = !!existingFeedback;
+    
+    // אם אין פידבק קיים, חובה למלא
+    if (!hasExistingFeedback) {
+      if (!rejectReasonCode) {
+        alert('יש לבחור סיבת דחייה');
+        return;
+      }
+      if (!rejectReason.trim() || rejectReason.length < 10) {
+        alert('יש להזין הסבר מפורט (לפחות 10 תווים)');
+        return;
+      }
     }
-    if (!rejectReason.trim() || rejectReason.length < 10) {
-      alert('יש להזין הסבר מפורט (לפחות 10 תווים)');
+
+    const confirmMessage = application.status === 'approved'
+      ? 'האם אתה בטוח שברצונך לשנות את ההחלטה ולדחות את הבקשה?\n\nשים לב: המשימה שנוצרה תיוותר, אבל הסטטוס ישתנה לנדחה.'
+      : 'האם אתה בטוח שברצונך לדחות את הבקשה?';
+
+    if (!confirm(confirmMessage)) {
       return;
     }
 
     setProcessing(true);
-    const supabase = createClient();
 
     try {
-      // קודם כל יוצרים את הפידבק
-      const { error: feedbackError } = await supabase
-        .from('application_feedback')
-        .insert({
-          application_id: applicationId,
-          decision: 'reject',
-          reason_code: rejectReasonCode as 'not_relevant' | 'low_quality_profile' | 'insufficient_followers' | 'wrong_niche' | 'timing_issue' | 'budget_mismatch' | 'other',
-          note: rejectReason,
-        });
+      // רק אם אין פידבק קיים, יוצרים חדש
+      if (!hasExistingFeedback && rejectReasonCode && rejectReason) {
+        const { error: feedbackError } = await supabase
+          .from('application_feedback')
+          .insert({
+            application_id: applicationId,
+            decision: 'reject',
+            reason_code: rejectReasonCode as 'not_relevant' | 'low_quality_profile' | 'insufficient_followers' | 'wrong_niche' | 'timing_issue' | 'budget_mismatch' | 'other',
+            note: rejectReason,
+          });
 
-      if (feedbackError) throw feedbackError;
+        if (feedbackError) throw feedbackError;
+      }
 
       // רק אחרי שהפידבק נוצר, מעדכנים את הסטטוס
       const { error: updateError } = await supabase
@@ -322,6 +354,28 @@ export default function ApplicationDetailPage() {
                 className="bg-green-600 hover:bg-green-700"
               >
                 אשר
+              </Button>
+            </div>
+          )}
+          {application.status === 'approved' && (
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => setShowRejectForm(!showRejectForm)}
+                disabled={processing}
+                className="bg-orange-600 hover:bg-orange-700"
+              >
+                שנה להחלטה: דחה
+              </Button>
+            </div>
+          )}
+          {application.status === 'rejected' && (
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handleApprove}
+                disabled={processing}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                שנה החלטה: אשר
               </Button>
             </div>
           )}
@@ -523,9 +577,18 @@ export default function ApplicationDetailPage() {
           )}
 
           {/* Reject Form */}
-          {showRejectForm && application.status === 'submitted' && (
+          {showRejectForm && (application.status === 'submitted' || application.status === 'approved') && (
             <Card className="border-2 border-red-500">
-              <h2 className="text-xl font-bold text-white mb-4">דחיית הבקשה</h2>
+              <h2 className="text-xl font-bold text-white mb-4">
+                {application.status === 'approved' ? 'שינוי החלטה - דחיית הבקשה' : 'דחיית הבקשה'}
+              </h2>
+              {application.status === 'approved' && (
+                <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 mb-4">
+                  <p className="text-orange-400 text-sm">
+                    ⚠️ שים לב: שינוי ההחלטה לא ימחק את המשימה שכבר נוצרה, אבל יעדכן את הסטטוס לנדחה.
+                  </p>
+                </div>
+              )}
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-white mb-2">
