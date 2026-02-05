@@ -17,6 +17,15 @@ type Campaign = {
   status: string | null;
 };
 
+type Product = {
+  id: string;
+  name: string;
+  sku: string | null;
+  image_url: string | null;
+  quantity: number | null;
+  created_at: string | null;
+};
+
 export default function CampaignDetailPage() {
   const params = useParams();
   const campaignId = params.id as string;
@@ -33,8 +42,19 @@ export default function CampaignDetailPage() {
     deadline: '',
   });
 
+  // Products state
+  const [products, setProducts] = useState<Product[]>([]);
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [productForm, setProductForm] = useState({
+    name: '',
+    sku: '',
+    image_url: '',
+    quantity: '',
+  });
+
   useEffect(() => {
     loadCampaign();
+    loadProducts();
   }, [campaignId]);
 
   const loadCampaign = async () => {
@@ -61,6 +81,72 @@ export default function CampaignDetailPage() {
       deadline: data.deadline || '',
     });
     setLoading(false);
+  };
+
+  const loadProducts = async () => {
+    const supabase = createClient();
+    
+    const { data, error } = await supabase
+      .from('campaign_products')
+      .select('*')
+      .eq('campaign_id', campaignId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading products:', error);
+      return;
+    }
+
+    setProducts(data || []);
+  };
+
+  const handleAddProduct = async () => {
+    if (!productForm.name.trim()) {
+      alert('נא להזין שם מוצר');
+      return;
+    }
+
+    const supabase = createClient();
+    
+    const { error } = await supabase
+      .from('campaign_products')
+      .insert({
+        campaign_id: campaignId,
+        name: productForm.name,
+        sku: productForm.sku || null,
+        image_url: productForm.image_url || null,
+        quantity: productForm.quantity ? Number(productForm.quantity) : null,
+      });
+
+    if (error) {
+      alert('שגיאה בהוספת מוצר: ' + error.message);
+      return;
+    }
+
+    // Reset form and reload
+    setProductForm({ name: '', sku: '', image_url: '', quantity: '' });
+    setShowProductForm(false);
+    loadProducts();
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm('האם אתה בטוח שברצונך למחוק את המוצר?')) {
+      return;
+    }
+
+    const supabase = createClient();
+    
+    const { error } = await supabase
+      .from('campaign_products')
+      .delete()
+      .eq('id', productId);
+
+    if (error) {
+      alert('שגיאה במחיקת מוצר: ' + error.message);
+      return;
+    }
+
+    loadProducts();
   };
 
   const handleSave = async () => {
@@ -243,6 +329,124 @@ export default function CampaignDetailPage() {
                 onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
               />
             </div>
+          </Card>
+
+          {/* Products Section */}
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-white">מוצרים לקמפיין</h2>
+              <Button
+                onClick={() => setShowProductForm(!showProductForm)}
+                className="bg-[#f2cc0d] text-[#121212] hover:bg-[#d4b00b]"
+              >
+                {showProductForm ? 'סגור' : '+ הוסף מוצר'}
+              </Button>
+            </div>
+
+            {/* Add Product Form */}
+            {showProductForm && (
+              <div className="bg-[#2e2a1b] rounded-lg p-4 mb-4 border border-[#494222]">
+                <h3 className="text-white font-medium mb-3">מוצר חדש</h3>
+                <div className="space-y-3">
+                  <Input
+                    label="שם המוצר *"
+                    type="text"
+                    value={productForm.name}
+                    onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                    placeholder="למשל: שמפו, קרם פנים, תיק..."
+                  />
+                  <Input
+                    label="SKU / מק״ט"
+                    type="text"
+                    value={productForm.sku}
+                    onChange={(e) => setProductForm({ ...productForm, sku: e.target.value })}
+                    placeholder="למשל: PROD-12345"
+                  />
+                  <Input
+                    label="קישור לתמונה"
+                    type="text"
+                    value={productForm.image_url}
+                    onChange={(e) => setProductForm({ ...productForm, image_url: e.target.value })}
+                    placeholder="https://..."
+                  />
+                  <Input
+                    label="כמות"
+                    type="number"
+                    value={productForm.quantity}
+                    onChange={(e) => setProductForm({ ...productForm, quantity: e.target.value })}
+                    placeholder="1"
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleAddProduct}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      הוסף מוצר
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setShowProductForm(false);
+                        setProductForm({ name: '', sku: '', image_url: '', quantity: '' });
+                      }}
+                      className="bg-gray-600 hover:bg-gray-700"
+                    >
+                      ביטול
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Products List */}
+            {products.length === 0 ? (
+              <div className="text-[#cbc190] text-center py-8">
+                לא הוגדרו מוצרים לקמפיין זה. לחץ "הוסף מוצר" כדי להתחיל.
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-4">
+                {products.map((product) => (
+                  <div
+                    key={product.id}
+                    className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222] hover:border-[#f2cc0d] transition-colors"
+                  >
+                    <div className="flex gap-4">
+                      {/* Product Image */}
+                      {product.image_url ? (
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          className="w-20 h-20 object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="w-20 h-20 bg-[#1E1E1E] rounded-lg flex items-center justify-center">
+                          <span className="text-3xl">📦</span>
+                        </div>
+                      )}
+
+                      {/* Product Info */}
+                      <div className="flex-1">
+                        <h3 className="text-white font-medium text-lg">{product.name}</h3>
+                        {product.sku && (
+                          <p className="text-[#cbc190] text-sm">SKU: {product.sku}</p>
+                        )}
+                        {product.quantity && (
+                          <p className="text-[#cbc190] text-sm">כמות: {product.quantity}</p>
+                        )}
+                      </div>
+
+                      {/* Delete Button */}
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="text-red-500 hover:text-red-400 transition-colors"
+                        title="מחק מוצר"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
 
           {/* Additional Sections - Placeholder */}

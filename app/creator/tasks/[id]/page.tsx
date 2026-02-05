@@ -15,6 +15,7 @@ type Task = {
   due_at: string | null;
   requires_product: boolean;
   created_at: string;
+  campaign_id: string;
   campaigns: {
     id: string;
     title: string;
@@ -22,6 +23,11 @@ type Task = {
       name: string;
     } | null;
   } | null;
+};
+
+type ShipmentStatus = {
+  status: string;
+  shipments: Array<{ delivered_at: string | null }>;
 };
 
 type Upload = {
@@ -49,6 +55,7 @@ export default function CreatorTaskDetailPage() {
   const [task, setTask] = useState<Task | null>(null);
   const [uploads, setUploads] = useState<Upload[]>([]);
   const [revisions, setRevisions] = useState<RevisionRequest[]>([]);
+  const [shipmentStatus, setShipmentStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -72,7 +79,7 @@ export default function CreatorTaskDetailPage() {
     // Load task
     const { data: taskData, error: taskError } = await supabase
       .from('tasks')
-      .select('id, title, status, due_at, requires_product, created_at, campaigns(title, brands(name))')
+      .select('id, title, status, due_at, requires_product, created_at, campaign_id, campaigns(id, title, brands(name))')
       .eq('id', taskId)
       .eq('creator_id', user!.id)
       .single();
@@ -84,6 +91,18 @@ export default function CreatorTaskDetailPage() {
     }
 
     setTask(taskData as Task);
+
+    // Load shipment status if product is required
+    if (taskData.requires_product) {
+      const { data: shipmentData } = await supabase
+        .from('shipment_requests')
+        .select('status')
+        .eq('campaign_id', taskData.campaign_id)
+        .eq('creator_id', user!.id)
+        .maybeSingle();
+
+      setShipmentStatus(shipmentData?.status || null);
+    }
 
     // Load uploads
     const { data: uploadsData } = await supabase
@@ -150,13 +169,27 @@ export default function CreatorTaskDetailPage() {
       const supabase = createClient();
       const { data: shipmentData } = await supabase
         .from('shipment_requests')
-        .select('status, shipments(status)')
+        .select('status')
         .eq('campaign_id', task.campaigns?.id || '')
         .eq('creator_id', user!.id)
         .single();
 
-      if (!shipmentData || !shipmentData.shipments || (shipmentData.shipments as any).status !== 'delivered') {
-        alert('לא ניתן להתחיל עבודה לפני שקיבלת את המוצר מהמותג.\nאנא המתן לקבלת המשלוח.');
+      if (!shipmentData || shipmentData.status !== 'delivered') {
+        const statusMessage = !shipmentData 
+          ? 'המותג עדיין לא יצר בקשת משלוח.' 
+          : shipmentData.status === 'not_requested'
+          ? 'המותג עדיין לא יצר בקשת משלוח.'
+          : shipmentData.status === 'waiting_address'
+          ? 'אנא מלא את פרטי הכתובת למשלוח.'
+          : shipmentData.status === 'address_received'
+          ? 'המותג מכין את המשלוח.'
+          : shipmentData.status === 'shipped'
+          ? 'המוצר בדרך אליך. המתן למסירה.'
+          : shipmentData.status === 'issue'
+          ? 'יש בעיה במשלוח. צור קשר עם המותג.'
+          : 'המתן לקבלת המשלוח.';
+        
+        alert(`⏳ לא ניתן להתחיל עבודה לפני שקיבלת את המוצר מהמותג.\n\n${statusMessage}`);
         return;
       }
     }
@@ -323,9 +356,27 @@ export default function CreatorTaskDetailPage() {
     paid: 'bg-green-700',
   };
 
-  const canStartWork = task.status === 'selected' && !task.requires_product;
+  const canStartWork = task.status === 'selected' && (!task.requires_product || shipmentStatus === 'delivered');
   const canUpload = task.status === 'in_production' || task.status === 'needs_edits';
-  const isBlocked = task.requires_product && task.status === 'selected';
+  const isBlocked = task.requires_product && task.status === 'selected' && shipmentStatus !== 'delivered';
+  
+  const getShipmentStatusMessage = () => {
+    if (!shipmentStatus) return 'המותג עדיין לא יצר בקשת משלוח.';
+    switch (shipmentStatus) {
+      case 'not_requested':
+        return 'המותג עדיין לא יצר בקשת משלוח.';
+      case 'waiting_address':
+        return 'אנא מלא את פרטי הכתובת למשלוח בדף המשלוחים.';
+      case 'address_received':
+        return 'המותג מכין את המשלוח.';
+      case 'shipped':
+        return 'המוצר בדרך אליך. המתן למסירה.';
+      case 'issue':
+        return 'יש בעיה במשלוח. צור קשר עם המותג.';
+      default:
+        return 'המתן לקבלת המשלוח.';
+    }
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
@@ -373,11 +424,15 @@ export default function CreatorTaskDetailPage() {
             <Card className="border-2 border-orange-500 bg-orange-500/10">
               <div className="flex items-start gap-4">
                 <div className="text-4xl">📦</div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">ממתין לקבלת מוצר</h3>
-                  <p className="text-[#cbc190] mb-3">
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white mb-2">⏳ ממתין לקבלת מוצר</h3>
+                  <p className="text-[#cbc190] mb-2">
                     משימה זו דורשת קבלת מוצר פיזי מהמותג לפני שתוכל להתחיל לעבוד.
                   </p>
+                  <div className="bg-[#2e2a1b] rounded-lg p-3 mb-3 border border-[#494222]">
+                    <div className="text-sm text-[#cbc190]">סטטוס משלוח:</div>
+                    <div className="text-white font-medium">{getShipmentStatusMessage()}</div>
+                  </div>
                   <Button
                     onClick={() => router.push('/creator/shipping')}
                     className="bg-[#f2cc0d] text-black hover:bg-[#d4b50c]"

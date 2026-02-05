@@ -11,6 +11,7 @@ type ShipmentRequest = {
   id: string;
   status: string;
   created_at: string;
+  campaign_id: string;
   campaigns: {
     title: string;
   } | null;
@@ -36,12 +37,21 @@ type ShipmentRequest = {
   }>;
 };
 
+type Product = {
+  id: string;
+  name: string;
+  sku: string | null;
+  image_url: string | null;
+  quantity: number | null;
+};
+
 export default function BrandShippingPage() {
   const { user } = useUser();
   const router = useRouter();
   const [requests, setRequests] = useState<ShipmentRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
+  const [products, setProducts] = useState<Record<string, Product[]>>({});
   
   // Form state for shipping
   const [showShipForm, setShowShipForm] = useState<string | null>(null);
@@ -69,6 +79,7 @@ export default function BrandShippingPage() {
         id,
         status,
         created_at,
+        campaign_id,
         campaigns(title),
         creators(users_profiles(display_name, email)),
         shipment_addresses(street, house_number, city, postal_code, country, phone),
@@ -84,7 +95,32 @@ export default function BrandShippingPage() {
     }
 
     setRequests(data as any || []);
+    
+    // Load products for each unique campaign
+    if (data && data.length > 0) {
+      const campaignIds = [...new Set(data.map((r: any) => r.campaign_id))];
+      await loadProductsForCampaigns(campaignIds);
+    }
+    
     setLoading(false);
+  };
+
+  const loadProductsForCampaigns = async (campaignIds: string[]) => {
+    const supabase = createClient();
+    const productsMap: Record<string, Product[]> = {};
+
+    for (const campaignId of campaignIds) {
+      const { data, error } = await supabase
+        .from('campaign_products')
+        .select('id, name, sku, image_url, quantity')
+        .eq('campaign_id', campaignId);
+
+      if (!error && data) {
+        productsMap[campaignId] = data;
+      }
+    }
+
+    setProducts(productsMap);
   };
 
   const subscribeToUpdates = () => {
@@ -245,6 +281,41 @@ export default function BrandShippingPage() {
                       {statusLabels[request.status]}
                     </span>
                   </div>
+
+                  {/* Products */}
+                  {products[request.campaign_id] && products[request.campaign_id].length > 0 && (
+                    <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+                      <h4 className="text-white font-medium mb-3">מוצרים למשלוח</h4>
+                      <div className="space-y-2">
+                        {products[request.campaign_id].map((product) => (
+                          <div key={product.id} className="flex items-center gap-3 bg-[#1E1E1E] rounded-lg p-3">
+                            {product.image_url ? (
+                              <img
+                                src={product.image_url}
+                                alt={product.name}
+                                className="w-12 h-12 object-cover rounded"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 bg-[#2e2a1b] rounded flex items-center justify-center text-xl">
+                                📦
+                              </div>
+                            )}
+                            <div className="flex-1">
+                              <div className="text-white font-medium">{product.name}</div>
+                              {product.sku && (
+                                <div className="text-xs text-[#cbc190]">SKU: {product.sku}</div>
+                              )}
+                            </div>
+                            {product.quantity && (
+                              <div className="text-[#f2cc0d] font-medium">
+                                x{product.quantity}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Address */}
                   {request.shipment_addresses && (
