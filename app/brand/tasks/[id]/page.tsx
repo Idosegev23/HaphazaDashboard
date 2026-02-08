@@ -15,14 +15,21 @@ type Task = {
   requires_product: boolean;
   payment_amount: number | null;
   created_at: string;
+  creator_id: string;
   campaigns: {
     title: string;
   } | null;
   creators: {
+    user_id: string;
     users_profiles: {
       display_name: string;
       email: string;
+      age: number | null;
+      gender: string | null;
+      country: string | null;
     } | null;
+    niches: string[] | null;
+    platforms: any;
   } | null;
 };
 
@@ -90,10 +97,26 @@ export default function BrandTaskDetailPage() {
   const loadTaskData = async () => {
     const supabase = createClient();
 
-    // Load task
+    // Load task with creator details
     const { data: taskData, error: taskError } = await supabase
       .from('tasks')
-      .select('id, title, status, due_at, requires_product, created_at, creator_id, campaigns(title)')
+      .select(`
+        id, 
+        title, 
+        status, 
+        due_at, 
+        requires_product, 
+        payment_amount,
+        created_at, 
+        creator_id, 
+        campaigns(title),
+        creators(
+          user_id,
+          niches,
+          platforms,
+          users_profiles(display_name, email, age, gender, country)
+        )
+      `)
       .eq('id', taskId)
       .single();
 
@@ -424,25 +447,136 @@ export default function BrandTaskDetailPage() {
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
         <div className="max-w-4xl mx-auto space-y-6">
+          {/* Creator Details */}
+          {task.creators && (
+            <Card className="border border-[#f2cc0d]">
+              <h2 className="text-xl font-bold text-white mb-4">👤 פרטי המשפיענית</h2>
+              <div className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-[#cbc190] text-sm">שם</span>
+                    <div className="text-white font-medium text-lg">
+                      {task.creators.users_profiles?.display_name || 'לא זמין'}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-[#cbc190] text-sm">אימייל</span>
+                    <div className="text-white font-medium">
+                      <a href={`mailto:${task.creators.users_profiles?.email}`} className="hover:text-[#f2cc0d] transition-colors">
+                        {task.creators.users_profiles?.email || 'לא זמין'}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  {task.creators.users_profiles?.age && (
+                    <div>
+                      <span className="text-[#cbc190] text-sm">גיל</span>
+                      <div className="text-white font-medium">{task.creators.users_profiles.age}</div>
+                    </div>
+                  )}
+                  {task.creators.users_profiles?.gender && (
+                    <div>
+                      <span className="text-[#cbc190] text-sm">מגדר</span>
+                      <div className="text-white font-medium">
+                        {task.creators.users_profiles.gender === 'female' ? 'נקבה' : task.creators.users_profiles.gender === 'male' ? 'זכר' : 'אחר'}
+                      </div>
+                    </div>
+                  )}
+                  {task.creators.users_profiles?.country && (
+                    <div>
+                      <span className="text-[#cbc190] text-sm">מדינה</span>
+                      <div className="text-white font-medium">{task.creators.users_profiles.country}</div>
+                    </div>
+                  )}
+                </div>
+
+                {task.creators.niches && task.creators.niches.length > 0 && (
+                  <div>
+                    <span className="text-[#cbc190] text-sm block mb-2">נישות</span>
+                    <div className="flex flex-wrap gap-2">
+                      {task.creators.niches.map((niche, idx) => (
+                        <span key={idx} className="px-3 py-1 bg-[#2e2a1b] border border-[#494222] rounded-full text-white text-sm">
+                          {niche}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {task.creators.platforms && (
+                  <div>
+                    <span className="text-[#cbc190] text-sm block mb-2">פלטפורמות</span>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      {task.creators.platforms.instagram && (
+                        <a
+                          href={`https://instagram.com/${task.creators.platforms.instagram}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 p-3 bg-[#2e2a1b] border border-[#494222] rounded-lg hover:border-[#f2cc0d] transition-colors"
+                        >
+                          <span className="text-2xl">📷</span>
+                          <div>
+                            <div className="text-white text-sm font-medium">Instagram</div>
+                            <div className="text-[#cbc190] text-xs">@{task.creators.platforms.instagram}</div>
+                          </div>
+                        </a>
+                      )}
+                      {task.creators.platforms.tiktok && (
+                        <a
+                          href={`https://tiktok.com/@${task.creators.platforms.tiktok}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 p-3 bg-[#2e2a1b] border border-[#494222] rounded-lg hover:border-[#f2cc0d] transition-colors"
+                        >
+                          <span className="text-2xl">🎵</span>
+                          <div>
+                            <div className="text-white text-sm font-medium">TikTok</div>
+                            <div className="text-[#cbc190] text-xs">@{task.creators.platforms.tiktok}</div>
+                          </div>
+                        </a>
+                      )}
+                      {task.creators.platforms.youtube && (
+                        <a
+                          href={task.creators.platforms.youtube}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 p-3 bg-[#2e2a1b] border border-[#494222] rounded-lg hover:border-[#f2cc0d] transition-colors"
+                        >
+                          <span className="text-2xl">▶️</span>
+                          <div>
+                            <div className="text-white text-sm font-medium">YouTube</div>
+                            <div className="text-[#cbc190] text-xs">ערוץ</div>
+                          </div>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+          )}
+
           {/* Task Details */}
           <Card>
             <h2 className="text-xl font-bold text-white mb-4">פרטי המשימה</h2>
             <div className="space-y-3">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <span className="text-[#cbc190] text-sm">משפיען</span>
+                  <span className="text-[#cbc190] text-sm">קמפיין</span>
                   <div className="text-white font-medium">
-                    {task.creators?.users_profiles?.display_name || 'לא זמין'}
+                    {task.campaigns?.title || 'לא זמין'}
                   </div>
                 </div>
-                <div>
-                  <span className="text-[#cbc190] text-sm">אימייל</span>
-                  <div className="text-white font-medium">
-                    <a href={`mailto:${task.creators?.users_profiles?.email}`} className="hover:text-[#f2cc0d] transition-colors">
-                      {task.creators?.users_profiles?.email || 'לא זמין'}
-                    </a>
+                {task.payment_amount && (
+                  <div>
+                    <span className="text-[#cbc190] text-sm">תשלום למשפיענית</span>
+                    <div className="text-[#f2cc0d] font-bold text-lg">
+                      ₪{task.payment_amount.toLocaleString()}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
               {task.due_at && (
                 <div>
@@ -450,6 +584,12 @@ export default function BrandTaskDetailPage() {
                   <div className="text-white font-medium">
                     {new Date(task.due_at).toLocaleDateString('he-IL')}
                   </div>
+                </div>
+              )}
+              {task.requires_product && (
+                <div>
+                  <span className="text-[#cbc190] text-sm">דרוש מוצר פיזי</span>
+                  <div className="text-white font-medium">✅ כן</div>
                 </div>
               )}
             </div>

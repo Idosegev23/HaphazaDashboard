@@ -14,6 +14,15 @@ type Task = {
   campaign_id: string;
 };
 
+type RevisionRequest = {
+  id: string;
+  task_id: string;
+  status: string;
+  tags: string[];
+  note: string;
+  created_at: string;
+};
+
 type Application = {
   id: string;
   status: string | null;
@@ -28,6 +37,8 @@ export default function CreatorDashboardPage() {
   const [recentTasks, setRecentTasks] = useState<Task[]>([]);
   const [recentApplications, setRecentApplications] = useState<Application[]>([]);
   const [approvedAppsCount, setApprovedAppsCount] = useState(0);
+  const [revisionsCount, setRevisionsCount] = useState(0);
+  const [openRevisions, setOpenRevisions] = useState<RevisionRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -114,11 +125,21 @@ export default function CreatorDashboardPage() {
 
     const approvedCount = recentApplicationsData?.filter(app => app.status === 'approved').length || 0;
 
+    // Get open revision requests
+    const { data: revisionsData } = await supabase
+      .from('revision_requests')
+      .select('id, task_id, status, tags, note, created_at, tasks!inner(creator_id)')
+      .eq('tasks.creator_id', authUser.id)
+      .eq('status', 'open')
+      .order('created_at', { ascending: false });
+
     setTasksCount(tasksCountData || 0);
     setPendingPaymentsCount(pendingPaymentsCountData || 0);
     setRecentTasks(recentTasksData as Task[] || []);
     setRecentApplications(recentApplicationsData as Application[] || []);
     setApprovedAppsCount(approvedCount);
+    setRevisionsCount(revisionsData?.length || 0);
+    setOpenRevisions(revisionsData as any || []);
     setLoading(false);
   };
 
@@ -155,6 +176,39 @@ export default function CreatorDashboardPage() {
             <div className="text-3xl font-bold text-[#f2cc0d]">-</div>
           </Card>
         </div>
+
+        {/* Revision Requests Alert */}
+        {revisionsCount > 0 && (
+          <div className="mb-8 bg-gradient-to-r from-orange-600 to-orange-700 rounded-lg p-6 border-2 border-orange-400 shadow-lg animate-pulse">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                  <span className="text-3xl">✏️</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-1">
+                    יש לך {revisionsCount} {revisionsCount === 1 ? 'בקשת תיקון' : 'בקשות תיקון'}!
+                  </h3>
+                  <p className="text-orange-100">המותג ביקש תיקונים בעבודות שלך</p>
+                  {openRevisions.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {openRevisions.slice(0, 2).map((rev) => (
+                        <div key={rev.id} className="text-sm text-orange-100">
+                          • {rev.tags.join(', ')} - {rev.note.substring(0, 50)}...
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <Link href="/creator/tasks">
+                <button className="px-6 py-3 bg-white text-orange-700 font-bold rounded-lg hover:bg-orange-50 transition-all shadow-md">
+                  לתיקונים →
+                </button>
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Approved Applications Alert */}
         {approvedAppsCount > 0 && (
