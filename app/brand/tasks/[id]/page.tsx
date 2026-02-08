@@ -97,7 +97,7 @@ export default function BrandTaskDetailPage() {
   const loadTaskData = async () => {
     const supabase = createClient();
 
-    // Load task with creator details
+    // Load task with creator details - filter by brand_id through campaigns
     const { data: taskData, error: taskError } = await supabase
       .from('tasks')
       .select(`
@@ -108,8 +108,12 @@ export default function BrandTaskDetailPage() {
         requires_product, 
         payment_amount,
         created_at, 
-        creator_id, 
-        campaigns(title),
+        creator_id,
+        campaign_id,
+        campaigns!inner(
+          title,
+          brand_id
+        ),
         creators(
           user_id,
           niches,
@@ -118,6 +122,7 @@ export default function BrandTaskDetailPage() {
         )
       `)
       .eq('id', taskId)
+      .eq('campaigns.brand_id', user?.brand_id!)
       .single();
 
     if (taskError || !taskData) {
@@ -126,10 +131,11 @@ export default function BrandTaskDetailPage() {
       return;
     }
 
-    // Get creator profile separately
-    let enrichedTask: any = { ...taskData, creators: null };
+    // Task data is already complete with creator info
+    let enrichedTask: any = taskData;
     
-    if ((taskData as any).creator_id) {
+    // Fallback if creator details are missing
+    if (!taskData.creators && (taskData as any).creator_id) {
       const { data: profileData } = await supabase
         .from('users_profiles')
         .select('display_name, email')
