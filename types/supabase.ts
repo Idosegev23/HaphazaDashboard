@@ -706,6 +706,53 @@ export type Database = {
           },
         ]
       }
+      portfolio_items: {
+        Row: {
+          id: string
+          creator_id: string
+          title: string
+          description: string | null
+          media_url: string
+          media_type: string
+          platform: string | null
+          external_link: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          creator_id: string
+          title: string
+          description?: string | null
+          media_url: string
+          media_type: string
+          platform?: string | null
+          external_link?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          creator_id?: string
+          title?: string
+          description?: string | null
+          media_url?: string
+          media_type?: string
+          platform?: string | null
+          external_link?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_items_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ratings: {
         Row: {
           communication: number | null

@@ -31,7 +31,7 @@ export default function CampaignDetailPage() {
     // Load campaign
     const { data: campaignData } = await supabase
       .from('campaigns')
-      .select('id, title, concept, objective, fixed_price, deadline, status, deliverables, brands(name)')
+      .select('id, title, concept, objective, fixed_price, deadline, status, deliverables, brief_url, brands(name)')
       .eq('id', params.id as string)
       .single();
 
@@ -95,6 +95,28 @@ export default function CampaignDetailPage() {
         <Card className="mb-6">
           <h1 className="text-3xl font-bold text-white mb-4">{campaign.title}</h1>
           <div className="text-[#cbc190] mb-4">{campaign.brands?.name}</div>
+          
+          {campaign.brief_url && (
+            <div className="mb-6 bg-[#f2cc0d]/10 border-2 border-[#f2cc0d] rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">📄</span>
+                  <div>
+                    <h3 className="text-white font-bold">בריף מפורט זמין</h3>
+                    <p className="text-[#cbc190] text-sm">המותג העלה מסמך בריף מלא</p>
+                  </div>
+                </div>
+                <a
+                  href={campaign.brief_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-[#f2cc0d] text-black font-bold rounded-lg hover:bg-[#d4b00b] transition-colors"
+                >
+                  📥 הורד בריף
+                </a>
+              </div>
+            </div>
+          )}
           
           {campaign.concept && (
             <div className="mb-6">

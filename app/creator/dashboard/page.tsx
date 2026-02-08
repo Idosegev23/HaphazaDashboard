@@ -30,6 +30,18 @@ type Application = {
   campaign_id: string;
 };
 
+type CreatorMetrics = {
+  total_tasks: number;
+  approved_tasks: number;
+  approval_rate: number;
+  on_time_rate: number;
+  average_rating: number;
+};
+
+type CreatorInfo = {
+  tier: string | null;
+};
+
 export default function CreatorDashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [tasksCount, setTasksCount] = useState(0);
@@ -39,6 +51,8 @@ export default function CreatorDashboardPage() {
   const [approvedAppsCount, setApprovedAppsCount] = useState(0);
   const [revisionsCount, setRevisionsCount] = useState(0);
   const [openRevisions, setOpenRevisions] = useState<RevisionRequest[]>([]);
+  const [metrics, setMetrics] = useState<CreatorMetrics | null>(null);
+  const [creatorInfo, setCreatorInfo] = useState<CreatorInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -133,6 +147,20 @@ export default function CreatorDashboardPage() {
       .eq('status', 'open')
       .order('created_at', { ascending: false });
 
+    // Get creator metrics
+    const { data: metricsData } = await supabase
+      .from('creator_metrics')
+      .select('total_tasks, approved_tasks, approval_rate, on_time_rate, average_rating')
+      .eq('creator_id', authUser.id)
+      .single();
+
+    // Get creator info (tier)
+    const { data: creatorData } = await supabase
+      .from('creators')
+      .select('tier')
+      .eq('user_id', authUser.id)
+      .single();
+
     setTasksCount(tasksCountData || 0);
     setPendingPaymentsCount(pendingPaymentsCountData || 0);
     setRecentTasks(recentTasksData as Task[] || []);
@@ -140,6 +168,8 @@ export default function CreatorDashboardPage() {
     setApprovedAppsCount(approvedCount);
     setRevisionsCount(revisionsData?.length || 0);
     setOpenRevisions(revisionsData as any || []);
+    setMetrics(metricsData as any);
+    setCreatorInfo(creatorData as any);
     setLoading(false);
   };
 
@@ -161,8 +191,33 @@ export default function CreatorDashboardPage() {
           <p className="text-[#cbc190]">לוח הבקרה שלך</p>
         </div>
 
+        {/* Tier Badge */}
+        {creatorInfo?.tier && (
+          <div className="mb-6">
+            <Card className="bg-gradient-to-r from-[#f2cc0d]/20 to-[#f2cc0d]/10 border-2 border-[#f2cc0d]">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-[#f2cc0d] rounded-full flex items-center justify-center">
+                  <span className="text-3xl">
+                    {creatorInfo.tier === 'gold' && '👑'}
+                    {creatorInfo.tier === 'silver' && '⭐'}
+                    {creatorInfo.tier === 'bronze' && '🥉'}
+                  </span>
+                </div>
+                <div>
+                  <div className="text-white font-bold text-xl">
+                    דרגה: {creatorInfo.tier === 'gold' ? 'זהב' : creatorInfo.tier === 'silver' ? 'כסף' : 'ברונזה'}
+                  </div>
+                  <div className="text-[#cbc190] text-sm">
+                    הדרגה שלך מבוססת על ביצועים
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
         {/* Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
           <Card>
             <div className="text-[#cbc190] text-sm mb-2">משימות פעילות</div>
             <div className="text-3xl font-bold text-[#f2cc0d]">{tasksCount || 0}</div>
@@ -173,9 +228,40 @@ export default function CreatorDashboardPage() {
           </Card>
           <Card>
             <div className="text-[#cbc190] text-sm mb-2">דירוג ממוצע</div>
-            <div className="text-3xl font-bold text-[#f2cc0d]">-</div>
+            <div className="text-3xl font-bold text-[#f2cc0d]">
+              {metrics?.average_rating ? Number(metrics.average_rating).toFixed(1) : '-'}
+            </div>
+          </Card>
+          <Card>
+            <div className="text-[#cbc190] text-sm mb-2">אחוז אישור</div>
+            <div className="text-3xl font-bold text-[#f2cc0d]">
+              {metrics?.approval_rate ? `${Number(metrics.approval_rate).toFixed(0)}%` : '-'}
+            </div>
           </Card>
         </div>
+
+        {/* Performance Metrics */}
+        {metrics && (
+          <Card className="mb-8">
+            <h2 className="text-xl font-bold text-white mb-4">מדדי ביצוע</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div>
+                <div className="text-[#cbc190] text-sm mb-2">סך משימות</div>
+                <div className="text-2xl font-bold text-white">{metrics.total_tasks || 0}</div>
+              </div>
+              <div>
+                <div className="text-[#cbc190] text-sm mb-2">משימות מאושרות</div>
+                <div className="text-2xl font-bold text-green-400">{metrics.approved_tasks || 0}</div>
+              </div>
+              <div>
+                <div className="text-[#cbc190] text-sm mb-2">אחוז אספקה בזמן</div>
+                <div className="text-2xl font-bold text-blue-400">
+                  {metrics.on_time_rate ? `${Number(metrics.on_time_rate).toFixed(0)}%` : '-'}
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Revision Requests Alert */}
         {revisionsCount > 0 && (

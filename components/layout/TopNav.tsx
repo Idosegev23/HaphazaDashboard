@@ -39,6 +39,7 @@ export function TopNav({ user }: TopNavProps) {
         { href: '/creator/campaigns', label: 'קמפיינים פתוחים', icon: '🎯' },
         { href: '/creator/applications', label: 'המועמדויות שלי', icon: '📝' },
         { href: '/creator/tasks', label: 'העבודות שלי', icon: '📋' },
+        { href: '/creator/portfolio', label: 'תיק עבודות', icon: '🎨' },
         { href: '/creator/shipping', label: 'משלוחים', icon: '📦' },
         { href: '/creator/payments', label: 'תשלומים', icon: '💰' },
       ];

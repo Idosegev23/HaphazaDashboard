@@ -44,6 +44,8 @@ export default function NewCampaignPage() {
   };
   
   const [loading, setLoading] = useState(false);
+  const [briefFile, setBriefFile] = useState<File | null>(null);
+  const [uploadingBrief, setUploadingBrief] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -72,30 +74,56 @@ export default function NewCampaignPage() {
 
     const supabase = createClient();
 
-    const { data, error } = await supabase
-      .from('campaigns')
-      .insert({
-        brand_id: user.brand_id,
-        title: formData.title,
-        objective: formData.objective,
-        concept: formData.concept,
-        fixed_price: formData.fixedPrice ? Number(formData.fixedPrice) : null,
-        currency: 'ILS',
-        deadline: formData.deadline || null,
-        status: 'draft',
-        deliverables: deliverables, // Add deliverables JSON
-      })
-      .select()
-      .single();
+    try {
+      // Upload brief file if exists
+      let briefUrl = null;
+      if (briefFile) {
+        setUploadingBrief(true);
+        const fileExt = briefFile.name.split('.').pop();
+        const fileName = `brief_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('campaign-briefs')
+          .upload(fileName, briefFile);
 
-    if (error) {
-      alert(error.message);
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('campaign-briefs')
+          .getPublicUrl(fileName);
+
+        briefUrl = publicUrl;
+        setUploadingBrief(false);
+      }
+
+      // Create campaign
+      const { data, error } = await supabase
+        .from('campaigns')
+        .insert({
+          brand_id: user.brand_id,
+          title: formData.title,
+          objective: formData.objective,
+          concept: formData.concept,
+          fixed_price: formData.fixedPrice ? Number(formData.fixedPrice) : null,
+          currency: 'ILS',
+          deadline: formData.deadline || null,
+          status: 'draft',
+          deliverables: deliverables,
+          brief_url: briefUrl,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Redirect to the campaign detail page
+      router.push(`/brand/campaigns/${data.id}`);
+    } catch (error: any) {
+      alert('שגיאה: ' + error.message);
+    } finally {
       setLoading(false);
-      return;
+      setUploadingBrief(false);
     }
-
-    // Redirect to the campaign detail page
-    router.push(`/brand/campaigns/${data.id}`);
   };
 
   if (!user) return <div className="p-8 text-white">טוען...</div>;
@@ -159,6 +187,53 @@ export default function NewCampaignPage() {
               onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
             />
 
+            {/* Brief Upload Section */}
+            <div className="bg-[#2e2a1b] p-6 rounded-lg border border-[#494222]">
+              <h3 className="text-lg font-bold text-white mb-3">העלאת בריף (אופציונלי)</h3>
+              <p className="text-[#cbc190] text-sm mb-4">
+                העלה קובץ בריף מפורט (PDF/DOCX) שהמשפיען יוכל להוריד ולקרוא
+              </p>
+              
+              {briefFile ? (
+                <div className="flex items-center justify-between bg-[#1E1E1E] p-4 rounded-lg border border-[#494222]">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">📄</span>
+                    <div>
+                      <div className="text-white font-medium">{briefFile.name}</div>
+                      <div className="text-xs text-[#cbc190]">{(briefFile.size / 1024).toFixed(1)} KB</div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setBriefFile(null)}
+                    className="text-red-500 hover:text-red-400 transition-colors"
+                  >
+                    🗑️ הסר
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <input
+                    type="file"
+                    id="brief-upload"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) setBriefFile(file);
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => document.getElementById('brief-upload')?.click()}
+                    className="bg-[#2e2a1b] border border-[#494222] hover:bg-[#3a3525]"
+                  >
+                    📎 בחר קובץ בריף
+                  </Button>
+                </div>
+              )}
+            </div>
+
             {/* Deliverables Section */}
             <div className="bg-[#2e2a1b] p-6 rounded-lg border border-[#494222]">
               <h3 className="text-lg font-bold text-white mb-4">תמהיל תוצרים דרוש</h3>
@@ -193,8 +268,8 @@ export default function NewCampaignPage() {
             </div>
 
             <div className="flex gap-4">
-              <Button type="submit" disabled={loading}>
-                {loading ? 'שומר...' : 'יצירת קמפיין'}
+              <Button type="submit" disabled={loading || uploadingBrief}>
+                {uploadingBrief ? 'מעלה בריף...' : loading ? 'שומר...' : 'יצירת קמפיין'}
               </Button>
               <Button type="button" variant="ghost" onClick={() => router.back()}>
                 ביטול

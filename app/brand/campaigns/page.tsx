@@ -1,25 +1,116 @@
-import { getUser } from '@/lib/auth/get-user';
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useUser } from '@/hooks/use-user';
+import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 
-export default async function BrandCampaignsPage() {
-  const user = await getUser();
-  
-  if (!user || !['brand_manager', 'brand_user'].includes(user.role || '')) {
-    redirect('/');
-  }
+type Campaign = {
+  id: string;
+  title: string;
+  concept: string | null;
+  objective: string | null;
+  fixed_price: number | null;
+  deadline: string | null;
+  status: string | null;
+  deliverables: any;
+  brief_url: string | null;
+  brand_id: string;
+};
 
-  const supabase = await createClient();
+export default function BrandCampaignsPage() {
+  const { user, loading: userLoading } = useUser();
+  const router = useRouter();
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [duplicating, setDuplicating] = useState<string | null>(null);
 
-  // Get all campaigns
-  const { data: campaigns } = await supabase
-    .from('campaigns')
-    .select('*')
-    .eq('brand_id', user.brand_id!)
-    .order('created_at', { ascending: false });
+  useEffect(() => {
+    if (user && !['brand_manager', 'brand_user'].includes(user.role || '')) {
+      router.push('/');
+    }
+  }, [user, router]);
+
+  useEffect(() => {
+    if (userLoading) return;
+    if (!user?.brand_id) return;
+    loadCampaigns();
+  }, [user?.brand_id, userLoading]);
+
+  const loadCampaigns = async () => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('campaigns')
+      .select('*')
+      .eq('brand_id', user?.brand_id!)
+      .order('created_at', { ascending: false });
+
+    setCampaigns((data as any) || []);
+    setLoading(false);
+  };
+
+  const handleDuplicate = async (campaign: Campaign, e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent link navigation
+    e.stopPropagation();
+    
+    if (!confirm(`האם אתה בטוח שברצונך לשכפל את הקמפיין "${campaign.title}"?`)) {
+      return;
+    }
+
+    setDuplicating(campaign.id);
+    const supabase = createClient();
+
+    try {
+      // Get products for this campaign
+      const { data: products } = await supabase
+        .from('campaign_products')
+        .select('name, sku, image_url, quantity')
+        .eq('campaign_id', campaign.id);
+
+      // Create new campaign
+      const { data: newCampaign, error: campaignError } = await supabase
+        .from('campaigns')
+        .insert({
+          brand_id: campaign.brand_id,
+          title: `${campaign.title} (עותק)`,
+          objective: campaign.objective,
+          concept: campaign.concept,
+          fixed_price: campaign.fixed_price,
+          deadline: campaign.deadline,
+          status: 'draft',
+          deliverables: campaign.deliverables,
+          brief_url: campaign.brief_url,
+        })
+        .select()
+        .single();
+
+      if (campaignError) throw campaignError;
+
+      // Duplicate products
+      if (products && products.length > 0 && newCampaign) {
+        const productsToInsert = products.map((p) => ({
+          campaign_id: newCampaign.id,
+          name: p.name,
+          sku: p.sku,
+          image_url: p.image_url,
+          quantity: p.quantity,
+        }));
+
+        await supabase.from('campaign_products').insert(productsToInsert);
+      }
+
+      alert('הקמפיין שוכפל בהצלחה!');
+      loadCampaigns();
+      router.push(`/brand/campaigns/${newCampaign?.id}`);
+    } catch (error: any) {
+      alert('שגיאה בשכפול: ' + error.message);
+    } finally {
+      setDuplicating(null);
+    }
+  };
 
   const statusLabels: Record<string, string> = {
     draft: 'טיוטה',
@@ -34,6 +125,14 @@ export default async function BrandCampaignsPage() {
     closed: 'text-blue-400',
     archived: 'text-gray-500',
   };
+
+  if (loading || userLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-white text-xl">טוען...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
@@ -51,31 +150,43 @@ export default async function BrandCampaignsPage() {
         {campaigns && campaigns.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {campaigns.map((campaign) => (
-              <Link key={campaign.id} href={`/brand/campaigns/${campaign.id}`}>
-                <Card hover className="h-full">
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-xl font-bold text-white">{campaign.title}</h3>
-                        <span className={`text-sm ${statusColors[campaign.status || 'draft']}`}>
-                          {statusLabels[campaign.status || 'draft']}
-                        </span>
+              <div key={campaign.id} className="relative">
+                <Link href={`/brand/campaigns/${campaign.id}`}>
+                  <Card hover className="h-full">
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="text-xl font-bold text-white">{campaign.title}</h3>
+                          <span className={`text-sm ${statusColors[campaign.status || 'draft']}`}>
+                            {statusLabels[campaign.status || 'draft']}
+                          </span>
+                        </div>
+                        {campaign.concept && (
+                          <p className="text-[#cbc190] text-sm line-clamp-2">{campaign.concept}</p>
+                        )}
                       </div>
-                      {campaign.concept && (
-                        <p className="text-[#cbc190] text-sm line-clamp-2">{campaign.concept}</p>
-                      )}
-                    </div>
 
-                    <div className="pt-4 border-t border-[#494222]">
-                      <div className="text-[#f2cc0d] font-bold">
-                        {campaign.fixed_price
-                          ? `₪${campaign.fixed_price.toLocaleString()}`
-                          : 'מחיר לא הוגדר'}
+                      <div className="pt-4 border-t border-[#494222]">
+                        <div className="text-[#f2cc0d] font-bold">
+                          {campaign.fixed_price
+                            ? `₪${campaign.fixed_price.toLocaleString()}`
+                            : 'מחיר לא הוגדר'}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              </Link>
+                  </Card>
+                </Link>
+                
+                {/* Duplicate Button */}
+                <button
+                  onClick={(e) => handleDuplicate(campaign, e)}
+                  disabled={duplicating === campaign.id}
+                  className="absolute top-4 left-4 px-3 py-1.5 bg-[#2e2a1b] border border-[#494222] text-white rounded-lg hover:bg-[#3a3525] hover:border-[#f2cc0d] transition-colors text-sm disabled:opacity-50"
+                  title="שכפל קמפיין"
+                >
+                  {duplicating === campaign.id ? '⏳' : '📋'}
+                </button>
+              </div>
             ))}
           </div>
         ) : (

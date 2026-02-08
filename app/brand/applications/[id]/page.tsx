@@ -13,6 +13,7 @@ type Application = {
   created_at: string;
   availability: string | null;
   portfolio_links: string | null;
+  creator_id?: string;
   campaigns: {
     title: string;
     fixed_price: number | null;
@@ -32,6 +33,14 @@ type Application = {
   } | null;
 };
 
+type PortfolioItem = {
+  id: string;
+  title: string;
+  media_url: string;
+  media_type: string;
+  platform: string | null;
+};
+
 export default function ApplicationDetailPage() {
   const params = useParams();
   const applicationId = params.id as string;
@@ -41,6 +50,9 @@ export default function ApplicationDetailPage() {
   const [rejectReason, setRejectReason] = useState('');
   const [rejectReasonCode, setRejectReasonCode] = useState<string>('');
   const [showRejectForm, setShowRejectForm] = useState(false);
+  const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
+  const [metrics, setMetrics] = useState<any>(null);
+  const [tier, setTier] = useState<string | null>(null);
 
   const rejectionReasons = [
     { value: 'not_relevant', label: 'לא רלוונטי לקמפיין' },
@@ -56,6 +68,45 @@ export default function ApplicationDetailPage() {
   useEffect(() => {
     loadApplication();
   }, [applicationId]);
+
+  const loadPortfolio = async (creatorId: string) => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('portfolio_items')
+      .select('id, title, media_url, media_type, platform')
+      .eq('creator_id', creatorId)
+      .order('created_at', { ascending: false })
+      .limit(6);
+    
+    if (data) {
+      setPortfolio(data);
+    }
+  };
+
+  const loadMetrics = async (creatorId: string) => {
+    const supabase = createClient();
+    
+    // Get metrics
+    const { data: metricsData } = await supabase
+      .from('creator_metrics')
+      .select('*')
+      .eq('creator_id', creatorId)
+      .single();
+    
+    // Get tier
+    const { data: creatorData } = await supabase
+      .from('creators')
+      .select('tier')
+      .eq('user_id', creatorId)
+      .single();
+    
+    if (metricsData) {
+      setMetrics(metricsData);
+    }
+    if (creatorData) {
+      setTier(creatorData.tier);
+    }
+  };
 
   const loadApplication = async () => {
     const supabase = createClient();
@@ -103,6 +154,13 @@ export default function ApplicationDetailPage() {
     }
 
     setApplication(data as any);
+    
+    // Load portfolio and metrics if creator exists
+    if ((data as any).creator_id) {
+      loadPortfolio((data as any).creator_id);
+      loadMetrics((data as any).creator_id);
+    }
+    
     setLoading(false);
   };
 
@@ -456,6 +514,60 @@ export default function ApplicationDetailPage() {
                 </div>
               )}
 
+              {/* Tier & Metrics */}
+              {(tier || metrics) && (
+                <div className="pt-4 border-t border-[#494222]">
+                  <span className="text-[#cbc190] text-sm block mb-3">מדדי ביצוע</span>
+                  
+                  {tier && (
+                    <div className="mb-4 bg-gradient-to-r from-[#f2cc0d]/20 to-[#f2cc0d]/10 border border-[#f2cc0d] rounded-lg p-3">
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl">
+                          {tier === 'gold' && '👑'}
+                          {tier === 'silver' && '⭐'}
+                          {tier === 'bronze' && '🥉'}
+                        </span>
+                        <div>
+                          <div className="text-white font-bold">
+                            דרגה: {tier === 'gold' ? 'זהב' : tier === 'silver' ? 'כסף' : 'ברונזה'}
+                          </div>
+                          <div className="text-[#cbc190] text-xs">
+                            מבוסס על ביצועים קודמים
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {metrics && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="bg-[#2e2a1b] rounded-lg p-3 border border-[#494222]">
+                        <div className="text-[#cbc190] text-xs mb-1">סה"כ משימות</div>
+                        <div className="text-white font-bold text-lg">{metrics.total_tasks || 0}</div>
+                      </div>
+                      <div className="bg-[#2e2a1b] rounded-lg p-3 border border-[#494222]">
+                        <div className="text-[#cbc190] text-xs mb-1">אחוז אישור</div>
+                        <div className="text-green-400 font-bold text-lg">
+                          {metrics.approval_rate ? `${Number(metrics.approval_rate).toFixed(0)}%` : '-'}
+                        </div>
+                      </div>
+                      <div className="bg-[#2e2a1b] rounded-lg p-3 border border-[#494222]">
+                        <div className="text-[#cbc190] text-xs mb-1">אספקה בזמן</div>
+                        <div className="text-blue-400 font-bold text-lg">
+                          {metrics.on_time_rate ? `${Number(metrics.on_time_rate).toFixed(0)}%` : '-'}
+                        </div>
+                      </div>
+                      <div className="bg-[#2e2a1b] rounded-lg p-3 border border-[#494222]">
+                        <div className="text-[#cbc190] text-xs mb-1">דירוג ממוצע</div>
+                        <div className="text-[#f2cc0d] font-bold text-lg">
+                          {metrics.average_rating ? Number(metrics.average_rating).toFixed(1) : '-'}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Social Media Platforms */}
               {application.creators?.platforms && typeof application.creators.platforms === 'object' && (
                 <div className="pt-4 border-t border-[#494222]">
@@ -551,10 +663,44 @@ export default function ApplicationDetailPage() {
             </div>
           </Card>
 
+          {/* Portfolio */}
+          {portfolio.length > 0 && (
+            <Card>
+              <h2 className="text-xl font-bold text-white mb-4">תיק עבודות</h2>
+              <div className="grid md:grid-cols-3 gap-4">
+                {portfolio.map((item) => (
+                  <div key={item.id} className="bg-[#2e2a1b] rounded-lg overflow-hidden border border-[#494222]">
+                    <div className="aspect-square bg-[#1a1a1a]">
+                      {item.media_type === 'image' ? (
+                        <img
+                          src={item.media_url}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <video
+                          src={item.media_url}
+                          className="w-full h-full object-cover"
+                          muted
+                        />
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <div className="text-white font-medium text-sm mb-1">{item.title}</div>
+                      {item.platform && (
+                        <div className="text-xs text-[#f2cc0d]">{item.platform}</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
           {/* Portfolio Links */}
           {application.portfolio_links && (
             <Card>
-              <h2 className="text-xl font-bold text-white mb-4">עבודות קודמות</h2>
+              <h2 className="text-xl font-bold text-white mb-4">קישורים לעבודות</h2>
               <div className="space-y-2">
                 {application.portfolio_links.split('\n').filter(link => link.trim()).map((link, idx) => (
                   <a

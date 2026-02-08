@@ -16,6 +16,7 @@ type Campaign = {
   deadline: string | null;
   status: string | null;
   deliverables?: any; // JSONB
+  brief_url?: string | null;
 };
 
 type Product = {
@@ -329,6 +330,29 @@ export default function CampaignDetailPage() {
                 value={formData.deadline}
                 onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
               />
+
+              {/* Brief Display */}
+              {campaign.brief_url && (
+                <div className="bg-[#f2cc0d]/10 border border-[#f2cc0d] p-4 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">📄</span>
+                      <div>
+                        <h3 className="text-white font-medium">בריף מפורט</h3>
+                        <p className="text-[#cbc190] text-sm">קובץ מצורף לקמפיין</p>
+                      </div>
+                    </div>
+                    <a
+                      href={campaign.brief_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-[#f2cc0d] text-black font-medium rounded-lg hover:bg-[#d4b00b] text-sm"
+                    >
+                      📥 הורד
+                    </a>
+                  </div>
+                </div>
+              )}
 
               {/* Deliverables Display */}
               {campaign.deliverables && Object.keys(campaign.deliverables).length > 0 && (
