@@ -111,6 +111,8 @@ export default function BrandTaskDetailPage() {
     setDebugInfo(`Loading with brand_id: ${user.brand_id}`);
     const supabase = createClient();
 
+    console.log('Querying task with:', { taskId, brand_id: user.brand_id });
+
     // Load task with creator details - filter by brand_id through campaigns
     const { data: taskData, error: taskError } = await supabase
       .from('tasks')
@@ -133,8 +135,11 @@ export default function BrandTaskDetailPage() {
       .eq('campaigns.brand_id', user.brand_id)
       .single();
 
+    console.log('Query result:', { taskData, taskError });
+
     if (taskError || !taskData) {
       console.error('Error loading task:', taskError);
+      setDebugInfo(`ERROR: ${taskError?.message || 'No data'}`);
       setLoading(false);
       return;
     }
