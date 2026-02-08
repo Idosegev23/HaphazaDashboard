@@ -80,8 +80,8 @@ export default function BrandShippingPage() {
         status,
         created_at,
         campaign_id,
+        creator_id,
         campaigns(title),
-        creators(users_profiles(display_name, email)),
         shipment_addresses(street, house_number, city, postal_code, country, phone),
         shipments(tracking_number, carrier, shipped_at, delivered_at)
       `)
@@ -94,7 +94,25 @@ export default function BrandShippingPage() {
       return;
     }
 
-    setRequests(data as any || []);
+    // טעינת פרטי משפיענים בנפרד
+    const enrichedData = await Promise.all(
+      (data || []).map(async (req: any) => {
+        const { data: profileData } = await supabase
+          .from('users_profiles')
+          .select('display_name, email')
+          .eq('user_id', req.creator_id)
+          .single();
+
+        return {
+          ...req,
+          creators: {
+            users_profiles: profileData
+          }
+        };
+      })
+    );
+
+    setRequests(enrichedData as any || []);
     
     // Load products for each unique campaign
     if (data && data.length > 0) {

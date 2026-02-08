@@ -65,18 +65,47 @@ export default function AdminDisputesPage() {
         resolution_note,
         created_at,
         resolved_at,
+        raised_by,
         tasks(
           title,
-          campaigns(title, brands(name)),
-          creators(users_profiles(display_name))
+          creator_id,
+          campaigns(title, brands(name))
         ),
         raised_by_profile:users_profiles!disputes_raised_by_fkey(display_name)
       `)
       .order('created_at', { ascending: false });
 
-    if (!error && data) {
-      setDisputes(data as any);
+    if (error) {
+      console.error('Error loading disputes:', error);
+      setLoading(false);
+      return;
     }
+
+    // טעינת פרטי משפיענים בנפרד
+    const enrichedData = await Promise.all(
+      (data || []).map(async (dispute: any) => {
+        if (dispute.tasks?.creator_id) {
+          const { data: profileData } = await supabase
+            .from('users_profiles')
+            .select('display_name')
+            .eq('user_id', dispute.tasks.creator_id)
+            .single();
+
+          return {
+            ...dispute,
+            tasks: {
+              ...dispute.tasks,
+              creators: {
+                users_profiles: profileData
+              }
+            }
+          };
+        }
+        return dispute;
+      })
+    );
+
+    setDisputes(enrichedData as any);
     setLoading(false);
   };
 
