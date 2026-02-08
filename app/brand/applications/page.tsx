@@ -31,7 +31,7 @@ type Application = {
 };
 
 export default function BrandApplicationsPage() {
-  const { user } = useUser();
+  const { user, loading: userLoading } = useUser();
   const router = useRouter();
   const [applications, setApplications] = useState<Application[]>([]);
   const [filteredApplications, setFilteredApplications] = useState<Application[]>([]);
@@ -59,15 +59,26 @@ export default function BrandApplicationsPage() {
   }, [user, router]);
 
   useEffect(() => {
-    if (!user?.brand_id) return;
+    if (userLoading) return;
+    if (!user?.brand_id) {
+      console.log('User loaded but no brand_id:', user);
+      return;
+    }
     loadApplications();
-  }, [user?.brand_id]);
+  }, [user?.brand_id, userLoading]);
 
   useEffect(() => {
     applyFilters();
   }, [applications, filters]);
 
   const loadApplications = async () => {
+    if (!user?.brand_id) {
+      console.error('No brand_id found for user:', user);
+      setLoading(false);
+      return;
+    }
+
+    console.log('Loading applications for brand_id:', user.brand_id);
     const supabase = createClient();
 
     const { data, error } = await supabase
@@ -80,7 +91,7 @@ export default function BrandApplicationsPage() {
         campaigns!inner(title, brand_id),
         creators(user_id, niches, platforms, users_profiles(display_name, email, age, gender, country))
       `)
-      .eq('campaigns.brand_id', user?.brand_id!)
+      .eq('campaigns.brand_id', user.brand_id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -88,6 +99,8 @@ export default function BrandApplicationsPage() {
       setLoading(false);
       return;
     }
+
+    console.log('Loaded applications:', data?.length || 0, 'items');
 
     setApplications(data as any || []);
     
@@ -160,10 +173,31 @@ export default function BrandApplicationsPage() {
     });
   };
 
-  if (loading) {
+  if (userLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-white text-xl">טוען...</div>
+      </div>
+    );
+  }
+
+  if (!user?.brand_id) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-white text-center">
+          <div className="text-xl mb-4">שגיאה: לא נמצא מותג למשתמש</div>
+          <div className="text-sm text-[#cbc190] mb-4">
+            User ID: {user?.id || 'N/A'}<br/>
+            Role: {user?.role || 'N/A'}<br/>
+            Brand ID: {user?.brand_id || 'MISSING'}
+          </div>
+          <button 
+            onClick={() => router.push('/brand/dashboard')}
+            className="mt-4 px-6 py-2 bg-[#f2cc0d] text-black rounded-lg hover:bg-[#d4b00b]"
+          >
+            חזרה לדשבורד
+          </button>
+        </div>
       </div>
     );
   }
