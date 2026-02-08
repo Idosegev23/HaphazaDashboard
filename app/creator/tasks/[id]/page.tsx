@@ -291,24 +291,27 @@ export default function CreatorTaskDetailPage() {
         throw dbError;
       }
 
-      // Update task status to uploaded if it was in_production
-      if (task?.status === 'in_production') {
+      // Update task status to uploaded if it was in_production OR needs_edits
+      if (task?.status === 'in_production' || task?.status === 'needs_edits') {
         await supabase
           .from('tasks')
           .update({ status: 'uploaded', updated_at: new Date().toISOString() })
           .eq('id', taskId);
       }
 
-      // If task was needs_edits, keep it as needs_edits but mark revision as resolved
+      // If task was needs_edits, mark revision as resolved
       if (task?.status === 'needs_edits') {
         await supabase
           .from('revision_requests')
           .update({ status: 'resolved' })
           .eq('task_id', taskId)
           .eq('status', 'open');
+        
+        alert('✅ התיקון הועלה בהצלחה!\n\nהמשימה חזרה לסטטוס "הועלה" והמותג יקבל התראה לבדוק מחדש.');
+      } else {
+        alert('✅ הקובץ הועלה בהצלחה!');
       }
-
-      alert('הקובץ הועלה בהצלחה!');
+      
       loadTaskData();
       
       // Reset file input
@@ -475,23 +478,29 @@ export default function CreatorTaskDetailPage() {
             </div>
           </Card>
 
-          {/* Active Revision Requests */}
+          {/* Active Revision Requests - PRIORITY */}
           {revisions.filter(r => r.status === 'open').length > 0 && (
-            <Card className="border-2 border-orange-500">
-              <h2 className="text-xl font-bold text-white mb-4">🔄 בקשות תיקון</h2>
-              <div className="space-y-4">
+            <Card className="border-2 border-orange-500 bg-orange-500/5">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="text-4xl">⚠️</div>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold text-white mb-2">❗ נדרשים תיקונים</h2>
+                  <p className="text-orange-200 mb-4">המותג ביקש תיקונים לתוכן. העלה קובץ מתוקן בהמשך הדף ↓</p>
+                </div>
+              </div>
+              <div className="space-y-3">
                 {revisions.filter(r => r.status === 'open').map((revision) => (
-                  <div key={revision.id} className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+                  <div key={revision.id} className="bg-[#2e2a1b] rounded-lg p-4 border border-orange-500">
                     <div className="flex flex-wrap gap-2 mb-3">
                       {revision.tags.map((tag, idx) => (
-                        <span key={idx} className="px-2 py-1 bg-orange-500 text-white text-xs rounded-full">
+                        <span key={idx} className="px-3 py-1 bg-orange-600 text-white text-sm rounded-full font-medium">
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <p className="text-white mb-2">{revision.note}</p>
+                    <p className="text-white mb-2 text-lg">{revision.note}</p>
                     <span className="text-xs text-[#cbc190]">
-                      {new Date(revision.created_at).toLocaleDateString('he-IL')} {new Date(revision.created_at).toLocaleTimeString('he-IL')}
+                      התקבל: {new Date(revision.created_at).toLocaleDateString('he-IL')} {new Date(revision.created_at).toLocaleTimeString('he-IL')}
                     </span>
                   </div>
                 ))}
@@ -501,13 +510,24 @@ export default function CreatorTaskDetailPage() {
 
           {/* Upload Section */}
           {canUpload && (
-            <Card>
-              <h2 className="text-xl font-bold text-white mb-4">העלאת תוכן</h2>
+            <Card className={task.status === 'needs_edits' ? 'border-2 border-orange-500' : ''}>
+              <h2 className="text-xl font-bold text-white mb-4">
+                {task.status === 'needs_edits' ? '✏️ העלאת תיקון' : '📤 העלאת תוכן'}
+              </h2>
+              {task.status === 'needs_edits' && (
+                <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4 mb-4">
+                  <p className="text-orange-300 font-medium">
+                    💡 העלה כאן את הקובץ המתוקן. לאחר ההעלאה, המשימה תעבור אוטומטית לסטטוס "הועלה" והמותג יוכל לבדוק שוב.
+                  </p>
+                </div>
+              )}
               <div className="bg-[#2e2a1b] rounded-lg p-8 border-2 border-dashed border-[#494222]">
                 <div className="text-center mb-4">
                   <div className="text-4xl mb-3">📤</div>
                   <p className="text-[#cbc190] mb-4">
-                    העלה תמונות או סרטונים של התוכן שיצרת
+                    {task.status === 'needs_edits' 
+                      ? 'העלה את הקובץ המתוקן כאן' 
+                      : 'העלה תמונות או סרטונים של התוכן שיצרת'}
                   </p>
                   <p className="text-sm text-[#cbc190] mb-4">
                     קבצים נתמכים: JPG, PNG, GIF, WebP, MP4, MOV, AVI (עד 50MB)

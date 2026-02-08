@@ -89,12 +89,18 @@ export default function BrandTaskDetailPage() {
   }, [user, router]);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || !user?.brand_id) return;
     loadTaskData();
     subscribeToUpdates();
-  }, [user?.id, taskId]);
+  }, [user?.id, user?.brand_id, taskId]);
 
   const loadTaskData = async () => {
+    if (!user?.brand_id) {
+      console.error('No brand_id found for user');
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
 
     // Load task with creator details - filter by brand_id through campaigns
@@ -122,7 +128,7 @@ export default function BrandTaskDetailPage() {
         )
       `)
       .eq('id', taskId)
-      .eq('campaigns.brand_id', user?.brand_id!)
+      .eq('campaigns.brand_id', user.brand_id)
       .single();
 
     if (taskError || !taskData) {
