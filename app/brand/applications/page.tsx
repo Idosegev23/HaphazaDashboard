@@ -20,12 +20,12 @@ type Application = {
     user_id: string;
     niches: string[] | null;
     platforms: any;
-    country: string | null;
     users_profiles: {
       display_name: string;
       email: string;
       age: number | null;
       gender: string | null;
+      country: string | null;
     } | null;
   } | null;
 };
@@ -78,7 +78,7 @@ export default function BrandApplicationsPage() {
         message,
         created_at,
         campaigns!inner(title, brand_id),
-        creators(user_id, niches, platforms, country, users_profiles(display_name, email, age, gender))
+        creators(user_id, niches, platforms, users_profiles(display_name, email, age, gender, country))
       `)
       .eq('campaigns.brand_id', user?.brand_id!)
       .order('created_at', { ascending: false });
@@ -97,7 +97,7 @@ export default function BrandApplicationsPage() {
     
     data?.forEach((app: any) => {
       app.creators?.niches?.forEach((n: string) => niches.add(n));
-      if (app.creators?.country) countries.add(app.creators.country);
+      if (app.creators?.users_profiles?.country) countries.add(app.creators.users_profiles.country);
     });
 
     setAvailableNiches(Array.from(niches).sort());
@@ -137,7 +137,7 @@ export default function BrandApplicationsPage() {
     // Country filter
     if (filters.country !== 'all') {
       filtered = filtered.filter(app => 
-        app.creators?.country === filters.country
+        app.creators?.users_profiles?.country === filters.country
       );
     }
 
@@ -330,8 +330,8 @@ export default function BrandApplicationsPage() {
                           <div>
                             🏷️ {application.creators?.niches?.join(', ') || 'לא צוין'}
                           </div>
-                          {application.creators?.country && (
-                            <div>🌍 {application.creators.country}</div>
+                          {application.creators?.users_profiles?.country && (
+                            <div>🌍 {application.creators.users_profiles.country}</div>
                           )}
                         </div>
                         {application.message && (
