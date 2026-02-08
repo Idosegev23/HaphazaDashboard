@@ -18,6 +18,7 @@ type Task = {
   creator_id: string;
   campaigns: {
     title: string;
+    deliverables: any; // JSONB
   } | null;
   creators: {
     user_id: string;
@@ -128,7 +129,8 @@ export default function BrandTaskDetailPage() {
         campaign_id,
         campaigns!inner(
           title,
-          brand_id
+          brand_id,
+          deliverables
         )
       `)
       .eq('id', taskId)
@@ -646,6 +648,31 @@ export default function BrandTaskDetailPage() {
                 </div>
               )}
             </div>
+
+            {/* Deliverables Display */}
+            {task.campaigns?.deliverables && Object.keys(task.campaigns.deliverables).length > 0 && (
+              <div className="mt-4 pt-4 border-t border-[#494222]">
+                <h3 className="text-sm font-medium text-[#cbc190] mb-3">תוצרים נדרשים</h3>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(task.campaigns.deliverables).map(([key, value]) => {
+                    if (!value || (value as number) === 0) return null;
+                    const labels: Record<string, string> = {
+                      instagram_story: 'Instagram Story',
+                      instagram_reel: 'Instagram Reel',
+                      instagram_post: 'Instagram Post',
+                      tiktok_video: 'TikTok Video',
+                      ugc_video: 'UGC Video',
+                      photo: 'Photo (תמונה)',
+                    };
+                    return (
+                      <span key={key} className="px-3 py-1 bg-[#2e2a1b] border border-[#f2cc0d] rounded-full text-white text-sm">
+                        {value as number} x {labels[key] || key}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </Card>
 
           {/* Rating Form */}
