@@ -127,15 +127,6 @@ export default function BrandTaskDetailPage() {
         campaigns!inner(
           title,
           brand_id
-        ),
-        creators(
-          user_id,
-          niches,
-          platforms,
-          age_range,
-          gender,
-          country,
-          users_profiles(display_name, email)
         )
       `)
       .eq('id', taskId)
@@ -148,23 +139,27 @@ export default function BrandTaskDetailPage() {
       return;
     }
 
-    // Task data is already complete with creator info
-    let enrichedTask: any = taskData;
-    
-    // Fallback if creator details are missing
-    if (!taskData.creators && (taskData as any).creator_id) {
-      const { data: profileData } = await supabase
-        .from('users_profiles')
-        .select('display_name, email')
-        .eq('user_id', (taskData as any).creator_id)
-        .single();
-      
-      if (profileData) {
-        enrichedTask.creators = {
-          users_profiles: profileData
-        };
-      }
-    }
+    // טעינת פרטי משפיען בנפרד
+    const { data: creatorData } = await supabase
+      .from('creators')
+      .select('user_id, niches, platforms, age_range, gender, country')
+      .eq('user_id', taskData.creator_id)
+      .single();
+
+    const { data: profileData } = await supabase
+      .from('users_profiles')
+      .select('display_name, email')
+      .eq('user_id', taskData.creator_id)
+      .single();
+
+    // שילוב הנתונים
+    let enrichedTask: any = {
+      ...taskData,
+      creators: creatorData ? {
+        ...creatorData,
+        users_profiles: profileData
+      } : null
+    };
 
     setTask(enrichedTask as Task);
 

@@ -81,15 +81,16 @@ export default function BrandApplicationsPage() {
     console.log('Loading applications for brand_id:', user.brand_id);
     const supabase = createClient();
 
-    const { data, error } = await supabase
+    // שאילתא מפוצלת - אי אפשר לעשות join אוטומטי בגלל מבנה ה-FKs
+    const { data: appsData, error } = await supabase
       .from('applications')
       .select(`
         id,
         status,
         message,
         created_at,
-        campaigns!inner(title, brand_id),
-        creators(user_id, niches, platforms, age_range, gender, country, users_profiles(display_name, email))
+        creator_id,
+        campaigns!inner(title, brand_id)
       `)
       .eq('campaigns.brand_id', user.brand_id)
       .order('created_at', { ascending: false });
@@ -100,6 +101,32 @@ export default function BrandApplicationsPage() {
       return;
     }
 
+    // טעינת פרטי משפיענים בנפרד
+    const enrichedData = await Promise.all(
+      (appsData || []).map(async (app: any) => {
+        const { data: creatorData } = await supabase
+          .from('creators')
+          .select('user_id, niches, platforms, age_range, gender, country')
+          .eq('user_id', app.creator_id)
+          .single();
+
+        const { data: profileData } = await supabase
+          .from('users_profiles')
+          .select('display_name, email')
+          .eq('user_id', app.creator_id)
+          .single();
+
+        return {
+          ...app,
+          creators: creatorData ? {
+            ...creatorData,
+            users_profiles: profileData
+          } : null
+        };
+      })
+    );
+
+    const data = enrichedData;
     console.log('Loaded applications:', data?.length || 0, 'items');
 
     setApplications(data as any || []);
