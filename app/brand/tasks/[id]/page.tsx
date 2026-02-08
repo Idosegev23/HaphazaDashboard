@@ -248,9 +248,9 @@ export default function BrandTaskDetailPage() {
         .from('ratings')
         .insert({
           task_id: taskId,
-          quality_score: qualityScore,
-          timeliness_score: timelinessScore,
-          communication_score: communicationScore,
+          quality: qualityScore,
+          on_time: timelinessScore,
+          communication: communicationScore,
           note: ratingNote || null,
         });
 
