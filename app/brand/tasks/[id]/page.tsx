@@ -21,12 +21,12 @@ type Task = {
   } | null;
   creators: {
     user_id: string;
+    age_range: string | null;
+    gender: string | null;
+    country: string | null;
     users_profiles: {
       display_name: string;
       email: string;
-      age: number | null;
-      gender: string | null;
-      country: string | null;
     } | null;
     niches: string[] | null;
     platforms: any;
@@ -132,7 +132,10 @@ export default function BrandTaskDetailPage() {
           user_id,
           niches,
           platforms,
-          users_profiles(display_name, email, age, gender, country)
+          age_range,
+          gender,
+          country,
+          users_profiles(display_name, email)
         )
       `)
       .eq('id', taskId)
@@ -520,24 +523,24 @@ export default function BrandTaskDetailPage() {
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-4">
-                  {task.creators.users_profiles?.age && (
+                  {task.creators.age_range && (
                     <div>
                       <span className="text-[#cbc190] text-sm">גיל</span>
-                      <div className="text-white font-medium">{task.creators.users_profiles.age}</div>
+                      <div className="text-white font-medium">{task.creators.age_range}</div>
                     </div>
                   )}
-                  {task.creators.users_profiles?.gender && (
+                  {task.creators.gender && (
                     <div>
                       <span className="text-[#cbc190] text-sm">מגדר</span>
                       <div className="text-white font-medium">
-                        {task.creators.users_profiles.gender === 'female' ? 'נקבה' : task.creators.users_profiles.gender === 'male' ? 'זכר' : 'אחר'}
+                        {task.creators.gender === 'female' ? 'נקבה' : task.creators.gender === 'male' ? 'זכר' : 'אחר'}
                       </div>
                     </div>
                   )}
-                  {task.creators.users_profiles?.country && (
+                  {task.creators.country && (
                     <div>
                       <span className="text-[#cbc190] text-sm">מדינה</span>
-                      <div className="text-white font-medium">{task.creators.users_profiles.country}</div>
+                      <div className="text-white font-medium">{task.creators.country}</div>
                     </div>
                   )}
                 </div>

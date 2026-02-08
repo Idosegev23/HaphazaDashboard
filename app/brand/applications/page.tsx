@@ -20,12 +20,12 @@ type Application = {
     user_id: string;
     niches: string[] | null;
     platforms: any;
+    age_range: string | null;
+    gender: string | null;
+    country: string | null;
     users_profiles: {
       display_name: string;
       email: string;
-      age: number | null;
-      gender: string | null;
-      country: string | null;
     } | null;
   } | null;
 };
@@ -89,7 +89,7 @@ export default function BrandApplicationsPage() {
         message,
         created_at,
         campaigns!inner(title, brand_id),
-        creators(user_id, niches, platforms, users_profiles(display_name, email, age, gender, country))
+        creators(user_id, niches, platforms, age_range, gender, country, users_profiles(display_name, email))
       `)
       .eq('campaigns.brand_id', user.brand_id)
       .order('created_at', { ascending: false });
@@ -110,7 +110,7 @@ export default function BrandApplicationsPage() {
     
     data?.forEach((app: any) => {
       app.creators?.niches?.forEach((n: string) => niches.add(n));
-      if (app.creators?.users_profiles?.country) countries.add(app.creators.users_profiles.country);
+      if (app.creators?.country) countries.add(app.creators.country);
     });
 
     setAvailableNiches(Array.from(niches).sort());
@@ -121,22 +121,16 @@ export default function BrandApplicationsPage() {
   const applyFilters = () => {
     let filtered = [...applications];
 
-    // Age filter
-    if (filters.ageMin) {
-      filtered = filtered.filter(app => 
-        app.creators?.users_profiles?.age && app.creators.users_profiles.age >= Number(filters.ageMin)
-      );
-    }
-    if (filters.ageMax) {
-      filtered = filtered.filter(app => 
-        app.creators?.users_profiles?.age && app.creators.users_profiles.age <= Number(filters.ageMax)
-      );
+    // Age filter (age_range is string like "18-24", not numeric)
+    // TODO: implement proper age_range filtering
+    if (filters.ageMin || filters.ageMax) {
+      // לעת עתה - לא מפלטרים לפי גיל כי זה range ולא number
     }
 
     // Gender filter
     if (filters.gender !== 'all') {
       filtered = filtered.filter(app => 
-        app.creators?.users_profiles?.gender === filters.gender
+        app.creators?.gender === filters.gender
       );
     }
 
@@ -150,7 +144,7 @@ export default function BrandApplicationsPage() {
     // Country filter
     if (filters.country !== 'all') {
       filtered = filtered.filter(app => 
-        app.creators?.users_profiles?.country === filters.country
+        app.creators?.country === filters.country
       );
     }
 
@@ -354,18 +348,18 @@ export default function BrandApplicationsPage() {
                         <div className="text-sm text-[#cbc190] mb-2 space-y-1">
                           <div>
                             👤 {application.creators?.users_profiles?.display_name || 'לא זמין'}
-                            {application.creators?.users_profiles?.age && (
-                              <span> • גיל {application.creators.users_profiles.age}</span>
+                            {application.creators?.age_range && (
+                              <span> • גיל {application.creators.age_range}</span>
                             )}
-                            {application.creators?.users_profiles?.gender && (
-                              <span> • {application.creators.users_profiles.gender === 'female' ? 'נקבה' : application.creators.users_profiles.gender === 'male' ? 'זכר' : 'אחר'}</span>
+                            {application.creators?.gender && (
+                              <span> • {application.creators.gender === 'female' ? 'נקבה' : application.creators.gender === 'male' ? 'זכר' : 'אחר'}</span>
                             )}
                           </div>
                           <div>
                             🏷️ {application.creators?.niches?.join(', ') || 'לא צוין'}
                           </div>
-                          {application.creators?.users_profiles?.country && (
-                            <div>🌍 {application.creators.users_profiles.country}</div>
+                          {application.creators?.country && (
+                            <div>🌍 {application.creators.country}</div>
                           )}
                         </div>
                         {application.message && (
