@@ -181,17 +181,10 @@ export default function BrandPaymentsPage() {
     );
   }
 
-  const statusLabels: Record<string, string> = {
-    pending: 'ממתין לתשלום',
-    paid: 'שולם',
-    failed: 'נכשל',
-  };
-
-  const statusColors: Record<string, string> = {
-    pending: 'bg-yellow-500',
-    paid: 'bg-green-500',
-    failed: 'bg-red-500',
-  };
+  // Filter payments by status
+  const toPayPayments = payments.filter(p => p.status === 'pending');
+  const waitingInvoicePayments = payments.filter(p => p.status === 'paid' && !p.invoice_url);
+  const completedPayments = payments.filter(p => p.status === 'paid' && p.invoice_url);
 
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
@@ -201,63 +194,44 @@ export default function BrandPaymentsPage() {
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <Card>
-            <div className="space-y-4">
-              {payments.length === 0 ? (
-                <p className="text-center text-[#cbc190] py-8">אין תשלומים להצגה</p>
-              ) : (
-                payments.map((payment) => (
-                  <div
-                    key={payment.id}
-                    className="bg-[#2e2a1b] rounded-lg p-6 border border-[#494222] flex flex-col md:flex-row md:items-center justify-between gap-4"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-bold text-white">
-                          {payment.tasks?.title}
-                        </h3>
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[payment.status]}`}>
-                          {statusLabels[payment.status]}
-                        </span>
-                      </div>
-                      <div className="text-sm text-[#cbc190] mb-1">
-                        קמפיין: {payment.tasks?.campaigns?.title}
-                      </div>
-                      <div className="text-sm text-[#cbc190] mb-3">
-                        משפיען: {payment.tasks?.creators?.users_profiles?.display_name} ({payment.tasks?.creators?.users_profiles?.email})
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-4 mt-2">
-                        {payment.invoice_url && (
-                          <a
-                            href={payment.invoice_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[#f2cc0d] hover:underline text-sm flex items-center gap-1"
-                          >
-                            📄 צפה בחשבונית
-                          </a>
-                        )}
-                        {payment.proof_url && (
-                          <a
-                            href={payment.proof_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-green-400 hover:underline text-sm flex items-center gap-1"
-                          >
-                            ✅ צפה באישור העברה
-                          </a>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="text-left min-w-[200px]">
-                      <div className="text-3xl font-bold text-[#f2cc0d] mb-4">
-                        ₪{Number(payment.amount).toLocaleString()}
+        <div className="max-w-6xl mx-auto space-y-8">
+          
+          {/* Section 1: To Pay */}
+          <section>
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <span>💳</span> לתשלום ({toPayPayments.length})
+            </h2>
+            <Card className="border-l-4 border-l-yellow-500">
+              <div className="space-y-4">
+                {toPayPayments.length === 0 ? (
+                  <p className="text-center text-[#cbc190] py-4">אין תשלומים ממתינים לביצוע</p>
+                ) : (
+                  toPayPayments.map((payment) => (
+                    <div
+                      key={payment.id}
+                      className="bg-[#2e2a1b] rounded-lg p-6 border border-[#494222] flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-bold text-white">
+                            {payment.tasks?.title}
+                          </h3>
+                          <span className="px-3 py-1 rounded-full text-xs font-bold text-black bg-yellow-500">
+                            ממתין לתשלום
+                          </span>
+                        </div>
+                        <div className="text-sm text-[#cbc190] mb-1">
+                          קמפיין: {payment.tasks?.campaigns?.title}
+                        </div>
+                        <div className="text-sm text-[#cbc190]">
+                          משפיען: {payment.tasks?.creators?.users_profiles?.display_name} ({payment.tasks?.creators?.users_profiles?.email})
+                        </div>
                       </div>
 
-                      {payment.status === 'pending' && (
+                      <div className="text-left min-w-[200px]">
+                        <div className="text-3xl font-bold text-[#f2cc0d] mb-4">
+                          ₪{Number(payment.amount).toLocaleString()}
+                        </div>
                         <div>
                           <input
                             type="file"
@@ -280,13 +254,141 @@ export default function BrandPaymentsPage() {
                             העלאת אישור תסמן את התשלום כשולם
                           </p>
                         </div>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </Card>
+                  ))
+                )}
+              </div>
+            </Card>
+          </section>
+
+          {/* Section 2: Waiting for Invoice */}
+          <section>
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <span>📄</span> ממתין לחשבונית ({waitingInvoicePayments.length})
+            </h2>
+            <Card className="border-l-4 border-l-orange-500">
+              <div className="space-y-4">
+                {waitingInvoicePayments.length === 0 ? (
+                  <p className="text-center text-[#cbc190] py-4">אין תשלומים שממתינים לחשבונית</p>
+                ) : (
+                  waitingInvoicePayments.map((payment) => (
+                    <div
+                      key={payment.id}
+                      className="bg-[#2e2a1b] rounded-lg p-6 border border-[#494222] flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-bold text-white">
+                            {payment.tasks?.title}
+                          </h3>
+                          <span className="px-3 py-1 rounded-full text-xs font-bold text-white bg-green-600">
+                            שולם
+                          </span>
+                          <span className="px-3 py-1 rounded-full text-xs font-bold text-white bg-orange-500 animate-pulse">
+                            חסרה חשבונית
+                          </span>
+                        </div>
+                        <div className="text-sm text-[#cbc190] mb-1">
+                          קמפיין: {payment.tasks?.campaigns?.title}
+                        </div>
+                        <div className="text-sm text-[#cbc190] mb-3">
+                          משפיען: {payment.tasks?.creators?.users_profiles?.display_name}
+                        </div>
+                        {payment.proof_url && (
+                          <a
+                            href={payment.proof_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-green-400 hover:underline text-sm flex items-center gap-1"
+                          >
+                            ✅ צפה באישור העברה
+                          </a>
+                        )}
+                      </div>
+                      <div className="text-left">
+                        <div className="text-2xl font-bold text-[#f2cc0d]">
+                          ₪{Number(payment.amount).toLocaleString()}
+                        </div>
+                        <div className="text-sm text-orange-400 mt-1">
+                          ממתין להעלאת חשבונית ע"י המשפיען
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
+          </section>
+
+          {/* Section 3: History / Completed */}
+          <section>
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <span>✅</span> היסטוריה ({completedPayments.length})
+            </h2>
+            <Card className="border-l-4 border-l-green-500">
+              <div className="space-y-4">
+                {completedPayments.length === 0 ? (
+                  <p className="text-center text-[#cbc190] py-4">אין היסטוריית תשלומים</p>
+                ) : (
+                  completedPayments.map((payment) => (
+                    <div
+                      key={payment.id}
+                      className="bg-[#2e2a1b] rounded-lg p-6 border border-[#494222] flex flex-col md:flex-row md:items-center justify-between gap-4 opacity-75 hover:opacity-100 transition-opacity"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-bold text-white">
+                            {payment.tasks?.title}
+                          </h3>
+                          <span className="px-3 py-1 rounded-full text-xs font-bold text-white bg-green-600">
+                            הושלם
+                          </span>
+                        </div>
+                        <div className="text-sm text-[#cbc190] mb-1">
+                          קמפיין: {payment.tasks?.campaigns?.title}
+                        </div>
+                        <div className="text-sm text-[#cbc190] mb-3">
+                          משפיען: {payment.tasks?.creators?.users_profiles?.display_name}
+                        </div>
+                        <div className="flex gap-4">
+                          {payment.proof_url && (
+                            <a
+                              href={payment.proof_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-green-400 hover:underline text-sm"
+                            >
+                              ✅ אישור העברה
+                            </a>
+                          )}
+                          {payment.invoice_url && (
+                            <a
+                              href={payment.invoice_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#f2cc0d] hover:underline text-sm"
+                            >
+                              📄 חשבונית מס
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-left">
+                        <div className="text-2xl font-bold text-[#f2cc0d]">
+                          ₪{Number(payment.amount).toLocaleString()}
+                        </div>
+                        <div className="text-sm text-green-400 mt-1">
+                          תהליך הושלם
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
+          </section>
+
         </div>
       </div>
     </div>

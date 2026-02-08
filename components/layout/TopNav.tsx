@@ -52,6 +52,7 @@ export function TopNav({ user }: TopNavProps) {
         { href: '/brand/tasks', label: 'ניהול תוכן', icon: '🎬' },
         { href: '/brand/assets', label: 'תוכן מאושר', icon: '✅' },
         { href: '/brand/shipping', label: 'משלוחים', icon: '📦' },
+        { href: '/brand/payments', label: 'תשלומים', icon: '💳' },
       ];
     }
 
