@@ -3,21 +3,22 @@
 /* Design Tokens - LEADERS Platform */
 @layer theme {
   :root {
-    /* Colors */
+    /* Colors - Premium Slate Theme */
     --color-primary: #f2cc0d;
     --color-primary-hover: #dcb900;
     
     --color-background-light: #f8f8f5;
-    --color-background-dark: #121212;
-    --color-background-dark-alt: #232010;
+    --color-background-dark: #09090b; /* Zinc 950 */
+    --color-background-dark-alt: #18181b; /* Zinc 900 */
     
-    --color-surface-dark: #1E1E1E;
-    --color-surface-dark-alt: #2e2a1b;
+    --color-surface-dark: #18181b; /* Zinc 900 */
+    --color-surface-dark-alt: #27272a; /* Zinc 800 */
     
-    --color-border-dark: #494222;
+    --color-border-dark: #27272a; /* Zinc 800 */
     --color-glass-border: rgba(255, 255, 255, 0.08);
     
-    --color-text-muted: #cbc190;
+    --color-text-muted: #a1a1aa; /* Zinc 400 */
+    --color-text-main: #fafafa; /* Zinc 50 */
     
     /* Status Colors */
     --color-status-active: #f2cc0d;
@@ -32,14 +33,15 @@
     
     /* Border Radius */
     --radius-sm: 0.125rem;
-    --radius: 0.25rem;
-    --radius-lg: 0.5rem;
-    --radius-xl: 0.75rem;
+    --radius: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
     --radius-full: 9999px;
     
     /* Shadows */
-    --shadow-primary: 0 0 15px rgba(242, 204, 13, 0.2);
-    --shadow-primary-lg: 0 0 25px rgba(242, 204, 13, 0.3);
+    --shadow-primary: 0 0 15px rgba(242, 204, 13, 0.15);
+    --shadow-primary-lg: 0 0 30px rgba(242, 204, 13, 0.2);
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
 }
 
@@ -56,9 +58,11 @@ html {
 body {
   font-family: var(--font-body);
   background: var(--color-background-dark);
-  color: white;
+  color: var(--color-text-main);
   margin: 0;
   padding: 0;
+  background-image: radial-gradient(circle at 50% 0%, rgba(242, 204, 13, 0.03) 0%, transparent 50%);
+  min-height: 100vh;
 }
 
 /* RTL Support */
@@ -97,17 +101,19 @@ body {
 
 /* Glassmorphism Utility Classes */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(24, 24, 27, 0.6); /* Zinc 900 with opacity */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--color-glass-border);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--color-border-dark);
+  box-shadow: var(--shadow-card);
 }
 
 .glass-panel-hover:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+  background: rgba(39, 39, 42, 0.8); /* Zinc 800 */
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
 }
 
 /* Status Stripe (RTL Aware) */
@@ -125,4 +131,29 @@ body {
 
 [dir="ltr"] .status-stripe {
   left: 0;
+}
+
+/* Custom Utilities */
+.text-gold {
+  color: var(--color-primary);
+}
+
+.bg-gold {
+  background-color: var(--color-primary);
+}
+
+.border-gold {
+  border-color: var(--color-primary);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.bg-surface {
+  background-color: var(--color-surface-dark);
+}
+
+.border-subtle {
+  border-color: var(--color-border-dark);
 }

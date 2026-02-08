@@ -11,8 +11,8 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          'glass-panel rounded-lg p-6',
-          hover && 'glass-panel-hover cursor-pointer',
+          'glass-panel rounded-xl p-6 bg-surface/40 backdrop-blur-sm border border-subtle',
+          hover && 'glass-panel-hover cursor-pointer hover:bg-surface/60',
           className
         )}
         {...props}

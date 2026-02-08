@@ -76,15 +76,15 @@ export function TopNav({ user }: TopNavProps) {
   return (
     <>
       {/* Desktop & Mobile Top Navigation */}
-      <header className="sticky top-0 z-50 w-full border-b border-[#494222] bg-[#1E1E1E] shadow-lg">
+      <header className="sticky top-0 z-50 w-full border-b border-subtle bg-surface/80 backdrop-blur-md shadow-lg">
         <div className="flex items-center justify-between px-4 py-3 lg:px-8">
           {/* Logo & Brand */}
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#f2cc0d] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-gold flex items-center justify-center">
                 <span className="text-2xl font-bold text-[#121212]">L</span>
               </div>
-              <span className="hidden sm:block text-xl font-bold text-[#f2cc0d]">
+              <span className="hidden sm:block text-xl font-bold text-gold">
                 LEADERS
               </span>
             </Link>
@@ -99,8 +99,8 @@ export function TopNav({ user }: TopNavProps) {
                 className={cn(
                   'px-4 py-2 rounded-lg flex items-center gap-2 transition-all font-medium',
                   pathname === item.href
-                    ? 'bg-[#f2cc0d] text-[#121212]'
-                    : 'text-[#cbc190] hover:bg-[#2e2a1b] hover:text-white'
+                    ? 'bg-gold text-[#121212]'
+                    : 'text-muted hover:bg-white/5 hover:text-white'
                 )}
               >
                 <span>{item.icon}</span>
@@ -113,8 +113,8 @@ export function TopNav({ user }: TopNavProps) {
           <div className="flex items-center gap-4">
             {/* User Info - Hidden on smallest screens */}
             <div className="hidden sm:flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#2e2a1b] flex items-center justify-center border-2 border-[#f2cc0d]">
-                <span className="text-[#f2cc0d] text-sm font-bold">
+              <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border-2 border-gold">
+                <span className="text-gold text-sm font-bold">
                   {user?.profile?.display_name?.charAt(0).toUpperCase() || 'U'}
                 </span>
               </div>
@@ -122,7 +122,7 @@ export function TopNav({ user }: TopNavProps) {
                 <div className="text-sm font-medium text-white">
                   {user?.profile?.display_name}
                 </div>
-                <div className="text-xs text-[#cbc190]">
+                <div className="text-xs text-muted">
                   {user?.role === 'creator' ? 'משפיען' : 
                    user?.role === 'brand_manager' ? 'מנהל מותג' : 
                    user?.role === 'brand_user' ? 'משתמש מותג' : 
@@ -134,7 +134,7 @@ export function TopNav({ user }: TopNavProps) {
             {/* Logout Button - Desktop */}
             <button
               onClick={handleLogout}
-              className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg text-[#cbc190] hover:bg-[#2e2a1b] hover:text-white transition-all"
+              className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg text-muted hover:bg-white/5 hover:text-white transition-all"
               title="יציאה"
             >
               <span>🚪</span>
@@ -144,7 +144,7 @@ export function TopNav({ user }: TopNavProps) {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg text-[#f2cc0d] hover:bg-[#2e2a1b] transition-all"
+              className="lg:hidden p-2 rounded-lg text-gold hover:bg-white/5 transition-all"
               aria-label="תפריט"
             >
               <svg
@@ -175,7 +175,7 @@ export function TopNav({ user }: TopNavProps) {
 
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-[#494222] bg-[#232010]">
+          <div className="lg:hidden border-t border-subtle bg-surface">
             <nav className="px-4 py-4 space-y-2">
               {navItems.map((item) => (
                 <Link
@@ -185,8 +185,8 @@ export function TopNav({ user }: TopNavProps) {
                   className={cn(
                     'flex items-center gap-3 px-4 py-3 rounded-lg transition-all',
                     pathname === item.href
-                      ? 'bg-[#f2cc0d] text-[#121212] font-medium'
-                      : 'text-[#cbc190] hover:bg-[#2e2a1b] hover:text-white'
+                      ? 'bg-gold text-[#121212] font-medium'
+                      : 'text-muted hover:bg-white/5 hover:text-white'
                   )}
                 >
                   <span className="text-xl">{item.icon}</span>
@@ -200,7 +200,7 @@ export function TopNav({ user }: TopNavProps) {
                   setMobileMenuOpen(false);
                   handleLogout();
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-[#cbc190] hover:bg-[#2e2a1b] hover:text-white transition-all"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-muted hover:bg-white/5 hover:text-white transition-all"
               >
                 <span className="text-xl">🚪</span>
                 <span>יציאה</span>

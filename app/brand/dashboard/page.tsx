@@ -47,7 +47,7 @@ export default async function BrandDashboardPage() {
             <h1 className="text-3xl font-bold text-white mb-2">
               {brand?.name}
             </h1>
-            <p className="text-[#cbc190]">לוח בקרה</p>
+            <p className="text-muted">לוח בקרה</p>
           </div>
           <Link href="/brand/campaigns/new">
             <Button>קמפיין חדש +</Button>
@@ -57,16 +57,16 @@ export default async function BrandDashboardPage() {
         {/* Stats */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Card>
-            <div className="text-[#cbc190] text-sm mb-2">סה"כ קמפיינים</div>
-            <div className="text-3xl font-bold text-[#f2cc0d]">{campaignsCount || 0}</div>
+            <div className="text-muted text-sm mb-2">סה"כ קמפיינים</div>
+            <div className="text-3xl font-bold text-gold">{campaignsCount || 0}</div>
           </Card>
           <Card>
-            <div className="text-[#cbc190] text-sm mb-2">קמפיינים פעילים</div>
-            <div className="text-3xl font-bold text-[#f2cc0d]">{activeCampaignsCount || 0}</div>
+            <div className="text-muted text-sm mb-2">קמפיינים פעילים</div>
+            <div className="text-3xl font-bold text-gold">{activeCampaignsCount || 0}</div>
           </Card>
           <Card>
-            <div className="text-[#cbc190] text-sm mb-2">בקשות ממתינות</div>
-            <div className="text-3xl font-bold text-[#f2cc0d]">{applicationsCount || 0}</div>
+            <div className="text-muted text-sm mb-2">בקשות ממתינות</div>
+            <div className="text-3xl font-bold text-gold">{applicationsCount || 0}</div>
           </Card>
         </div>
 

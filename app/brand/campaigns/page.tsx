@@ -140,7 +140,7 @@ export default function BrandCampaignsPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">הקמפיינים שלי</h1>
-            <p className="text-[#cbc190]">ניהול וניטור קמפיינים</p>
+            <p className="text-muted">ניהול וניטור קמפיינים</p>
           </div>
           <Link href="/brand/campaigns/new">
             <Button>קמפיין חדש +</Button>
@@ -162,12 +162,12 @@ export default function BrandCampaignsPage() {
                           </span>
                         </div>
                         {campaign.concept && (
-                          <p className="text-[#cbc190] text-sm line-clamp-2">{campaign.concept}</p>
+                          <p className="text-muted text-sm line-clamp-2">{campaign.concept}</p>
                         )}
                       </div>
 
-                      <div className="pt-4 border-t border-[#494222]">
-                        <div className="text-[#f2cc0d] font-bold">
+                      <div className="pt-4 border-t border-subtle">
+                        <div className="text-gold font-bold">
                           {campaign.fixed_price
                             ? `₪${campaign.fixed_price.toLocaleString()}`
                             : 'מחיר לא הוגדר'}
@@ -181,7 +181,7 @@ export default function BrandCampaignsPage() {
                 <button
                   onClick={(e) => handleDuplicate(campaign, e)}
                   disabled={duplicating === campaign.id}
-                  className="absolute top-4 left-4 px-3 py-1.5 bg-[#2e2a1b] border border-[#494222] text-white rounded-lg hover:bg-[#3a3525] hover:border-[#f2cc0d] transition-colors text-sm disabled:opacity-50"
+                  className="absolute top-4 left-4 px-3 py-1.5 bg-surface border border-subtle text-white rounded-lg hover:bg-white/10 hover:border-gold transition-colors text-sm disabled:opacity-50"
                   title="שכפל קמפיין"
                 >
                   {duplicating === campaign.id ? '⏳' : '📋'}
@@ -192,7 +192,7 @@ export default function BrandCampaignsPage() {
         ) : (
           <Card>
             <div className="text-center py-12">
-              <p className="text-[#cbc190] mb-4">עדיין לא יצרת קמפיינים</p>
+              <p className="text-muted mb-4">עדיין לא יצרת קמפיינים</p>
               <Link href="/brand/campaigns/new">
                 <Button>צור את הקמפיין הראשון</Button>
               </Link>

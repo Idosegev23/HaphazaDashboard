@@ -541,25 +541,25 @@ export default function ApplicationDetailPage() {
                   
                   {metrics && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <div className="bg-[#2e2a1b] rounded-lg p-3 border border-[#494222]">
-                        <div className="text-[#cbc190] text-xs mb-1">סה"כ משימות</div>
+                      <div className="bg-surface rounded-lg p-3 border border-subtle">
+                        <div className="text-muted text-xs mb-1">סה"כ משימות</div>
                         <div className="text-white font-bold text-lg">{metrics.total_tasks || 0}</div>
                       </div>
-                      <div className="bg-[#2e2a1b] rounded-lg p-3 border border-[#494222]">
-                        <div className="text-[#cbc190] text-xs mb-1">אחוז אישור</div>
+                      <div className="bg-surface rounded-lg p-3 border border-subtle">
+                        <div className="text-muted text-xs mb-1">אחוז אישור</div>
                         <div className="text-green-400 font-bold text-lg">
                           {metrics.approval_rate ? `${Number(metrics.approval_rate).toFixed(0)}%` : '-'}
                         </div>
                       </div>
-                      <div className="bg-[#2e2a1b] rounded-lg p-3 border border-[#494222]">
-                        <div className="text-[#cbc190] text-xs mb-1">אספקה בזמן</div>
+                      <div className="bg-surface rounded-lg p-3 border border-subtle">
+                        <div className="text-muted text-xs mb-1">אספקה בזמן</div>
                         <div className="text-blue-400 font-bold text-lg">
                           {metrics.on_time_rate ? `${Number(metrics.on_time_rate).toFixed(0)}%` : '-'}
                         </div>
                       </div>
-                      <div className="bg-[#2e2a1b] rounded-lg p-3 border border-[#494222]">
-                        <div className="text-[#cbc190] text-xs mb-1">דירוג ממוצע</div>
-                        <div className="text-[#f2cc0d] font-bold text-lg">
+                      <div className="bg-surface rounded-lg p-3 border border-subtle">
+                        <div className="text-muted text-xs mb-1">דירוג ממוצע</div>
+                        <div className="text-gold font-bold text-lg">
                           {metrics.average_rating ? Number(metrics.average_rating).toFixed(1) : '-'}
                         </div>
                       </div>

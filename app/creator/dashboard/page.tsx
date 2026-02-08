@@ -188,15 +188,15 @@ export default function CreatorDashboardPage() {
           <h1 className="text-3xl font-bold text-white mb-2">
             שלום, {user?.profile?.display_name}
           </h1>
-          <p className="text-[#cbc190]">לוח הבקרה שלך</p>
+          <p className="text-muted">לוח הבקרה שלך</p>
         </div>
 
         {/* Tier Badge */}
         {creatorInfo?.tier && (
           <div className="mb-6">
-            <Card className="bg-gradient-to-r from-[#f2cc0d]/20 to-[#f2cc0d]/10 border-2 border-[#f2cc0d]">
+            <Card className="bg-gradient-to-r from-gold/20 to-gold/10 border-2 border-gold">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-[#f2cc0d] rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 bg-gold rounded-full flex items-center justify-center">
                   <span className="text-3xl">
                     {creatorInfo.tier === 'gold' && '👑'}
                     {creatorInfo.tier === 'silver' && '⭐'}
@@ -207,7 +207,7 @@ export default function CreatorDashboardPage() {
                   <div className="text-white font-bold text-xl">
                     דרגה: {creatorInfo.tier === 'gold' ? 'זהב' : creatorInfo.tier === 'silver' ? 'כסף' : 'ברונזה'}
                   </div>
-                  <div className="text-[#cbc190] text-sm">
+                  <div className="text-muted text-sm">
                     הדרגה שלך מבוססת על ביצועים
                   </div>
                 </div>
@@ -219,22 +219,22 @@ export default function CreatorDashboardPage() {
         {/* Stats */}
         <div className="grid md:grid-cols-4 gap-6 mb-8">
           <Card>
-            <div className="text-[#cbc190] text-sm mb-2">משימות פעילות</div>
-            <div className="text-3xl font-bold text-[#f2cc0d]">{tasksCount || 0}</div>
+            <div className="text-muted text-sm mb-2">משימות פעילות</div>
+            <div className="text-3xl font-bold text-gold">{tasksCount || 0}</div>
           </Card>
           <Card>
-            <div className="text-[#cbc190] text-sm mb-2">תשלומים ממתינים</div>
-            <div className="text-3xl font-bold text-[#f2cc0d]">{pendingPaymentsCount || 0}</div>
+            <div className="text-muted text-sm mb-2">תשלומים ממתינים</div>
+            <div className="text-3xl font-bold text-gold">{pendingPaymentsCount || 0}</div>
           </Card>
           <Card>
-            <div className="text-[#cbc190] text-sm mb-2">דירוג ממוצע</div>
-            <div className="text-3xl font-bold text-[#f2cc0d]">
+            <div className="text-muted text-sm mb-2">דירוג ממוצע</div>
+            <div className="text-3xl font-bold text-gold">
               {metrics?.average_rating ? Number(metrics.average_rating).toFixed(1) : '-'}
             </div>
           </Card>
           <Card>
-            <div className="text-[#cbc190] text-sm mb-2">אחוז אישור</div>
-            <div className="text-3xl font-bold text-[#f2cc0d]">
+            <div className="text-muted text-sm mb-2">אחוז אישור</div>
+            <div className="text-3xl font-bold text-gold">
               {metrics?.approval_rate ? `${Number(metrics.approval_rate).toFixed(0)}%` : '-'}
             </div>
           </Card>
@@ -246,15 +246,15 @@ export default function CreatorDashboardPage() {
             <h2 className="text-xl font-bold text-white mb-4">מדדי ביצוע</h2>
             <div className="grid md:grid-cols-3 gap-6">
               <div>
-                <div className="text-[#cbc190] text-sm mb-2">סך משימות</div>
+                <div className="text-muted text-sm mb-2">סך משימות</div>
                 <div className="text-2xl font-bold text-white">{metrics.total_tasks || 0}</div>
               </div>
               <div>
-                <div className="text-[#cbc190] text-sm mb-2">משימות מאושרות</div>
+                <div className="text-muted text-sm mb-2">משימות מאושרות</div>
                 <div className="text-2xl font-bold text-green-400">{metrics.approved_tasks || 0}</div>
               </div>
               <div>
-                <div className="text-[#cbc190] text-sm mb-2">אחוז אספקה בזמן</div>
+                <div className="text-muted text-sm mb-2">אחוז אספקה בזמן</div>
                 <div className="text-2xl font-bold text-blue-400">
                   {metrics.on_time_rate ? `${Number(metrics.on_time_rate).toFixed(0)}%` : '-'}
                 </div>
@@ -345,13 +345,13 @@ export default function CreatorDashboardPage() {
                 return (
                   <div
                     key={app.id}
-                    className="flex items-center justify-between p-4 bg-[#2e2a1b] rounded-lg"
+                    className="flex items-center justify-between p-4 bg-surface border border-subtle rounded-lg"
                   >
                     <div className="flex-1">
                       <div className="text-white font-medium mb-1">
                         בקשה #{app.id.substring(0, 8)}
                       </div>
-                      <div className="text-sm text-[#cbc190]">
+                      <div className="text-sm text-muted">
                         {new Date(app.created_at || '').toLocaleDateString('he-IL')}
                       </div>
                     </div>
@@ -373,20 +373,20 @@ export default function CreatorDashboardPage() {
               {recentTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center justify-between p-4 bg-[#2e2a1b] rounded-lg"
+                  className="flex items-center justify-between p-4 bg-surface border border-subtle rounded-lg"
                 >
                   <div>
                     <div className="text-white font-medium">{task.title}</div>
-                    <div className="text-sm text-[#cbc190]">
+                    <div className="text-sm text-muted">
                       משימה #{task.id.substring(0, 8)}
                     </div>
                   </div>
-                  <div className="text-sm text-[#f2cc0d]">{task.status}</div>
+                  <div className="text-sm text-gold">{task.status}</div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-[#cbc190]">אין משימות עדיין</p>
+            <p className="text-muted">אין משימות עדיין</p>
           )}
         </Card>
       </div>
