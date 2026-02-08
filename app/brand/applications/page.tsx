@@ -191,8 +191,8 @@ export default function BrandApplicationsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">בקשות משפיענים</h1>
-              <p className="text-[#cbc190]">סקירה ואישור יוצרי תוכן</p>
+              <h1 className="text-3xl font-bold text-white mb-2">👥 בחירת משפיענים</h1>
+              <p className="text-[#cbc190]">סקירת מועמדויות ובחירת משפיענים לקמפיינים</p>
             </div>
             <Button
               onClick={() => setShowFilters(!showFilters)}

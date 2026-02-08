@@ -106,8 +106,8 @@ export default function CreatorApplicationsPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">הבקשות שלי</h1>
-          <p className="text-[#cbc190]">מעקב אחר כל הבקשות שהגשת לקמפיינים</p>
+          <h1 className="text-3xl font-bold text-white mb-2">📝 המועמדויות שלי</h1>
+          <p className="text-[#cbc190]">הצעות שהגשת לקמפיינים - ממתין/אושר/נדחה</p>
         </div>
 
         {applications && applications.length > 0 ? (

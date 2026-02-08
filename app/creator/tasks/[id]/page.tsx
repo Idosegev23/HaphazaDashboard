@@ -292,6 +292,8 @@ export default function CreatorTaskDetailPage() {
       }
 
       // Update task status to uploaded if it was in_production OR needs_edits
+      const wasNeedingEdits = task?.status === 'needs_edits';
+      
       if (task?.status === 'in_production' || task?.status === 'needs_edits') {
         await supabase
           .from('tasks')
@@ -299,14 +301,8 @@ export default function CreatorTaskDetailPage() {
           .eq('id', taskId);
       }
 
-      // If task was needs_edits, mark revision as resolved
-      if (task?.status === 'needs_edits') {
-        await supabase
-          .from('revision_requests')
-          .update({ status: 'resolved' })
-          .eq('task_id', taskId)
-          .eq('status', 'open');
-        
+      // Show appropriate message
+      if (wasNeedingEdits) {
         alert('✅ התיקון הועלה בהצלחה!\n\nהמשימה חזרה לסטטוס "הועלה" והמותג יקבל התראה לבדוק מחדש.');
       } else {
         alert('✅ הקובץ הועלה בהצלחה!');

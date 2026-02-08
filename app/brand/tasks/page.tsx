@@ -82,8 +82,8 @@ export default function BrandTasksPage() {
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
       <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
-        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">לוח משימות</h1>
-        <p className="text-[#cbc190]">מעקב אחר משימות יוצרים</p>
+        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">🎬 ניהול תוכן</h1>
+        <p className="text-[#cbc190]">מעקב, בקשת תיקונים ואישור תוכן מהמשפיענים</p>
       </div>
 
       {/* Mobile Filter - Show only on mobile */}

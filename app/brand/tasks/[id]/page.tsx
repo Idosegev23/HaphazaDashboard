@@ -59,7 +59,7 @@ const REVISION_TAGS = [
 ];
 
 export default function BrandTaskDetailPage() {
-  const { user } = useUser();
+  const { user, loading: userLoading } = useUser();
   const router = useRouter();
   const params = useParams();
   const taskId = params.id as string;
@@ -69,6 +69,7 @@ export default function BrandTaskDetailPage() {
   const [revisions, setRevisions] = useState<RevisionRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string>('');
   
   // Revision form state
   const [showRevisionForm, setShowRevisionForm] = useState(false);
@@ -89,18 +90,25 @@ export default function BrandTaskDetailPage() {
   }, [user, router]);
 
   useEffect(() => {
-    if (!user?.id || !user?.brand_id) return;
+    if (userLoading) return; // המתן עד שה-user נטען
+    if (!user?.id || !user?.brand_id) {
+      setDebugInfo(`User: ${user?.id || 'missing'}, Brand: ${user?.brand_id || 'missing'}`);
+      setLoading(false);
+      return;
+    }
     loadTaskData();
     subscribeToUpdates();
-  }, [user?.id, user?.brand_id, taskId]);
+  }, [user?.id, user?.brand_id, userLoading, taskId]);
 
   const loadTaskData = async () => {
     if (!user?.brand_id) {
       console.error('No brand_id found for user');
+      setDebugInfo(`ERROR: No brand_id. User ID: ${user?.id}`);
       setLoading(false);
       return;
     }
 
+    setDebugInfo(`Loading with brand_id: ${user.brand_id}`);
     const supabase = createClient();
 
     // Load task with creator details - filter by brand_id through campaigns
@@ -375,7 +383,7 @@ export default function BrandTaskDetailPage() {
     return data.publicUrl;
   };
 
-  if (loading) {
+  if (userLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-white text-xl">טוען...</div>
@@ -383,10 +391,40 @@ export default function BrandTaskDetailPage() {
     );
   }
 
+  if (!user?.brand_id) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-white text-center">
+          <div className="text-xl mb-4">שגיאה: לא נמצא מותג למשתמש</div>
+          <div className="text-sm text-[#cbc190]">Debug: {debugInfo}</div>
+          <button 
+            onClick={() => router.push('/brand/dashboard')}
+            className="mt-4 px-6 py-2 bg-[#f2cc0d] text-black rounded-lg hover:bg-[#d4b00b]"
+          >
+            חזרה לדשבורד
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!task) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">משימה לא נמצאה</div>
+        <div className="text-white text-center">
+          <div className="text-xl mb-4">משימה לא נמצאה</div>
+          <div className="text-sm text-[#cbc190] mb-4">
+            Task ID: {taskId}<br/>
+            Brand ID: {user.brand_id}<br/>
+            Debug: {debugInfo}
+          </div>
+          <button 
+            onClick={() => router.push('/brand/tasks')}
+            className="mt-4 px-6 py-2 bg-[#f2cc0d] text-black rounded-lg hover:bg-[#d4b00b]"
+          >
+            חזרה למשימות
+          </button>
+        </div>
       </div>
     );
   }

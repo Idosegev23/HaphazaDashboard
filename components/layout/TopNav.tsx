@@ -36,9 +36,9 @@ export function TopNav({ user }: TopNavProps) {
     if (user.role === 'creator') {
       return [
         { href: '/creator/dashboard', label: 'לוח בקרה', icon: '📊' },
-        { href: '/creator/campaigns', label: 'קמפיינים', icon: '🎯' },
-        { href: '/creator/applications', label: 'הבקשות שלי', icon: '📝' },
-        { href: '/creator/tasks', label: 'משימות', icon: '📋' },
+        { href: '/creator/campaigns', label: 'קמפיינים פתוחים', icon: '🎯' },
+        { href: '/creator/applications', label: 'המועמדויות שלי', icon: '📝' },
+        { href: '/creator/tasks', label: 'העבודות שלי', icon: '📋' },
         { href: '/creator/shipping', label: 'משלוחים', icon: '📦' },
         { href: '/creator/payments', label: 'תשלומים', icon: '💰' },
       ];
@@ -47,10 +47,10 @@ export function TopNav({ user }: TopNavProps) {
     if (['brand_manager', 'brand_user'].includes(user.role)) {
       return [
         { href: '/brand/dashboard', label: 'לוח בקרה', icon: '📊' },
-        { href: '/brand/campaigns', label: 'קמפיינים', icon: '🎯' },
-        { href: '/brand/applications', label: 'בקשות', icon: '📝' },
-        { href: '/brand/tasks', label: 'משימות', icon: '📋' },
-        { href: '/brand/assets', label: 'תוכן מאושר', icon: '🎬' },
+        { href: '/brand/campaigns', label: 'הקמפיינים שלי', icon: '🎯' },
+        { href: '/brand/applications', label: 'בחירת משפיענים', icon: '👥' },
+        { href: '/brand/tasks', label: 'ניהול תוכן', icon: '🎬' },
+        { href: '/brand/assets', label: 'תוכן מאושר', icon: '✅' },
         { href: '/brand/shipping', label: 'משלוחים', icon: '📦' },
       ];
     }
