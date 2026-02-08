@@ -61,6 +61,16 @@ export default function CreatorTaskDetailPage() {
   const [processing, setProcessing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedDeliverableType, setSelectedDeliverableType] = useState<string>('');
+
+  const DELIVERABLE_LABELS: Record<string, string> = {
+    instagram_story: 'Instagram Story',
+    instagram_reel: 'Instagram Reel',
+    instagram_post: 'Instagram Post',
+    tiktok_video: 'TikTok Video',
+    ugc_video: 'UGC Video',
+    photo: 'Photo (תמונה)',
+  };
 
   useEffect(() => {
     if (user && user.role !== 'creator') {
@@ -252,6 +262,13 @@ export default function CreatorTaskDetailPage() {
       return;
     }
 
+    // Validate deliverable type selection if deliverables are defined
+    if (task?.campaigns?.deliverables && Object.keys(task.campaigns.deliverables).length > 0 && !selectedDeliverableType) {
+      alert('אנא בחר את סוג התוכן שאתה מעלה (למשל: Story, Reel, וכו\')');
+      event.target.value = '';
+      return;
+    }
+
     setUploading(true);
     setUploadProgress(0);
     const supabase = createClient();
@@ -285,6 +302,7 @@ export default function CreatorTaskDetailPage() {
             filename: file.name,
             size: file.size,
             type: file.type,
+            deliverable_type: selectedDeliverableType || null,
           },
         });
 
@@ -311,8 +329,9 @@ export default function CreatorTaskDetailPage() {
       
       loadTaskData();
       
-      // Reset file input
+      // Reset file input and selection
       event.target.value = '';
+      setSelectedDeliverableType('');
     } catch (error: any) {
       console.error('Upload error:', error);
       alert('שגיאה בהעלאת הקובץ: ' + error.message);
@@ -376,6 +395,10 @@ export default function CreatorTaskDetailPage() {
       default:
         return 'המתן לקבלת המשלוח.';
     }
+  };
+
+  const getUploadedCount = (type: string) => {
+    return uploads.filter(u => u.meta?.deliverable_type === type).length;
   };
 
   return (
@@ -555,6 +578,35 @@ export default function CreatorTaskDetailPage() {
                     קבצים נתמכים: JPG, PNG, GIF, WebP, MP4, MOV, AVI (עד 50MB)
                   </p>
                 </div>
+
+                {/* Deliverable Type Selector */}
+                {task.campaigns?.deliverables && Object.keys(task.campaigns.deliverables).length > 0 && (
+                  <div className="mb-6 max-w-md mx-auto">
+                    <label className="block text-sm font-medium text-white mb-2 text-center">
+                      סוג התוכן שמועלה *
+                    </label>
+                    <select
+                      value={selectedDeliverableType}
+                      onChange={(e) => setSelectedDeliverableType(e.target.value)}
+                      className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                    >
+                      <option value="">-- בחר סוג תוכן --</option>
+                      {Object.entries(task.campaigns.deliverables).map(([key, value]) => {
+                        if (!value || (value as number) === 0) return null;
+                        const uploadedCount = getUploadedCount(key);
+                        const requiredCount = value as number;
+                        const isCompleted = uploadedCount >= requiredCount;
+                        
+                        return (
+                          <option key={key} value={key}>
+                            {DELIVERABLE_LABELS[key] || key} ({uploadedCount}/{requiredCount} {isCompleted ? '✅' : ''})
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                )}
+
                 <div className="flex justify-center">
                   <input
                     type="file"
@@ -596,10 +648,15 @@ export default function CreatorTaskDetailPage() {
                   <div key={upload.id} className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-white font-medium">{upload.storage_path.split('/').pop()}</div>
-                        <span className="text-xs text-[#cbc190]">
-                          {new Date(upload.created_at).toLocaleDateString('he-IL')} {new Date(upload.created_at).toLocaleTimeString('he-IL')}
-                        </span>
+                        <div className="text-white font-medium">{upload.meta?.filename || upload.storage_path.split('/').pop()}</div>
+                        <div className="flex items-center gap-2 text-xs text-[#cbc190]">
+                          <span>{new Date(upload.created_at).toLocaleDateString('he-IL')} {new Date(upload.created_at).toLocaleTimeString('he-IL')}</span>
+                          {upload.meta?.deliverable_type && (
+                            <span className="bg-[#1E1E1E] px-2 py-0.5 rounded border border-[#494222]">
+                              {DELIVERABLE_LABELS[upload.meta.deliverable_type] || upload.meta.deliverable_type}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <span className={`px-2 py-1 rounded text-xs ${
                         upload.status === 'approved' ? 'bg-green-500 text-white' :
