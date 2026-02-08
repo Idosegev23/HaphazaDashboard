@@ -15,6 +15,7 @@ type Campaign = {
   fixed_price: number | null;
   deadline: string | null;
   status: string | null;
+  deliverables?: any; // JSONB
 };
 
 type Product = {
@@ -328,6 +329,31 @@ export default function CampaignDetailPage() {
                 value={formData.deadline}
                 onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
               />
+
+              {/* Deliverables Display */}
+              {campaign.deliverables && Object.keys(campaign.deliverables).length > 0 && (
+                <div className="bg-[#1E1E1E] p-4 rounded-lg border border-[#494222]">
+                  <h3 className="text-sm font-medium text-white mb-3">תמהיל תוצרים</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(campaign.deliverables).map(([key, value]) => {
+                      if (!value || (value as number) === 0) return null;
+                      const labels: Record<string, string> = {
+                        instagram_story: 'Story',
+                        instagram_reel: 'Reel',
+                        instagram_post: 'Post',
+                        tiktok_video: 'TikTok',
+                        ugc_video: 'UGC',
+                        photo: 'Photo',
+                      };
+                      return (
+                        <span key={key} className="px-3 py-1 bg-[#2e2a1b] border border-[#494222] rounded-full text-white text-sm">
+                          {value as number} x {labels[key] || key}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </Card>
 

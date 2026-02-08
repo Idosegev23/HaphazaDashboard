@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/hooks/use-user';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 
 type Payment = {
   id: string;
@@ -13,6 +14,8 @@ type Payment = {
   status: string;
   created_at: string;
   paid_at: string | null;
+  invoice_url: string | null;
+  proof_url: string | null;
   tasks: {
     title: string;
     campaigns: {
@@ -47,7 +50,7 @@ export default function CreatorPaymentsPage() {
 
     const { data, error } = await supabase
       .from('payments')
-      .select('id, amount, currency, status, created_at, paid_at, tasks(title, campaigns(title, brands(name)))')
+      .select('id, amount, currency, status, created_at, paid_at, invoice_url, proof_url, tasks(title, campaigns(title, brands(name)))')
       .eq('tasks.creator_id', user?.id!)
       .order('created_at', { ascending: false });
 
@@ -167,6 +170,78 @@ export default function CreatorPaymentsPage() {
                       <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[payment.status]}`}>
                         {statusLabels[payment.status]}
                       </span>
+                      
+                      <div className="mt-4 space-y-2">
+                        {/* Invoice Upload */}
+                        {!payment.invoice_url && (
+                          <div>
+                            <input
+                              type="file"
+                              id={`invoice-${payment.id}`}
+                              className="hidden"
+                              accept="image/*,application/pdf"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                
+                                const supabase = createClient();
+                                const fileExt = file.name.split('.').pop();
+                                const fileName = `invoice_${payment.id}_${Date.now()}.${fileExt}`;
+                                
+                                try {
+                                  const { error: uploadError } = await supabase.storage
+                                    .from('payment-uploads')
+                                    .upload(fileName, file);
+                                    
+                                  if (uploadError) throw uploadError;
+                                  
+                                  const { data: { publicUrl } } = supabase.storage
+                                    .from('payment-uploads')
+                                    .getPublicUrl(fileName);
+                                    
+                                  await supabase
+                                    .from('payments')
+                                    .update({ invoice_url: publicUrl })
+                                    .eq('id', payment.id);
+                                    
+                                  alert('✅ חשבונית הועלתה בהצלחה');
+                                  loadPayments();
+                                } catch (err: any) {
+                                  alert('שגיאה: ' + err.message);
+                                }
+                              }}
+                            />
+                            <Button
+                              onClick={() => document.getElementById(`invoice-${payment.id}`)?.click()}
+                              className="w-full text-xs bg-[#2e2a1b] border border-[#494222] hover:bg-[#3a3525]"
+                            >
+                              📄 העלה חשבונית/קבלה
+                            </Button>
+                          </div>
+                        )}
+                        
+                        {payment.invoice_url && (
+                          <a
+                            href={payment.invoice_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-center text-sm text-[#f2cc0d] hover:underline"
+                          >
+                            📄 צפה בחשבונית שלך
+                          </a>
+                        )}
+
+                        {payment.proof_url && (
+                          <a
+                            href={payment.proof_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block text-center text-sm text-green-400 hover:underline"
+                          >
+                            ✅ צפה באישור העברה
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}

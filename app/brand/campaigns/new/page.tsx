@@ -16,6 +16,33 @@ export default function NewCampaignPage() {
     fixedPrice: '',
     deadline: '',
   });
+  
+  // Deliverables state
+  const [deliverables, setDeliverables] = useState({
+    instagram_story: 0,
+    instagram_reel: 0,
+    instagram_post: 0,
+    tiktok_video: 0,
+    ugc_video: 0,
+    photo: 0,
+  });
+
+  const DELIVERABLE_LABELS: Record<string, string> = {
+    instagram_story: 'Instagram Story',
+    instagram_reel: 'Instagram Reel',
+    instagram_post: 'Instagram Post',
+    tiktok_video: 'TikTok Video',
+    ugc_video: 'UGC Video',
+    photo: 'Photo (תמונה)',
+  };
+
+  const updateDeliverable = (key: keyof typeof deliverables, change: number) => {
+    setDeliverables(prev => ({
+      ...prev,
+      [key]: Math.max(0, prev[key] + change)
+    }));
+  };
+  
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -56,6 +83,7 @@ export default function NewCampaignPage() {
         currency: 'ILS',
         deadline: formData.deadline || null,
         status: 'draft',
+        deliverables: deliverables, // Add deliverables JSON
       })
       .select()
       .single();
@@ -130,6 +158,39 @@ export default function NewCampaignPage() {
               value={formData.deadline}
               onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
             />
+
+            {/* Deliverables Section */}
+            <div className="bg-[#2e2a1b] p-6 rounded-lg border border-[#494222]">
+              <h3 className="text-lg font-bold text-white mb-4">תמהיל תוצרים דרוש</h3>
+              <p className="text-[#cbc190] text-sm mb-4">בחר את כמות התוצרים מכל סוג שעל המשפיען לספק:</p>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {Object.entries(DELIVERABLE_LABELS).map(([key, label]) => (
+                  <div key={key} className="flex flex-col items-center p-3 bg-[#1E1E1E] rounded-lg border border-[#494222]">
+                    <span className="text-white text-sm mb-2">{label}</span>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => updateDeliverable(key as any, -1)}
+                        className="w-8 h-8 rounded-full bg-[#2e2a1b] text-white hover:bg-[#3a3525] flex items-center justify-center text-xl"
+                      >
+                        -
+                      </button>
+                      <span className="text-xl font-bold text-[#f2cc0d] w-6 text-center">
+                        {deliverables[key as keyof typeof deliverables]}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => updateDeliverable(key as any, 1)}
+                        className="w-8 h-8 rounded-full bg-[#f2cc0d] text-black hover:bg-[#d4b00b] flex items-center justify-center text-xl"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <div className="flex gap-4">
               <Button type="submit" disabled={loading}>

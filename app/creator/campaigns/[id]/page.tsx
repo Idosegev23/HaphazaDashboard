@@ -31,7 +31,7 @@ export default function CampaignDetailPage() {
     // Load campaign
     const { data: campaignData } = await supabase
       .from('campaigns')
-      .select('id, title, concept, objective, fixed_price, deadline, status, brands(name)')
+      .select('id, title, concept, objective, fixed_price, deadline, status, deliverables, brands(name)')
       .eq('id', params.id as string)
       .single();
 
@@ -100,6 +100,30 @@ export default function CampaignDetailPage() {
             <div className="mb-6">
               <h3 className="text-white font-bold mb-2">קונספט</h3>
               <p className="text-[#cbc190]">{campaign.concept}</p>
+            </div>
+          )}
+
+          {campaign.deliverables && Object.keys(campaign.deliverables).length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-white font-bold mb-3">תוצרים נדרשים</h3>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(campaign.deliverables).map(([key, value]) => {
+                  if (!value || (value as number) === 0) return null;
+                  const labels: Record<string, string> = {
+                    instagram_story: 'Instagram Story',
+                    instagram_reel: 'Instagram Reel',
+                    instagram_post: 'Instagram Post',
+                    tiktok_video: 'TikTok Video',
+                    ugc_video: 'UGC Video',
+                    photo: 'Photo (תמונה)',
+                  };
+                  return (
+                    <span key={key} className="px-3 py-1 bg-[#2e2a1b] border border-[#f2cc0d] rounded-full text-white text-sm">
+                      {value as number} x {labels[key] || key}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           )}
 
