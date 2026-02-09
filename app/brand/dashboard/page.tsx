@@ -60,14 +60,20 @@ export default async function BrandDashboardPage() {
             <div className="text-muted text-sm mb-2">סה"כ קמפיינים</div>
             <div className="text-3xl font-bold text-gold">{campaignsCount || 0}</div>
           </Card>
-          <Card>
-            <div className="text-muted text-sm mb-2">קמפיינים פעילים</div>
-            <div className="text-3xl font-bold text-gold">{activeCampaignsCount || 0}</div>
-          </Card>
-          <Card>
-            <div className="text-muted text-sm mb-2">בקשות ממתינות</div>
-            <div className="text-3xl font-bold text-gold">{applicationsCount || 0}</div>
-          </Card>
+          <Link href="/brand/campaigns" className="block">
+            <Card hover>
+              <div className="text-muted text-sm mb-2">קמפיינים פעילים</div>
+              <div className="text-3xl font-bold text-gold">{activeCampaignsCount || 0}</div>
+              <div className="text-xs text-muted mt-2">לחץ לצפייה ←</div>
+            </Card>
+          </Link>
+          <Link href="/brand/applications" className="block">
+            <Card hover>
+              <div className="text-muted text-sm mb-2">בקשות ממתינות</div>
+              <div className="text-3xl font-bold text-gold">{applicationsCount || 0}</div>
+              <div className="text-xs text-muted mt-2">לחץ לצפייה ←</div>
+            </Card>
+          </Link>
         </div>
 
         {/* Quick Actions */}

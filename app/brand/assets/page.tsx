@@ -23,6 +23,11 @@ type Asset = {
     campaign: {
       title: string;
     };
+    creator: {
+      display_name: string;
+      avatar_url: string | null;
+      platforms: any;
+    } | null;
   };
 };
 
@@ -75,6 +80,7 @@ export default function BrandAssetsPage() {
         tasks!inner(
           title,
           campaign_id,
+          creator_id,
           campaigns!inner(
             title,
             brand_id
@@ -91,22 +97,46 @@ export default function BrandAssetsPage() {
       return;
     }
 
-    const enriched = (uploadsData || []).map((upload: any) => ({
-      upload: {
-        id: upload.id,
-        storage_path: upload.storage_path,
-        status: upload.status,
-        created_at: upload.created_at,
-        meta: upload.meta,
-        task_id: upload.task_id,
-      },
-      task: {
-        title: upload.tasks.title,
-        campaign: {
-          title: upload.tasks.campaigns.title,
-        }
-      }
-    }));
+    // Enrich with creator data
+    const enriched = await Promise.all(
+      (uploadsData || []).map(async (upload: any) => {
+        // Get creator profile
+        const { data: profileData } = await supabase
+          .from('users_profiles')
+          .select('display_name, avatar_url')
+          .eq('user_id', upload.tasks.creator_id)
+          .single();
+        
+        // Get creator platforms
+        const { data: creatorData } = await supabase
+          .from('creators')
+          .select('platforms')
+          .eq('user_id', upload.tasks.creator_id)
+          .single();
+
+        return {
+          upload: {
+            id: upload.id,
+            storage_path: upload.storage_path,
+            status: upload.status,
+            created_at: upload.created_at,
+            meta: upload.meta,
+            task_id: upload.task_id,
+          },
+          task: {
+            title: upload.tasks.title,
+            campaign: {
+              title: upload.tasks.campaigns.title,
+            },
+            creator: profileData && creatorData ? {
+              display_name: profileData.display_name,
+              avatar_url: profileData.avatar_url,
+              platforms: creatorData.platforms,
+            } : null
+          }
+        };
+      })
+    );
 
     setAssets(enriched);
     setLoading(false);
@@ -175,57 +205,111 @@ export default function BrandAssetsPage() {
       <div className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {filteredAssets.length > 0 ? (
-            <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {filteredAssets.map((asset) => (
-                <Card key={asset.upload.id} className="overflow-hidden">
-                  <div className="space-y-3">
-                    {/* Media Preview */}
-                    <div className="aspect-square bg-[#2e2a1b] rounded-lg overflow-hidden">
-                      {asset.upload.meta?.type?.startsWith('image/') ? (
-                        <img
-                          src={`/api/storage/task-uploads/${asset.upload.storage_path}`}
-                          alt={asset.task.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : asset.upload.meta?.type?.startsWith('video/') ? (
-                        <video
-                          src={`/api/storage/task-uploads/${asset.upload.storage_path}`}
-                          className="w-full h-full object-cover"
-                          muted
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-4xl">
-                          📄
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Details */}
-                    <div>
-                      <div className="text-white font-medium mb-1 text-sm">
-                        {asset.task.title}
-                      </div>
-                      <div className="text-xs text-[#cbc190] mb-2">
-                        {asset.task.campaign.title}
-                      </div>
-                      {asset.upload.meta?.deliverable_type && (
-                        <div className="text-xs text-[#f2cc0d] mb-2">
-                          {asset.upload.meta.deliverable_type}
-                        </div>
-                      )}
-                    </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredAssets.map((asset) => {
+                // Extract first social link if available
+                const platforms = asset.task.creator?.platforms as Record<string, any> | null;
+                const firstPlatform = platforms ? Object.entries(platforms)[0] : null;
+                const socialLink = firstPlatform 
+                  ? firstPlatform[0] === 'instagram' 
+                    ? `https://instagram.com/${firstPlatform[1]?.username}`
+                    : firstPlatform[0] === 'tiktok'
+                    ? `https://tiktok.com/@${firstPlatform[1]?.username}`
+                    : firstPlatform[1]?.url || '#'
+                  : null;
 
-                    {/* Actions */}
-                    <a
-                      href={`/api/storage/task-uploads/${asset.upload.storage_path}`}
-                      download
-                      className="block w-full text-center px-4 py-2 bg-[#f2cc0d] text-black font-medium rounded-lg hover:bg-[#d4b00b] transition-colors text-sm"
-                    >
-                      ⬇️ הורד
-                    </a>
-                  </div>
-                </Card>
-              ))}
+                return (
+                  <Card key={asset.upload.id} className="overflow-hidden">
+                    <div className="space-y-3">
+                      {/* Media Preview */}
+                      <div className="aspect-square bg-[#2e2a1b] rounded-lg overflow-hidden">
+                        {asset.upload.meta?.type?.startsWith('image/') ? (
+                          <img
+                            src={`/api/storage/task-uploads/${asset.upload.storage_path}`}
+                            alt={asset.task.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : asset.upload.meta?.type?.startsWith('video/') ? (
+                          <video
+                            src={`/api/storage/task-uploads/${asset.upload.storage_path}`}
+                            className="w-full h-full object-cover"
+                            muted
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-4xl">
+                            📄
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Creator Info */}
+                      {asset.task.creator && (
+                        <div className="flex items-center gap-3 pb-3 border-b border-[#494222]">
+                          <div className="w-10 h-10 rounded-full overflow-hidden bg-[#2e2a1b] border-2 border-[#f2cc0d] flex-shrink-0">
+                            {asset.task.creator.avatar_url ? (
+                              <img 
+                                src={asset.task.creator.avatar_url} 
+                                alt={asset.task.creator.display_name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-lg text-[#f2cc0d]">
+                                👤
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-white font-medium text-sm truncate">
+                              {asset.task.creator.display_name}
+                            </div>
+                            {socialLink && (
+                              <a 
+                                href={socialLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[#f2cc0d] hover:text-[#d4b00b] text-xs"
+                              >
+                                🔗 פרופיל
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Content Details */}
+                      <div>
+                        <div className="text-white font-medium mb-1 text-sm">
+                          {asset.upload.meta?.deliverable_type ? (
+                            <span className="inline-block px-2 py-1 bg-[#f2cc0d] text-black text-xs font-bold rounded mb-2">
+                              {asset.upload.meta.deliverable_type.replace(/_/g, ' ').toUpperCase()}
+                            </span>
+                          ) : (
+                            <span className="text-[#cbc190] text-xs">סוג תוכן לא צוין</span>
+                          )}
+                        </div>
+                        <div className="text-white font-medium mb-1 text-sm">
+                          {asset.task.title}
+                        </div>
+                        <div className="text-xs text-[#cbc190] mb-1">
+                          📋 {asset.task.campaign.title}
+                        </div>
+                        <div className="text-xs text-[#cbc190]">
+                          📅 {new Date(asset.upload.created_at).toLocaleDateString('he-IL')}
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <a
+                        href={`/api/storage/task-uploads/${asset.upload.storage_path}`}
+                        download
+                        className="block w-full text-center px-4 py-2 bg-[#f2cc0d] text-black font-medium rounded-lg hover:bg-[#d4b00b] transition-colors text-sm"
+                      >
+                        ⬇️ הורד
+                      </a>
+                    </div>
+                  </Card>
+                );
+              })}
             </div>
           ) : (
             <Card>

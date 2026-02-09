@@ -29,6 +29,7 @@ type Application = {
       display_name: string;
       email: string;
       language: string | null;
+      avatar_url: string | null;
     } | null;
   } | null;
 };
@@ -136,7 +137,7 @@ export default function ApplicationDetailPage() {
     if (data && (data as any).creator_id) {
       const { data: profileData } = await supabase
         .from('users_profiles')
-        .select('display_name, email, language')
+        .select('display_name, email, language, avatar_url')
         .eq('user_id', (data as any).creator_id)
         .single();
       
@@ -445,16 +446,83 @@ export default function ApplicationDetailPage() {
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Creator Info */}
           <Card>
-            <h2 className="text-xl font-bold text-white mb-4">פרטי המשפיען</h2>
+            <div className="flex items-start gap-6 mb-6 pb-6 border-b border-[#494222]">
+              {/* Large Profile Picture */}
+              <div className="flex-shrink-0">
+                <div className="w-32 h-32 rounded-full overflow-hidden bg-[#2e2a1b] border-4 border-[#f2cc0d]">
+                  {application.creators?.users_profiles?.avatar_url ? (
+                    <img 
+                      src={application.creators.users_profiles.avatar_url} 
+                      alt={application.creators.users_profiles.display_name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-5xl text-[#f2cc0d]">
+                      👤
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-white mb-2">
+                  {application.creators?.users_profiles?.display_name || 'משפיען'}
+                </h2>
+                {application.creators?.users_profiles?.email && (
+                  <a 
+                    href={`mailto:${application.creators.users_profiles.email}`} 
+                    className="text-[#cbc190] hover:text-[#f2cc0d] transition-colors text-sm block mb-3"
+                  >
+                    📧 {application.creators.users_profiles.email}
+                  </a>
+                )}
+                
+                {/* Social Links - Prominent */}
+                {application.creators?.platforms && typeof application.creators.platforms === 'object' && (
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(application.creators.platforms as Record<string, any>).map(([platform, data]: [string, any]) => {
+                      const link = 
+                        platform === 'instagram' ? `https://instagram.com/${data?.username}` :
+                        platform === 'tiktok' ? `https://tiktok.com/@${data?.username}` :
+                        platform === 'youtube' ? `https://youtube.com/@${data?.username}` :
+                        platform === 'facebook' ? `https://facebook.com/${data?.username}` :
+                        data?.url || '#';
+                      
+                      const icon = 
+                        platform === 'instagram' ? '📸' :
+                        platform === 'tiktok' ? '🎵' :
+                        platform === 'youtube' ? '📺' :
+                        platform === 'facebook' ? '👤' : '🔗';
+                      
+                      return (
+                        <a
+                          key={platform}
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-2 bg-[#f2cc0d] text-black font-medium rounded-lg hover:bg-[#d4b00b] transition-colors text-sm flex items-center gap-2"
+                        >
+                          {icon} {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                        </a>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <h3 className="text-lg font-bold text-white mb-4">מידע נוסף</h3>
             <div className="space-y-4">
               {/* Basic Info */}
               <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <span className="text-[#cbc190] text-sm">שם מלא</span>
-                  <div className="text-white font-medium text-lg">
-                    {application.creators?.users_profiles?.display_name || 'לא זמין'}
+                {application.creators?.users_profiles?.display_name && (
+                  <div>
+                    <span className="text-[#cbc190] text-sm">שם מלא</span>
+                    <div className="text-white font-medium text-lg">
+                      {application.creators.users_profiles.display_name}
+                    </div>
                   </div>
-                </div>
+                )}
                 {application.creators?.users_profiles?.email && (
                   <div>
                     <span className="text-[#cbc190] text-sm">אימייל</span>

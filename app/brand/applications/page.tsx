@@ -26,6 +26,7 @@ type Application = {
     users_profiles: {
       display_name: string;
       email: string;
+      avatar_url: string | null;
     } | null;
   } | null;
 };
@@ -112,7 +113,7 @@ export default function BrandApplicationsPage() {
 
         const { data: profileData } = await supabase
           .from('users_profiles')
-          .select('display_name, email')
+          .select('display_name, email, avatar_url')
           .eq('user_id', app.creator_id)
           .single();
 
@@ -362,45 +363,95 @@ export default function BrandApplicationsPage() {
 
         {filteredApplications.length > 0 ? (
           <div className="space-y-4">
-            {filteredApplications.map((application) => (
-              <Link key={application.id} href={`/brand/applications/${application.id}`}>
-                <Card hover className="relative">
-                  <div className={`status-stripe ${statusColors[application.status || 'submitted']}`} />
-                  <div className="pl-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="text-white font-bold mb-1">
-                          {application.campaigns?.title || 'ללא שם'}
-                        </h3>
-                        <div className="text-sm text-[#cbc190] mb-2 space-y-1">
-                          <div>
-                            👤 {application.creators?.users_profiles?.display_name || 'לא זמין'}
-                            {application.creators?.age_range && (
-                              <span> • גיל {application.creators.age_range}</span>
-                            )}
-                            {application.creators?.gender && (
-                              <span> • {application.creators.gender === 'female' ? 'נקבה' : application.creators.gender === 'male' ? 'זכר' : 'אחר'}</span>
+            {filteredApplications.map((application) => {
+              // Extract first social link if available
+              const platforms = application.creators?.platforms as Record<string, any> | null;
+              const firstPlatform = platforms ? Object.entries(platforms)[0] : null;
+              const socialLink = firstPlatform 
+                ? firstPlatform[0] === 'instagram' 
+                  ? `https://instagram.com/${firstPlatform[1]?.username}`
+                  : firstPlatform[0] === 'tiktok'
+                  ? `https://tiktok.com/@${firstPlatform[1]?.username}`
+                  : firstPlatform[1]?.url || '#'
+                : null;
+
+              return (
+                <Link key={application.id} href={`/brand/applications/${application.id}`}>
+                  <Card hover className="relative">
+                    <div className={`status-stripe ${statusColors[application.status || 'submitted']}`} />
+                    <div className="pl-6">
+                      <div className="flex items-start gap-4">
+                        {/* Creator Avatar */}
+                        <div className="flex-shrink-0">
+                          <div className="w-16 h-16 rounded-full overflow-hidden bg-[#2e2a1b] border-2 border-[#f2cc0d]">
+                            {application.creators?.users_profiles?.avatar_url ? (
+                              <img 
+                                src={application.creators.users_profiles.avatar_url} 
+                                alt={application.creators.users_profiles.display_name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-2xl text-[#f2cc0d]">
+                                👤
+                              </div>
                             )}
                           </div>
-                          <div>
-                            🏷️ {application.creators?.niches?.join(', ') || 'לא צוין'}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h3 className="text-white font-bold mb-1">
+                                {application.campaigns?.title || 'ללא שם'}
+                              </h3>
+                              <div className="flex items-center gap-2">
+                                <span className="text-white font-medium">
+                                  {application.creators?.users_profiles?.display_name || 'לא זמין'}
+                                </span>
+                                {socialLink && (
+                                  <a 
+                                    href={socialLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="text-[#f2cc0d] hover:text-[#d4b00b] text-xs"
+                                  >
+                                    🔗 פרופיל
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-sm text-[#f2cc0d] whitespace-nowrap">
+                              {statusLabels[application.status || 'submitted']}
+                            </div>
                           </div>
-                          {application.creators?.country && (
-                            <div>🌍 {application.creators.country}</div>
+                          
+                          <div className="text-sm text-[#cbc190] mb-2 space-y-1">
+                            <div>
+                              {application.creators?.age_range && (
+                                <span>גיל {application.creators.age_range}</span>
+                              )}
+                              {application.creators?.gender && (
+                                <span> • {application.creators.gender === 'female' ? 'נקבה' : application.creators.gender === 'male' ? 'זכר' : 'אחר'}</span>
+                              )}
+                            </div>
+                            <div>
+                              🏷️ {application.creators?.niches?.join(', ') || 'לא צוין'}
+                            </div>
+                            {application.creators?.country && (
+                              <div>🌍 {application.creators.country}</div>
+                            )}
+                          </div>
+                          {application.message && (
+                            <p className="text-[#cbc190] text-sm line-clamp-2">{application.message}</p>
                           )}
                         </div>
-                        {application.message && (
-                          <p className="text-[#cbc190] text-sm line-clamp-2">{application.message}</p>
-                        )}
-                      </div>
-                      <div className="text-sm text-[#f2cc0d]">
-                        {statusLabels[application.status || 'submitted']}
                       </div>
                     </div>
-                  </div>
-                </Card>
-              </Link>
-            ))}
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <Card>

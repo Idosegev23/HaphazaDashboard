@@ -16,9 +16,12 @@ type Task = {
   requires_product: boolean;
   created_at: string;
   campaign_id: string;
+  product_requirements: string | null;
   campaigns: {
     id: string;
     title: string;
+    description: string | null;
+    brief: string | null;
     deliverables: any; // JSONB
     brands: {
       name: string;
@@ -90,7 +93,7 @@ export default function CreatorTaskDetailPage() {
     // Load task
     const { data: taskData, error: taskError } = await supabase
       .from('tasks')
-      .select('id, title, status, due_at, requires_product, created_at, campaign_id, campaigns(id, title, deliverables, brands(name))')
+      .select('id, title, status, due_at, requires_product, created_at, campaign_id, product_requirements, campaigns(id, title, description, brief, deliverables, brands(name))')
       .eq('id', taskId)
       .eq('creator_id', user!.id)
       .single();
@@ -237,27 +240,12 @@ export default function CreatorTaskDetailPage() {
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
     // UX Block: בדוק שהמשימה בסטטוס נכון להעלאה
     if (task?.status !== 'in_production' && task?.status !== 'needs_edits') {
       alert('לא ניתן להעלות קבצים כרגע.\nיש להתחיל עבודה על המשימה תחילה.');
-      event.target.value = ''; // Reset file input
-      return;
-    }
-
-    // Validate file size (50MB max)
-    if (file.size > 50 * 1024 * 1024) {
-      alert('הקובץ גדול מדי. גודל מקסימלי: 50MB');
-      event.target.value = '';
-      return;
-    }
-
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime', 'video/x-msvideo'];
-    if (!allowedTypes.includes(file.type)) {
-      alert('סוג קובץ לא נתמך. אנא העלה תמונה או וידאו.');
       event.target.value = '';
       return;
     }
@@ -274,46 +262,72 @@ export default function CreatorTaskDetailPage() {
     const supabase = createClient();
 
     try {
-      // Generate unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `${taskId}/${fileName}`;
+      const wasNeedingEdits = task?.status === 'needs_edits';
+      let successCount = 0;
+      let errorCount = 0;
 
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('task-uploads')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false,
-        });
+      // Upload each file
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setUploadProgress(Math.round(((i + 1) / files.length) * 100));
 
-      if (uploadError) {
-        throw uploadError;
-      }
+        // Validate file size (50MB max)
+        if (file.size > 50 * 1024 * 1024) {
+          console.error(`File ${file.name} too large`);
+          errorCount++;
+          continue;
+        }
 
-      // Create upload record in database
-      const { error: dbError } = await supabase
-        .from('uploads')
-        .insert({
-          task_id: taskId,
-          storage_path: filePath,
-          status: 'pending',
-          meta: {
-            filename: file.name,
-            size: file.size,
-            type: file.type,
-            deliverable_type: selectedDeliverableType || null,
-          },
-        });
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/quicktime', 'video/x-msvideo'];
+        if (!allowedTypes.includes(file.type)) {
+          console.error(`File ${file.name} unsupported type`);
+          errorCount++;
+          continue;
+        }
 
-      if (dbError) {
-        throw dbError;
+        try {
+          // Generate unique filename
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+          const filePath = `${taskId}/${fileName}`;
+
+          // Upload to Supabase Storage
+          const { error: uploadError } = await supabase.storage
+            .from('task-uploads')
+            .upload(filePath, file, {
+              cacheControl: '3600',
+              upsert: false,
+            });
+
+          if (uploadError) throw uploadError;
+
+          // Create upload record in database
+          const { error: dbError } = await supabase
+            .from('uploads')
+            .insert({
+              task_id: taskId,
+              storage_path: filePath,
+              status: 'pending',
+              meta: {
+                filename: file.name,
+                size: file.size,
+                type: file.type,
+                deliverable_type: selectedDeliverableType || null,
+              },
+            });
+
+          if (dbError) throw dbError;
+
+          successCount++;
+        } catch (fileError: any) {
+          console.error(`Error uploading ${file.name}:`, fileError);
+          errorCount++;
+        }
       }
 
       // Update task status to uploaded if it was in_production OR needs_edits
-      const wasNeedingEdits = task?.status === 'needs_edits';
-      
-      if (task?.status === 'in_production' || task?.status === 'needs_edits') {
+      if (successCount > 0 && (task?.status === 'in_production' || task?.status === 'needs_edits')) {
         await supabase
           .from('tasks')
           .update({ status: 'uploaded', updated_at: new Date().toISOString() })
@@ -321,10 +335,14 @@ export default function CreatorTaskDetailPage() {
       }
 
       // Show appropriate message
-      if (wasNeedingEdits) {
-        alert('✅ התיקון הועלה בהצלחה!\n\nהמשימה חזרה לסטטוס "הועלה" והמותג יקבל התראה לבדוק מחדש.');
+      if (successCount > 0) {
+        if (wasNeedingEdits) {
+          alert(`✅ ${successCount} קבצים הועלו בהצלחה!\n\nהמשימה חזרה לסטטוס "הועלה" והמותג יקבל התראה לבדוק מחדש.${errorCount > 0 ? `\n\n⚠️ ${errorCount} קבצים נכשלו.` : ''}`);
+        } else {
+          alert(`✅ ${successCount} קבצים הועלו בהצלחה!${errorCount > 0 ? `\n\n⚠️ ${errorCount} קבצים נכשלו.` : ''}`);
+        }
       } else {
-        alert('✅ הקובץ הועלה בהצלחה!');
+        alert('❌ לא הצלחנו להעלות אף קובץ. בדוק את הגודל והסוג.');
       }
       
       loadTaskData();
@@ -334,7 +352,7 @@ export default function CreatorTaskDetailPage() {
       setSelectedDeliverableType('');
     } catch (error: any) {
       console.error('Upload error:', error);
-      alert('שגיאה בהעלאת הקובץ: ' + error.message);
+      alert('שגיאה בהעלאת הקבצים: ' + error.message);
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -467,6 +485,68 @@ export default function CreatorTaskDetailPage() {
             </Card>
           )}
 
+          {/* Campaign Brief */}
+          {(task.campaigns?.brief || task.campaigns?.description) && (
+            <Card className="bg-gradient-to-br from-[#2e2a1b] to-[#1E1E1E] border-2 border-[#f2cc0d]">
+              <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                📋 בריף הקמפיין
+              </h2>
+              <div className="prose prose-invert max-w-none">
+                {task.campaigns.brief ? (
+                  <p className="text-white text-base leading-relaxed whitespace-pre-wrap">
+                    {task.campaigns.brief}
+                  </p>
+                ) : (
+                  <p className="text-white text-base leading-relaxed whitespace-pre-wrap">
+                    {task.campaigns.description}
+                  </p>
+                )}
+              </div>
+            </Card>
+          )}
+
+          {/* Product Requirements */}
+          {task.requires_product && (
+            <Card className="border-2 border-orange-500 bg-orange-500/5">
+              <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                📦 דרישות מוצר
+              </h2>
+              <div className="space-y-3">
+                <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+                  <div className="flex items-start gap-3">
+                    <div className="text-3xl">✅</div>
+                    <div className="flex-1">
+                      <h3 className="text-white font-bold mb-1">מוצר פיזי נדרש</h3>
+                      <p className="text-[#cbc190] text-sm mb-2">
+                        משימה זו דורשת קבלת מוצר פיזי מהמותג לפני התחלת העבודה
+                      </p>
+                      {task.product_requirements && (
+                        <div className="bg-[#1E1E1E] rounded-lg p-3 mt-2 border border-[#494222]">
+                          <p className="text-white text-sm whitespace-pre-wrap">
+                            {task.product_requirements}
+                          </p>
+                        </div>
+                      )}
+                      {shipmentStatus && (
+                        <div className="mt-3 text-sm">
+                          <span className="text-[#cbc190]">סטטוס משלוח: </span>
+                          <span className={`font-medium ${
+                            shipmentStatus === 'delivered' ? 'text-green-400' :
+                            shipmentStatus === 'shipped' ? 'text-blue-400' :
+                            shipmentStatus === 'issue' ? 'text-red-400' :
+                            'text-yellow-400'
+                          }`}>
+                            {getShipmentStatusMessage()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* Task Details */}
           <Card>
             <h2 className="text-xl font-bold text-white mb-4">פרטי המשימה</h2>
@@ -489,12 +569,6 @@ export default function CreatorTaskDetailPage() {
                   </div>
                 </div>
               )}
-              <div>
-                <span className="text-[#cbc190] text-sm">דרוש מוצר פיזי</span>
-                <div className="text-white font-medium">
-                  {task.requires_product ? '✅ כן' : '❌ לא'}
-                </div>
-              </div>
             </div>
 
             {/* Deliverables Display */}
@@ -615,16 +689,22 @@ export default function CreatorTaskDetailPage() {
                     disabled={uploading}
                     id="file-upload"
                     className="hidden"
+                    multiple
                   />
                   <label htmlFor="file-upload" className="cursor-pointer">
                     <span className={cn(
                       'inline-block font-bold rounded-lg transition-all px-6 py-3 text-base',
                       uploading ? 'bg-gray-500 text-white cursor-not-allowed' : 'bg-[#f2cc0d] text-black hover:bg-[#d4b50c]'
                     )}>
-                      {uploading ? `מעלה... ${uploadProgress}%` : 'בחר קובץ להעלאה'}
+                      {uploading ? `מעלה... ${uploadProgress}%` : 'בחר קבצים להעלאה (מרובים)'}
                     </span>
                   </label>
                 </div>
+                {!uploading && (
+                  <p className="text-center text-xs text-[#cbc190] mt-2">
+                    💡 ניתן לבחור מספר קבצים בו-זמנית
+                  </p>
+                )}
                 {uploading && (
                   <div className="mt-4">
                     <div className="w-full bg-[#1E1E1E] rounded-full h-2">
