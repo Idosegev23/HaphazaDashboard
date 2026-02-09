@@ -141,11 +141,18 @@ export default function CreatorApplicationsPage() {
                         נשלח ב: {new Date(application.created_at || '').toLocaleDateString('he-IL')} {new Date(application.created_at || '').toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-2">
                       {application.status === 'approved' && (
                         <Link href="/creator/tasks">
                           <button className="px-4 py-2 bg-[#f2cc0d] text-black font-bold rounded-lg hover:bg-[#d4b00b] transition-colors">
                             למשימות →
+                          </button>
+                        </Link>
+                      )}
+                      {application.status === 'submitted' && (
+                        <Link href={`/creator/applications/${application.id}/edit`}>
+                          <button className="px-4 py-2 bg-[#2e2a1b] text-white font-medium rounded-lg hover:bg-[#3a3525] transition-colors border border-[#494222]">
+                            ערוך מועמדות
                           </button>
                         </Link>
                       )}

@@ -22,6 +22,7 @@ type Task = {
     title: string;
     description: string | null;
     brief: string | null;
+    brief_url: string | null;
     deliverables: any; // JSONB
     brands: {
       name: string;
@@ -93,7 +94,7 @@ export default function CreatorTaskDetailPage() {
     // Load task
     const { data: taskData, error: taskError } = await supabase
       .from('tasks')
-      .select('id, title, status, due_at, requires_product, created_at, campaign_id, product_requirements, campaigns(id, title, description, brief, deliverables, brands(name))')
+      .select('id, title, status, due_at, requires_product, created_at, campaign_id, product_requirements, campaigns(id, title, description, brief, brief_url, deliverables, brands(name))')
       .eq('id', taskId)
       .eq('creator_id', user!.id)
       .single();
@@ -248,6 +249,23 @@ export default function CreatorTaskDetailPage() {
       alert('לא ניתן להעלות קבצים כרגע.\nיש להתחיל עבודה על המשימה תחילה.');
       event.target.value = '';
       return;
+    }
+
+    // UX Block: בדוק אם נדרש מוצר פיזי ועדיין לא התקבל
+    if (task?.requires_product) {
+      const supabase = createClient();
+      const { data: shipmentData } = await supabase
+        .from('shipment_requests')
+        .select('status')
+        .eq('campaign_id', task.campaigns?.id || '')
+        .eq('creator_id', user!.id)
+        .single();
+
+      if (!shipmentData || shipmentData.status !== 'delivered') {
+        alert('⏳ לא ניתן להעלות קבצים לפני קבלת המוצר מהמותג.\n\nאנא המתן לקבלת המשלוח או עבור לדף המשלוחים למעקב.');
+        event.target.value = '';
+        return;
+      }
     }
 
     // Validate deliverable type selection if deliverables are defined
@@ -502,6 +520,19 @@ export default function CreatorTaskDetailPage() {
                   </p>
                 )}
               </div>
+              {task.campaigns.brief_url && (
+                <div className="mt-4 pt-4 border-t border-[#494222]">
+                  <a 
+                    href={task.campaigns.brief_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#f2cc0d] text-black font-medium rounded-lg hover:bg-[#d4b00b] transition-colors"
+                  >
+                    <span className="material-symbols-outlined">download</span>
+                    הורד בריף מצורף
+                  </a>
+                </div>
+              )}
             </Card>
           )}
 

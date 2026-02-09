@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { TierBadge, TierLevel } from '@/components/ui/TierBadge';
 
 type Application = {
   id: string;
@@ -20,7 +21,7 @@ type Application = {
   } | null;
   creators: {
     niches: string[] | null;
-    age_range: string | null;
+    age: number | null;
     gender: string | null;
     country: string | null;
     platforms: any | null;
@@ -143,7 +144,7 @@ export default function ApplicationDetailPage() {
       
       const { data: creatorData } = await supabase
         .from('creators')
-        .select('niches, age_range, gender, country, platforms, bio')
+        .select('niches, age, gender, country, platforms, bio')
         .eq('user_id', (data as any).creator_id)
         .single();
       
@@ -537,10 +538,10 @@ export default function ApplicationDetailPage() {
 
               {/* Demographics */}
               <div className="grid md:grid-cols-3 gap-4 pt-4 border-t border-[#494222]">
-                {application.creators?.age_range && (
+                {application.creators?.age && (
                   <div>
                     <span className="text-[#cbc190] text-sm">גיל</span>
-                    <div className="text-white font-medium">{application.creators.age_range}</div>
+                    <div className="text-white font-medium">{application.creators.age}</div>
                   </div>
                 )}
                 {application.creators?.gender && (
@@ -590,17 +591,16 @@ export default function ApplicationDetailPage() {
                   {tier && (
                     <div className="mb-4 bg-gradient-to-r from-[#f2cc0d]/20 to-[#f2cc0d]/10 border border-[#f2cc0d] rounded-lg p-3">
                       <div className="flex items-center gap-3">
-                        <span className="text-3xl">
-                          {tier === 'gold' && '👑'}
-                          {tier === 'silver' && '⭐'}
-                          {tier === 'bronze' && '🥉'}
-                        </span>
+                        <TierBadge 
+                          tier={tier as TierLevel} 
+                          showTooltip={true}
+                        />
                         <div>
                           <div className="text-white font-bold">
                             דרגה: {tier === 'gold' ? 'זהב' : tier === 'silver' ? 'כסף' : 'ברונזה'}
                           </div>
                           <div className="text-[#cbc190] text-xs">
-                            מבוסס על ביצועים קודמים
+                            מבוסס על ביצועים קודמים. לחץ על התג לפירוט
                           </div>
                         </div>
                       </div>

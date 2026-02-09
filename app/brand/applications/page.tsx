@@ -13,14 +13,16 @@ type Application = {
   status: string;
   message: string | null;
   created_at: string;
+  campaign_id: string;
   campaigns: {
+    id: string;
     title: string;
   } | null;
   creators: {
     user_id: string;
     niches: string[] | null;
     platforms: any;
-    age_range: string | null;
+    age: number | null;
     gender: string | null;
     country: string | null;
     users_profiles: {
@@ -47,11 +49,13 @@ export default function BrandApplicationsPage() {
     niche: 'all',
     country: 'all',
     status: 'all',
+    campaign: 'all',
   });
 
   // Available options (will be populated from data)
   const [availableNiches, setAvailableNiches] = useState<string[]>([]);
   const [availableCountries, setAvailableCountries] = useState<string[]>([]);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
 
   useEffect(() => {
     if (user && !['brand_manager', 'brand_user'].includes(user.role || '')) {
@@ -66,6 +70,7 @@ export default function BrandApplicationsPage() {
       return;
     }
     loadApplications();
+    loadCampaigns();
   }, [user?.brand_id, userLoading]);
 
   useEffect(() => {
@@ -91,7 +96,8 @@ export default function BrandApplicationsPage() {
         message,
         created_at,
         creator_id,
-        campaigns!inner(title, brand_id)
+        campaign_id,
+        campaigns!inner(id, title, brand_id)
       `)
       .eq('campaigns.brand_id', user.brand_id)
       .order('created_at', { ascending: false });
@@ -107,7 +113,7 @@ export default function BrandApplicationsPage() {
       (appsData || []).map(async (app: any) => {
         const { data: creatorData } = await supabase
           .from('creators')
-          .select('user_id, niches, platforms, age_range, gender, country')
+          .select('user_id, niches, platforms, age, gender, country')
           .eq('user_id', app.creator_id)
           .single();
 
@@ -146,13 +152,36 @@ export default function BrandApplicationsPage() {
     setLoading(false);
   };
 
+  const loadCampaigns = async () => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('campaigns')
+      .select('id, title')
+      .eq('brand_id', user!.brand_id!)
+      .order('created_at', { ascending: false });
+    
+    setCampaigns(data || []);
+  };
+
   const applyFilters = () => {
     let filtered = [...applications];
 
-    // Age filter (age_range is string like "18-24", not numeric)
-    // TODO: implement proper age_range filtering
-    if (filters.ageMin || filters.ageMax) {
-      // לעת עתה - לא מפלטרים לפי גיל כי זה range ולא number
+    // Age filter
+    if (filters.ageMin) {
+      const minAge = parseInt(filters.ageMin);
+      if (!isNaN(minAge)) {
+        filtered = filtered.filter(app => 
+          app.creators?.age && app.creators.age >= minAge
+        );
+      }
+    }
+    if (filters.ageMax) {
+      const maxAge = parseInt(filters.ageMax);
+      if (!isNaN(maxAge)) {
+        filtered = filtered.filter(app => 
+          app.creators?.age && app.creators.age <= maxAge
+        );
+      }
     }
 
     // Gender filter
@@ -181,6 +210,11 @@ export default function BrandApplicationsPage() {
       filtered = filtered.filter(app => app.status === filters.status);
     }
 
+    // Campaign filter
+    if (filters.campaign !== 'all') {
+      filtered = filtered.filter(app => app.campaign_id === filters.campaign);
+    }
+
     setFilteredApplications(filtered);
   };
 
@@ -192,6 +226,7 @@ export default function BrandApplicationsPage() {
       niche: 'all',
       country: 'all',
       status: 'all',
+      campaign: 'all',
     });
   };
 
@@ -352,6 +387,21 @@ export default function BrandApplicationsPage() {
                     <option value="rejected">נדחה</option>
                   </select>
                 </div>
+
+                {/* Campaign */}
+                <div>
+                  <label className="block text-sm font-medium text-white mb-2">קמפיין</label>
+                  <select
+                    value={filters.campaign}
+                    onChange={(e) => setFilters({ ...filters, campaign: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+                  >
+                    <option value="all">כל הקמפיינים</option>
+                    {campaigns.map((c) => (
+                      <option key={c.id} value={c.id}>{c.title}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div className="mt-4 text-sm text-[#cbc190]">
@@ -428,8 +478,8 @@ export default function BrandApplicationsPage() {
                           
                           <div className="text-sm text-[#cbc190] mb-2 space-y-1">
                             <div>
-                              {application.creators?.age_range && (
-                                <span>גיל {application.creators.age_range}</span>
+                              {application.creators?.age && (
+                                <span>גיל {application.creators.age}</span>
                               )}
                               {application.creators?.gender && (
                                 <span> • {application.creators.gender === 'female' ? 'נקבה' : application.creators.gender === 'male' ? 'זכר' : 'אחר'}</span>

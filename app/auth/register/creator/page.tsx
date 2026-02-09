@@ -20,7 +20,7 @@ type FormData = {
   displayName: string;
 
   // Step 2: Personal Details
-  ageRange: string;
+  age: string;
   gender: string;
   country: string;
   city: string;
@@ -89,7 +89,7 @@ export default function CreatorRegisterPage() {
     password: "",
     confirmPassword: "",
     displayName: "",
-    ageRange: "",
+    age: "",
     gender: "",
     country: "ישראל",
     city: "",
@@ -119,8 +119,13 @@ export default function CreatorRegisterPage() {
     }
 
     if (currentStep === 2) {
-      if (!formData.ageRange || !formData.gender || !formData.city) {
+      if (!formData.age || !formData.gender || !formData.city) {
         setError("יש למלא את כל השדות");
+        return;
+      }
+      const ageNum = parseInt(formData.age);
+      if (isNaN(ageNum) || ageNum < 13 || ageNum > 120) {
+        setError("גיל לא תקין (חייב להיות בין 13-120)");
         return;
       }
     }
@@ -286,7 +291,7 @@ export default function CreatorRegisterPage() {
 
       const { error: creatorError } = await supabase.from("creators").insert({
         user_id: authData.user.id,
-        age_range: formData.ageRange,
+        age: parseInt(formData.age),
         gender: formData.gender,
         country: formData.country,
         niches: formData.niches,
@@ -446,26 +451,18 @@ export default function CreatorRegisterPage() {
                   פרטים אישיים
                 </h2>
 
-                <div>
-                  <label className="block text-sm font-medium text-[#cbc190] mb-2">
-                    טווח גילאים
-                  </label>
-                  <select
-                    value={formData.ageRange}
-                    onChange={(e) =>
-                      setFormData({ ...formData, ageRange: e.target.value })
-                    }
-                    className="w-full px-3 py-2 bg-[#232010] border border-[#494222] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#f2cc0d]"
-                    required
-                  >
-                    <option value="">בחר טווח גילאים</option>
-                    <option value="18-24">18-24</option>
-                    <option value="25-34">25-34</option>
-                    <option value="35-44">35-44</option>
-                    <option value="45-54">45-54</option>
-                    <option value="55+">55+</option>
-                  </select>
-                </div>
+                <Input
+                  label="גיל"
+                  type="number"
+                  value={formData.age}
+                  onChange={(e) =>
+                    setFormData({ ...formData, age: e.target.value })
+                  }
+                  placeholder="הזן את גילך"
+                  min="13"
+                  max="120"
+                  required
+                />
 
                 <div>
                   <label className="block text-sm font-medium text-[#cbc190] mb-2">

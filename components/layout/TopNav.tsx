@@ -42,6 +42,7 @@ export function TopNav({ user }: TopNavProps) {
         { href: '/creator/portfolio', label: 'תיק עבודות', icon: '🎨' },
         { href: '/creator/shipping', label: 'משלוחים', icon: '📦' },
         { href: '/creator/payments', label: 'תשלומים', icon: '💰' },
+        { href: '/creator/settings', label: 'הגדרות', icon: '⚙️' },
       ];
     }
 

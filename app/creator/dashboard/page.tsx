@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { TierBadge, TierLevel } from '@/components/ui/TierBadge';
 
 type Task = {
   id: string;
@@ -196,19 +197,17 @@ export default function CreatorDashboardPage() {
           <div className="mb-6">
             <Card className="bg-gradient-to-r from-gold/20 to-gold/10 border-2 border-gold">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-gold rounded-full flex items-center justify-center">
-                  <span className="text-3xl">
-                    {creatorInfo.tier === 'gold' && '👑'}
-                    {creatorInfo.tier === 'silver' && '⭐'}
-                    {creatorInfo.tier === 'bronze' && '🥉'}
-                  </span>
-                </div>
+                <TierBadge 
+                  tier={(creatorInfo.tier as TierLevel) || 'bronze'} 
+                  showTooltip={true}
+                  className="scale-125"
+                />
                 <div>
                   <div className="text-white font-bold text-xl">
-                    דרגה: {creatorInfo.tier === 'gold' ? 'זהב' : creatorInfo.tier === 'silver' ? 'כסף' : 'ברונזה'}
+                    דרגת יוצר: {creatorInfo.tier === 'gold' ? 'זהב' : creatorInfo.tier === 'silver' ? 'כסף' : 'ברונזה'}
                   </div>
                   <div className="text-muted text-sm">
-                    הדרגה שלך מבוססת על ביצועים
+                    לחץ על התג כדי לראות את מדרג הדרגות המלא
                   </div>
                 </div>
               </div>

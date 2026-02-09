@@ -22,7 +22,7 @@ type Task = {
   } | null;
   creators: {
     user_id: string;
-    age_range: string | null;
+    age: number | null;
     gender: string | null;
     country: string | null;
     users_profiles: {
@@ -149,7 +149,7 @@ export default function BrandTaskDetailPage() {
     // טעינת פרטי משפיען בנפרד
     const { data: creatorData } = await supabase
       .from('creators')
-      .select('user_id, niches, platforms, age_range, gender, country')
+      .select('user_id, niches, platforms, age, gender, country')
       .eq('user_id', taskData.creator_id)
       .single();
 
@@ -525,10 +525,10 @@ export default function BrandTaskDetailPage() {
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-4">
-                  {task.creators.age_range && (
+                  {task.creators.age && (
                     <div>
                       <span className="text-[#cbc190] text-sm">גיל</span>
-                      <div className="text-white font-medium">{task.creators.age_range}</div>
+                      <div className="text-white font-medium">{task.creators.age}</div>
                     </div>
                   )}
                   {task.creators.gender && (

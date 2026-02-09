@@ -11,7 +11,9 @@ type Task = {
   title: string;
   status: string;
   due_at: string | null;
+  campaign_id: string;
   campaigns: {
+    id: string;
     title: string;
   } | null;
 };
@@ -21,6 +23,8 @@ export default function BrandTasksPage() {
   const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string | 'all'>('all');
+  const [selectedCampaign, setSelectedCampaign] = useState<string>('all');
+  const [campaigns, setCampaigns] = useState<any[]>([]);
 
   useEffect(() => {
     if (user && !['brand_manager', 'brand_user'].includes(user.role || '')) {
@@ -36,7 +40,7 @@ export default function BrandTasksPage() {
     const fetchTasks = async () => {
       const { data } = await supabase
         .from('tasks')
-        .select('*, campaigns!inner(brand_id, title), creators(niches)')
+        .select('*, campaigns!inner(id, brand_id, title), creators(niches)')
         .eq('campaigns.brand_id', user.brand_id!)
         .order('created_at', { ascending: false });
       
@@ -45,7 +49,18 @@ export default function BrandTasksPage() {
       }
     };
 
+    const fetchCampaigns = async () => {
+      const { data } = await supabase
+        .from('campaigns')
+        .select('id, title')
+        .eq('brand_id', user.brand_id!)
+        .order('created_at', { ascending: false});
+      
+      setCampaigns(data || []);
+    };
+
     fetchTasks();
+    fetchCampaigns();
   }, [user?.brand_id]);
 
   // Group by status
@@ -76,14 +91,32 @@ export default function BrandTasksPage() {
     paid: 'bg-[#f2cc0d]',
   };
 
-  const filteredTasks = selectedFilter === 'all' ? tasks : tasksByStatus[selectedFilter as keyof typeof tasksByStatus];
+  let filteredTasks = selectedFilter === 'all' ? tasks : tasksByStatus[selectedFilter as keyof typeof tasksByStatus];
+  
+  if (selectedCampaign !== 'all') {
+    filteredTasks = filteredTasks.filter(task => task.campaign_id === selectedCampaign);
+  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
       <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
-        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">🎬 ניהול תוכן</h1>
-        <p className="text-[#cbc190]">מעקב, בקשת תיקונים ואישור תוכן מהמשפיענים</p>
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">🎬 ניהול תוכן</h1>
+            <p className="text-[#cbc190]">מעקב, בקשת תיקונים ואישור תוכן מהמשפיענים</p>
+          </div>
+          <select
+            value={selectedCampaign}
+            onChange={(e) => setSelectedCampaign(e.target.value)}
+            className="px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+          >
+            <option value="all">כל הקמפיינים</option>
+            {campaigns.map((c) => (
+              <option key={c.id} value={c.id}>{c.title}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Mobile Filter - Show only on mobile */}
@@ -119,20 +152,24 @@ export default function BrandTasksPage() {
       {/* Desktop Kanban Board - Hidden on mobile */}
       <div className="hidden lg:block flex-1 overflow-x-auto px-4 py-6 lg:px-8">
         <div className="flex gap-4 h-full min-w-max">
-          {Object.entries(tasksByStatus).map(([status, statusTasks]) => (
+          {Object.entries(tasksByStatus).map(([status, statusTasks]) => {
+            const columnTasks = selectedCampaign === 'all' 
+              ? statusTasks 
+              : statusTasks.filter(task => task.campaign_id === selectedCampaign);
+            return (
             <div key={status} className="flex-shrink-0 w-80 flex flex-col">
               {/* Column Header */}
               <div className="mb-4 pb-3 border-b border-[#494222]">
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 rounded-full ${statusColors[status]}`} />
                   <h3 className="text-white font-bold text-lg">{statusLabels[status]}</h3>
-                  <span className="text-[#cbc190] text-sm">({statusTasks.length})</span>
+                  <span className="text-[#cbc190] text-sm">({columnTasks.length})</span>
                 </div>
               </div>
 
               {/* Column Content */}
               <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-                {statusTasks.map((task) => (
+                {columnTasks.map((task) => (
                   <Card 
                     key={task.id} 
                     hover 
@@ -161,7 +198,8 @@ export default function BrandTasksPage() {
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

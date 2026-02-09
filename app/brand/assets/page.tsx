@@ -21,6 +21,7 @@ type Asset = {
   task: {
     title: string;
     campaign: {
+      id: string;
       title: string;
     };
     creator: {
@@ -82,6 +83,7 @@ export default function BrandAssetsPage() {
           campaign_id,
           creator_id,
           campaigns!inner(
+            id,
             title,
             brand_id
           )
@@ -126,6 +128,7 @@ export default function BrandAssetsPage() {
           task: {
             title: upload.tasks.title,
             campaign: {
+              id: upload.tasks.campaigns.id,
               title: upload.tasks.campaigns.title,
             },
             creator: profileData && creatorData ? {
@@ -144,9 +147,7 @@ export default function BrandAssetsPage() {
 
   const filteredAssets = assets.filter((asset) => {
     if (selectedCampaign !== 'all') {
-      // Get campaign_id from task
-      const taskBelongsToCampaign = campaigns.find(c => c.title === asset.task.campaign.title)?.id;
-      if (taskBelongsToCampaign !== selectedCampaign) return false;
+      if (asset.task.campaign.id !== selectedCampaign) return false;
     }
     
     if (selectedType !== 'all') {

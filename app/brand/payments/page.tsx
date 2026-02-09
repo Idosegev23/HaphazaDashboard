@@ -19,7 +19,9 @@ type Payment = {
   tasks: {
     title: string;
     creator_id: string;
+    campaign_id: string;
     campaigns: {
+      id: string;
       title: string;
       brand_id: string;
     } | null;
@@ -38,6 +40,8 @@ export default function BrandPaymentsPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<string | null>(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<string>('all');
+  const [campaigns, setCampaigns] = useState<any[]>([]);
 
   useEffect(() => {
     if (user && !['brand_manager', 'brand_user'].includes(user.role || '')) {
@@ -49,8 +53,20 @@ export default function BrandPaymentsPage() {
     if (userLoading) return;
     if (!user?.brand_id) return;
     loadPayments();
+    loadCampaigns();
     subscribeToUpdates();
   }, [user?.brand_id, userLoading]);
+
+  const loadCampaigns = async () => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('campaigns')
+      .select('id, title')
+      .eq('brand_id', user!.brand_id!)
+      .order('created_at', { ascending: false });
+    
+    setCampaigns(data || []);
+  };
 
   const loadPayments = async () => {
     const supabase = createClient();
@@ -70,7 +86,9 @@ export default function BrandPaymentsPage() {
         tasks!inner(
           title, 
           creator_id,
+          campaign_id,
           campaigns!inner(
+            id,
             title, 
             brand_id
           )
@@ -181,16 +199,35 @@ export default function BrandPaymentsPage() {
     );
   }
 
+  // Filter payments by campaign first
+  const campaignFilteredPayments = selectedCampaign === 'all'
+    ? payments
+    : payments.filter(p => p.tasks?.campaign_id === selectedCampaign);
+
   // Filter payments by status
-  const toPayPayments = payments.filter(p => p.status === 'pending');
-  const waitingInvoicePayments = payments.filter(p => p.status === 'paid' && !p.invoice_url);
-  const completedPayments = payments.filter(p => p.status === 'paid' && p.invoice_url);
+  const toPayPayments = campaignFilteredPayments.filter(p => p.status === 'pending');
+  const waitingInvoicePayments = campaignFilteredPayments.filter(p => p.status === 'paid' && !p.invoice_url);
+  const completedPayments = campaignFilteredPayments.filter(p => p.status === 'paid' && p.invoice_url);
 
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
       <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
-        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">תשלומים</h1>
-        <p className="text-[#cbc190]">ניהול תשלומים למשפיענים</p>
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">תשלומים</h1>
+            <p className="text-[#cbc190]">ניהול תשלומים למשפיענים</p>
+          </div>
+          <select
+            value={selectedCampaign}
+            onChange={(e) => setSelectedCampaign(e.target.value)}
+            className="px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+          >
+            <option value="all">כל הקמפיינים</option>
+            {campaigns.map((c) => (
+              <option key={c.id} value={c.id}>{c.title}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">

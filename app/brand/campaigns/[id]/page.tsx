@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { CampaignNav } from '@/components/brand/CampaignNav';
 
 type Campaign = {
   id: string;
@@ -277,10 +278,18 @@ export default function CampaignDetailPage() {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
-        <div className="max-w-4xl mx-auto space-y-6">
-          {/* Basic Info */}
-          <Card>
-            <h2 className="text-xl font-bold text-white mb-4">פרטי הקמפיין</h2>
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+            {/* Side Navigation */}
+            <aside className="hidden lg:block">
+              <CampaignNav campaignId={campaignId} activeSection="details" />
+            </aside>
+            
+            {/* Main Content */}
+            <div className="space-y-6">
+              {/* Basic Info */}
+              <Card id="section-details">
+                <h2 className="text-xl font-bold text-white mb-4">פרטי הקמפיין</h2>
             <div className="space-y-4">
               <Input
                 label="שם הקמפיין"
@@ -382,7 +391,7 @@ export default function CampaignDetailPage() {
           </Card>
 
           {/* Products Section */}
-          <Card>
+          <Card id="section-products">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white">מוצרים לקמפיין</h2>
               <Button
@@ -429,9 +438,10 @@ export default function CampaignDetailPage() {
                   <div className="flex gap-2">
                     <Button
                       onClick={handleAddProduct}
-                      className="bg-green-600 hover:bg-green-700"
+                      disabled={!productForm.name.trim() || saving}
+                      className={`bg-green-600 hover:bg-green-700 ${(!productForm.name.trim() || saving) ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                      הוסף מוצר
+                      {saving ? 'שומר...' : 'הוסף מוצר'}
                     </Button>
                     <Button
                       onClick={() => {
@@ -499,24 +509,8 @@ export default function CampaignDetailPage() {
             )}
           </Card>
 
-          {/* Additional Sections - Placeholder */}
-          {currentStatus !== 'draft' && (
-            <>
-              <Card>
-                <h2 className="text-xl font-bold text-white mb-4">בקשות יוצרים</h2>
-                <div className="text-[#cbc190] text-center py-8">
-                  בקרוב - כאן יופיעו בקשות היוצרים לקמפיין
-                </div>
-              </Card>
-
-              <Card>
-                <h2 className="text-xl font-bold text-white mb-4">יוצרים נבחרים</h2>
-                <div className="text-[#cbc190] text-center py-8">
-                  בקרוב - כאן יופיעו היוצרים שנבחרו לקמפיין
-                </div>
-              </Card>
-            </>
-          )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

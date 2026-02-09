@@ -52,6 +52,8 @@ export default function BrandShippingPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
   const [products, setProducts] = useState<Record<string, Product[]>>({});
+  const [selectedCampaign, setSelectedCampaign] = useState<string>('all');
+  const [campaigns, setCampaigns] = useState<any[]>([]);
   
   // Form state for shipping
   const [showShipForm, setShowShipForm] = useState<string | null>(null);
@@ -67,8 +69,20 @@ export default function BrandShippingPage() {
   useEffect(() => {
     if (!user?.brand_id) return;
     loadShipments();
+    loadCampaigns();
     subscribeToUpdates();
   }, [user?.brand_id]);
+
+  const loadCampaigns = async () => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('campaigns')
+      .select('id, title')
+      .eq('brand_id', user!.brand_id!)
+      .order('created_at', { ascending: false });
+    
+    setCampaigns(data || []);
+  };
 
   const loadShipments = async () => {
     const supabase = createClient();
@@ -263,8 +277,22 @@ export default function BrandShippingPage() {
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
       <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
-        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">ניהול משלוחים</h1>
-        <p className="text-[#cbc190]">מעקב אחר משלוחי מוצרים למשפיענים</p>
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">ניהול משלוחים</h1>
+            <p className="text-[#cbc190]">מעקב אחר משלוחי מוצרים למשפיענים</p>
+          </div>
+          <select
+            value={selectedCampaign}
+            onChange={(e) => setSelectedCampaign(e.target.value)}
+            className="px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+          >
+            <option value="all">כל הקמפיינים</option>
+            {campaigns.map((c) => (
+              <option key={c.id} value={c.id}>{c.title}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Content */}
@@ -275,7 +303,9 @@ export default function BrandShippingPage() {
               <p className="text-[#cbc190] text-center py-8">אין בקשות משלוח</p>
             </Card>
           ) : (
-            requests.map((request) => (
+            requests
+            .filter(req => selectedCampaign === 'all' || req.campaign_id === selectedCampaign)
+            .map((request) => (
               <Card key={request.id}>
                 <div className="space-y-4">
                   {/* Header */}

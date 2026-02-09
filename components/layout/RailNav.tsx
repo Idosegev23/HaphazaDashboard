@@ -38,6 +38,7 @@ export function RailNav({ user }: RailNavProps) {
         { href: '/creator/tasks', label: 'משימות', icon: '📋' },
         { href: '/creator/shipping', label: 'משלוחים', icon: '📦' },
         { href: '/creator/payments', label: 'תשלומים', icon: '💰' },
+        { href: '/creator/settings', label: 'הגדרות', icon: '⚙️' },
       ];
     }
 
