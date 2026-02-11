@@ -55,6 +55,8 @@ export default function ApplicationDetailPage() {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [metrics, setMetrics] = useState<any>(null);
   const [tier, setTier] = useState<string | null>(null);
+  const [customPrice, setCustomPrice] = useState<string>(''); // For custom pricing
+  const [showCustomPriceInput, setShowCustomPriceInput] = useState(false);
 
   const rejectionReasons = [
     { value: 'not_relevant', label: 'לא רלוונטי לקמפיין' },
@@ -169,11 +171,25 @@ export default function ApplicationDetailPage() {
   const handleApprove = async () => {
     if (!application) return;
     
+    // Determine the payment amount to use
+    const campaignPrice = application.campaigns?.fixed_price;
+    let finalPrice = campaignPrice;
+    
+    // If there's no fixed price or custom price is set, validate custom price
+    if (!campaignPrice || customPrice.trim()) {
+      const customAmount = parseFloat(customPrice);
+      if (!customPrice.trim() || isNaN(customAmount) || customAmount <= 0) {
+        alert('יש להזין מחיר תקף למשפיען');
+        return;
+      }
+      finalPrice = customAmount;
+    }
+    
     // הודעת אזהרה שונה אם משנים החלטה קיימת
     const isChangingDecision = application.status === 'rejected';
     const confirmMessage = isChangingDecision
-      ? 'האם אתה בטוח שברצונך לשנות את ההחלטה ולאשר את הבקשה?\n\nשים לב: אם כבר נדחית הבקשה, זה ישנה את ההחלטה ויצור משימה למשפיען.'
-      : 'האם אתה בטוח שברצונך לאשר את הבקשה? זה ייצור משימה אוטומטית עבור המשפיען.';
+      ? `האם אתה בטוח שברצונך לשנות את ההחלטה ולאשר את הבקשה?\n\nתשלום למשפיען: ₪${finalPrice}\n\nשים לב: אם כבר נדחית הבקשה, זה ישנה את ההחלטה ויצור משימה למשפיען.`
+      : `האם אתה בטוח שברצונך לאשר את הבקשה?\n\nתשלום למשפיען: ₪${finalPrice}\n\nזה ייצור משימה אוטומטית עבור המשפיען.`;
     
     if (!confirm(confirmMessage)) {
       return;
@@ -223,7 +239,7 @@ export default function ApplicationDetailPage() {
         status: 'selected',
         due_at: appData.campaigns?.deadline || null,
         requires_product: requiresProduct,
-        payment_amount: appData.campaigns?.fixed_price || 0,
+        payment_amount: finalPrice,
       })
       .select('id')
       .single();
@@ -258,11 +274,12 @@ export default function ApplicationDetailPage() {
       p_action: 'approved',
       p_metadata: {
         task_id: taskData.id,
-        payment_amount: appData.campaigns?.fixed_price
+        payment_amount: finalPrice,
+        custom_price_used: !!customPrice.trim()
       }
     });
 
-    alert('✅ הבקשה אושרה בהצלחה!\n\nמשימה נוצרה אוטומטית עבור המשפיען.\nהמשפיען יראה את המשימה במערכת שלו.');
+    alert(`✅ הבקשה אושרה בהצלחה!\n\nמשימה נוצרה אוטומטית עבור המשפיען.\nתשלום: ₪${finalPrice}\n\nהמשפיען יראה את המשימה במערכת שלו.`);
     
     // Reload the current page to show updated status
     loadApplication();
@@ -690,31 +707,89 @@ export default function ApplicationDetailPage() {
 
           {/* Proposal Details */}
           <Card>
-            <h2 className="text-xl font-bold text-white mb-4">פרטי ההצעה</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Fixed Price */}
-              {application.campaigns?.fixed_price && (
-                <div className="bg-[#2e2a1b] rounded-lg p-4 border-2 border-[#f2cc0d]">
-                  <span className="text-[#cbc190] text-sm block mb-1">תשלום למשפיען</span>
-                  <div className="text-3xl font-bold text-[#f2cc0d]">
-                    ₪{application.campaigns.fixed_price.toLocaleString()}
+            <h2 className="text-xl font-bold text-white mb-4">פרטי ההצעה ותמחור</h2>
+            <div className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Fixed Price */}
+                {application.campaigns?.fixed_price ? (
+                  <div className="bg-[#2e2a1b] rounded-lg p-4 border-2 border-[#f2cc0d]">
+                    <span className="text-[#cbc190] text-sm block mb-1">תשלום מוצע למשפיען</span>
+                    <div className="text-3xl font-bold text-[#f2cc0d]">
+                      ₪{application.campaigns.fixed_price.toLocaleString()}
+                    </div>
+                    <div className="text-xs text-[#cbc190] mt-1">
+                      מחיר קבוע לקמפיין
+                    </div>
+                    {application.status === 'submitted' && (
+                      <button
+                        onClick={() => {
+                          setShowCustomPriceInput(!showCustomPriceInput);
+                          if (!showCustomPriceInput) {
+                            setCustomPrice(application.campaigns?.fixed_price?.toString() || '');
+                          }
+                        }}
+                        className="mt-3 text-xs text-[#f2cc0d] hover:text-[#d4b00b] underline"
+                      >
+                        {showCustomPriceInput ? '✖ ביטול שינוי מחיר' : '✏️ שנה מחיר למשפיען זה'}
+                      </button>
+                    )}
                   </div>
-                  <div className="text-xs text-[#cbc190] mt-1">
-                    מחיר קבוע לקמפיין
+                ) : (
+                  <div className="bg-[#2e2a1b] rounded-lg p-4 border-2 border-[#f2cc0d]">
+                    <span className="text-[#cbc190] text-sm block mb-1">תשלום למשפיען</span>
+                    <div className="text-lg text-[#cbc190] mb-2">
+                      לא הוגדר מחיר קבוע - קבע מחיר מותאם אישית
+                    </div>
+                    {application.status === 'submitted' && (
+                      <button
+                        onClick={() => setShowCustomPriceInput(!showCustomPriceInput)}
+                        className="text-xs text-[#f2cc0d] hover:text-[#d4b00b] underline"
+                      >
+                        {showCustomPriceInput ? '✖ ביטול' : '✏️ הגדר מחיר'}
+                      </button>
+                    )}
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Availability */}
-              {application.availability && (
-                <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
-                  <span className="text-[#cbc190] text-sm block mb-1">זמינות לביצוע</span>
-                  <div className="text-white font-medium">
-                    {application.availability === 'immediate' && '🟢 מיידי - יכול להתחיל מיד'}
-                    {application.availability === 'within_week' && '🟡 תוך שבוע'}
-                    {application.availability === 'within_two_weeks' && '🟠 תוך שבועיים'}
-                    {application.availability === 'flexible' && '🔵 גמיש - לפי צורכי הקמפיין'}
+                {/* Availability */}
+                {application.availability && (
+                  <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+                    <span className="text-[#cbc190] text-sm block mb-1">זמינות לביצוע</span>
+                    <div className="text-white font-medium">
+                      {application.availability === 'immediate' && '🟢 מיידי - יכול להתחיל מיד'}
+                      {application.availability === 'within_week' && '🟡 תוך שבוע'}
+                      {application.availability === 'within_two_weeks' && '🟠 תוך שבועיים'}
+                      {application.availability === 'flexible' && '🔵 גמיש - לפי צורכי הקמפיין'}
+                    </div>
                   </div>
+                )}
+              </div>
+
+              {/* Custom Price Input */}
+              {showCustomPriceInput && application.status === 'submitted' && (
+                <div className="bg-[#1E1E1E] border-2 border-[#f2cc0d] rounded-lg p-4">
+                  <label className="block text-sm font-medium text-white mb-2">
+                    💰 מחיר מותאם אישית למשפיען זה (₪)
+                  </label>
+                  <input
+                    type="number"
+                    value={customPrice}
+                    onChange={(e) => setCustomPrice(e.target.value)}
+                    placeholder="הזן סכום בשקלים"
+                    className="w-full px-4 py-3 bg-[#2e2a1b] border border-[#494222] rounded-lg text-white text-lg focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                    min="0"
+                    step="1"
+                  />
+                  <p className="text-[#cbc190] text-xs mt-2">
+                    💡 המחיר שתזין כאן יחליף את המחיר הקבוע של הקמפיין עבור משפיען זה בלבד
+                  </p>
+                  {customPrice && parseFloat(customPrice) > 0 && (
+                    <div className="mt-3 p-3 bg-[#f2cc0d]/10 border border-[#f2cc0d] rounded-lg">
+                      <div className="text-white font-bold">
+                        סכום לתשלום: ₪{parseFloat(customPrice).toLocaleString()}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
