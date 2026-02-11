@@ -24,6 +24,7 @@ export function ContentTab({ campaignId }: ContentTabProps) {
   const [uploads, setUploads] = useState<Upload[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [viewingContent, setViewingContent] = useState<{ url: string; type: string } | null>(null);
 
   useEffect(() => {
     loadContent();
@@ -148,15 +149,35 @@ export function ContentTab({ campaignId }: ContentTabProps) {
                 <div className={`status-stripe ${statusColors[upload.status || 'pending']}`} />
                 
                 {/* File Preview */}
-                <div className="aspect-video bg-[#2e2a1b] flex items-center justify-center mb-3 rounded-lg overflow-hidden">
+                <div
+                  className="aspect-video bg-[#2e2a1b] flex items-center justify-center mb-3 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity relative group"
+                  onClick={() =>
+                    (fileType === 'image' || fileType === 'video') &&
+                    setViewingContent({ url: urlData.publicUrl, type: fileType })
+                  }
+                >
                   {fileType === 'image' ? (
-                    <img
-                      src={urlData.publicUrl}
-                      alt="Upload"
-                      className="w-full h-full object-cover"
-                    />
+                    <>
+                      <img
+                        src={urlData.publicUrl}
+                        alt="Upload"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                        <span className="text-white text-4xl opacity-0 group-hover:opacity-100 transition-opacity">
+                          🔍
+                        </span>
+                      </div>
+                    </>
                   ) : fileType === 'video' ? (
-                    <video src={urlData.publicUrl} className="w-full h-full object-cover" controls />
+                    <>
+                      <video src={urlData.publicUrl} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center pointer-events-none">
+                        <span className="text-white text-4xl opacity-0 group-hover:opacity-100 transition-opacity">
+                          ▶️
+                        </span>
+                      </div>
+                    </>
                   ) : (
                     <div className="text-4xl">📄</div>
                   )}
@@ -216,6 +237,44 @@ export function ContentTab({ campaignId }: ContentTabProps) {
               : 'לא נמצאו תכנים בסטטוס זה'}
           </p>
         </Card>
+      )}
+
+      {/* Full Screen Viewer Modal */}
+      {viewingContent && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
+          onClick={() => setViewingContent(null)}
+        >
+          <button
+            onClick={() => setViewingContent(null)}
+            className="absolute top-4 right-4 text-white text-4xl hover:text-[#f2cc0d] transition-colors z-10"
+          >
+            ✕
+          </button>
+          
+          <div className="max-w-7xl max-h-full w-full h-full flex items-center justify-center">
+            {viewingContent.type === 'image' ? (
+              <img
+                src={viewingContent.url}
+                alt="Full view"
+                className="max-w-full max-h-full object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : viewingContent.type === 'video' ? (
+              <video
+                src={viewingContent.url}
+                controls
+                autoPlay
+                className="max-w-full max-h-full"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : null}
+          </div>
+
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-lg">
+            לחץ בכל מקום כדי לסגור
+          </div>
+        </div>
       )}
     </div>
   );
