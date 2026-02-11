@@ -59,7 +59,7 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
       (appsData || []).map(async (app: any) => {
         const { data: creatorData } = await supabase
           .from('creators')
-          .select('user_id, niches, platforms, age, gender')
+          .select('user_id, niches, platforms, age_range, gender')
           .eq('user_id', app.creator_id)
           .single();
 
@@ -73,7 +73,11 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
           ...app,
           creators: creatorData
             ? {
-                ...creatorData,
+                user_id: creatorData.user_id,
+                niches: creatorData.niches,
+                platforms: creatorData.platforms,
+                age: (creatorData as any).age_range, // Using age_range temporarily
+                gender: creatorData.gender,
                 users_profiles: profileData,
               }
             : null,

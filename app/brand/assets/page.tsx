@@ -125,17 +125,17 @@ export default function BrandAssetsPage() {
       const creatorIds = [...new Set(uploadsData.map(u => {
         const task = tasksMap.get(u.task_id);
         return task?.creator_id;
-      }).filter(Boolean))];
+      }).filter((id): id is string => Boolean(id)))];
 
       const { data: profilesData } = await supabase
         .from('users_profiles')
         .select('user_id, display_name, avatar_url')
-        .in('user_id', creatorIds);
+        .in('user_id', creatorIds as string[]);
 
       const { data: creatorsData } = await supabase
         .from('creators')
         .select('user_id, platforms')
-        .in('user_id', creatorIds);
+        .in('user_id', creatorIds as string[]);
 
       const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
       const creatorsMap = new Map(creatorsData?.map(c => [c.user_id, c]) || []);

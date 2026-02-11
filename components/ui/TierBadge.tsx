@@ -3,15 +3,17 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils/cn';
 
-export type TierLevel = 'bronze' | 'silver' | 'gold';
+export type TierLevel = 'bronze' | 'silver' | 'gold' | 'starter' | 'verified' | 'pro' | 'elite';
 
 interface TierBadgeProps {
   tier: TierLevel;
   showTooltip?: boolean;
+  showLabel?: boolean;
   className?: string;
 }
 
 const TIER_CONFIG = {
+  // Old tiers
   bronze: {
     label: 'ברונזה',
     icon: '🥉',
@@ -36,11 +38,44 @@ const TIER_CONFIG = {
     textColor: 'text-yellow-500',
     description: '50+ משימות מאושרות',
   },
+  // New tiers
+  starter: {
+    label: 'Starter',
+    icon: '🌱',
+    color: 'from-green-700 to-green-900',
+    borderColor: 'border-green-700',
+    textColor: 'text-green-700',
+    description: '0-2 עבודות מאושרות',
+  },
+  verified: {
+    label: 'Verified',
+    icon: '✅',
+    color: 'from-blue-500 to-blue-700',
+    borderColor: 'border-blue-500',
+    textColor: 'text-blue-500',
+    description: '3-7 עבודות מאושרות',
+  },
+  pro: {
+    label: 'Pro',
+    icon: '⭐',
+    color: 'from-yellow-400 to-yellow-600',
+    borderColor: 'border-yellow-500',
+    textColor: 'text-yellow-500',
+    description: '8-15 עבודות מאושרות',
+  },
+  elite: {
+    label: 'Elite',
+    icon: '👑',
+    color: 'from-purple-500 to-purple-700',
+    borderColor: 'border-purple-500',
+    textColor: 'text-purple-500',
+    description: '16+ עבודות מאושרות',
+  },
 };
 
-export function TierBadge({ tier, showTooltip = true, className }: TierBadgeProps) {
+export function TierBadge({ tier, showTooltip = true, showLabel = true, className }: TierBadgeProps) {
   const [tooltipVisible, setTooltipVisible] = useState(false);
-  const config = TIER_CONFIG[tier];
+  const config = TIER_CONFIG[tier] || TIER_CONFIG.starter;
 
   return (
     <div className={cn('relative inline-block', className)}>
@@ -57,7 +92,7 @@ export function TierBadge({ tier, showTooltip = true, className }: TierBadgeProp
         onClick={() => showTooltip && setTooltipVisible(!tooltipVisible)}
       >
         <span className="text-lg">{config.icon}</span>
-        <span className="text-white font-bold text-sm">{config.label}</span>
+        {showLabel && <span className="text-white font-bold text-sm">{config.label}</span>}
       </div>
 
       {/* Tooltip */}

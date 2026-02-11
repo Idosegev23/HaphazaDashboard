@@ -113,7 +113,7 @@ export default function BrandApplicationsPage() {
       (appsData || []).map(async (app: any) => {
         const { data: creatorData } = await supabase
           .from('creators')
-          .select('user_id, niches, platforms, age, gender, country')
+          .select('user_id, niches, platforms, age_range, gender, country')
           .eq('user_id', app.creator_id)
           .single();
 
@@ -126,7 +126,12 @@ export default function BrandApplicationsPage() {
         return {
           ...app,
           creators: creatorData ? {
-            ...creatorData,
+            user_id: creatorData.user_id,
+            niches: creatorData.niches,
+            platforms: creatorData.platforms,
+            age: (creatorData as any).age_range, // Using age_range temporarily until migration runs
+            gender: creatorData.gender,
+            country: creatorData.country,
             users_profiles: profileData
           } : null
         };

@@ -149,7 +149,7 @@ export default function BrandTaskDetailPage() {
     // טעינת פרטי משפיען בנפרד
     const { data: creatorData } = await supabase
       .from('creators')
-      .select('user_id, niches, platforms, age, gender, country')
+      .select('user_id, niches, platforms, age_range, gender, country')
       .eq('user_id', taskData.creator_id)
       .single();
 
@@ -163,7 +163,12 @@ export default function BrandTaskDetailPage() {
     let enrichedTask: any = {
       ...taskData,
       creators: creatorData ? {
-        ...creatorData,
+        user_id: creatorData.user_id,
+        niches: creatorData.niches,
+        platforms: creatorData.platforms,
+        age: (creatorData as any).age_range, // Using age_range temporarily
+        gender: creatorData.gender,
+        country: creatorData.country,
         users_profiles: profileData
       } : null
     };

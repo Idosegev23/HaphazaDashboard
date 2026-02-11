@@ -52,7 +52,7 @@ export function TierLegend() {
               <div className="text-4xl flex-shrink-0">{tier.emoji}</div>
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <TierBadge tier={tier.tier} showLabel={true} />
+                  <TierBadge tier={tier.tier as any} showLabel={true} />
                   <span className="text-[#cbc190] text-sm">({tier.requirements})</span>
                 </div>
                 <p className="text-[#cbc190] text-sm leading-relaxed">

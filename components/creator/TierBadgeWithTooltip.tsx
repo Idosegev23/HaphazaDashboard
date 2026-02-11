@@ -81,7 +81,7 @@ export function TierBadgeWithTooltip({ tier, showLabel = true, size = 'md' }: Pr
         onMouseLeave={() => setShowTooltip(false)}
         className="cursor-help"
       >
-        <TierBadge tier={tier} showLabel={showLabel} />
+        <TierBadge tier={tier as any} showLabel={showLabel} />
       </div>
 
       {showTooltip && (

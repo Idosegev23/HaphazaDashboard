@@ -77,11 +77,12 @@ export default function CreatorSettingsPage() {
       .single();
 
     if (creatorData?.platforms) {
+      const platformsData = creatorData.platforms as Record<string, any>;
       setPlatforms({
-        instagram: creatorData.platforms.instagram || { username: '', followers: 0 },
-        tiktok: creatorData.platforms.tiktok || { username: '', followers: 0 },
-        youtube: creatorData.platforms.youtube || { username: '', followers: 0 },
-        facebook: creatorData.platforms.facebook || { username: '', followers: 0 },
+        instagram: platformsData.instagram || { username: '', followers: 0 },
+        tiktok: platformsData.tiktok || { username: '', followers: 0 },
+        youtube: platformsData.youtube || { username: '', followers: 0 },
+        facebook: platformsData.facebook || { username: '', followers: 0 },
       });
     }
 
@@ -255,14 +256,10 @@ export default function CreatorSettingsPage() {
                       className="hidden"
                       id="avatar-upload"
                     />
-                    <label htmlFor="avatar-upload">
-                      <Button
-                        as="span"
-                        disabled={uploadingAvatar}
-                        className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b] cursor-pointer"
-                      >
+                    <label htmlFor="avatar-upload" className="cursor-pointer">
+                      <span className="inline-block px-4 py-2 bg-[#f2cc0d] text-black font-medium rounded-lg hover:bg-[#d4b00b] transition-colors">
                         {uploadingAvatar ? 'מעלה...' : 'העלה תמונה'}
-                      </Button>
+                      </span>
                     </label>
                     <p className="text-xs text-[#cbc190] mt-1">
                       JPG, PNG או GIF. מקסימום 2MB

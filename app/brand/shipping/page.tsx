@@ -131,7 +131,7 @@ export default function BrandShippingPage() {
         .select('*')
         .in('shipment_request_id', requestIds);
 
-      const addressesMap = new Map(addressesData?.map(a => [a.shipment_request_id, a]) || []);
+      const addressesMap = new Map(addressesData?.map((a: any) => [a.shipment_request_id, a]) || []);
 
       // Step 4: Get shipments
       const { data: shipmentsData } = await supabase
