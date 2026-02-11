@@ -78,8 +78,14 @@ export default function CampaignPage() {
 
   useEffect(() => {
     loadCampaign();
-    loadProducts();
   }, [campaignId]);
+
+  useEffect(() => {
+    // Load products whenever campaign changes
+    if (campaign) {
+      loadProducts();
+    }
+  }, [campaign?.id]);
 
   useEffect(() => {
     // Auto switch to overview for open campaigns
