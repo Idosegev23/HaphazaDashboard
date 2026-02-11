@@ -50,11 +50,6 @@ export function TopNav({ user }: TopNavProps) {
       return [
         { href: '/brand/dashboard', label: 'לוח בקרה', icon: '📊' },
         { href: '/brand/campaigns', label: 'הקמפיינים שלי', icon: '🎯' },
-        { href: '/brand/applications', label: 'בחירת משפיענים', icon: '👥' },
-        { href: '/brand/tasks', label: 'ניהול תוכן', icon: '🎬' },
-        { href: '/brand/assets', label: 'תוכן מאושר', icon: '✅' },
-        { href: '/brand/shipping', label: 'משלוחים', icon: '📦' },
-        { href: '/brand/payments', label: 'תשלומים', icon: '💳' },
       ];
     }
 

@@ -17,12 +17,17 @@ type Payment = {
   creator_name: string;
   creator_avatar: string | null;
   task_title: string;
+  proof_url: string | null;
+  invoice_url: string | null;
+  paid_at: string | null;
+  notes: string | null;
 };
 
 export function PaymentsTab({ campaignId }: PaymentsTabProps) {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [uploadingProof, setUploadingProof] = useState<string | null>(null); // payment ID being uploaded
 
   useEffect(() => {
     loadPayments();
@@ -78,6 +83,47 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
 
     setPayments(enriched);
     setLoading(false);
+  };
+
+  const handleUploadProof = async (paymentId: string, file: File) => {
+    setUploadingProof(paymentId);
+    const supabase = createClient();
+
+    try {
+      // Upload file to storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${paymentId}_${Date.now()}.${fileExt}`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('payment-uploads')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('payment-uploads')
+        .getPublicUrl(fileName);
+
+      // Update payment with proof URL
+      const { error: updateError } = await supabase
+        .from('payments')
+        .update({
+          proof_url: urlData.publicUrl,
+          status: 'paid',
+          paid_at: new Date().toISOString(),
+        })
+        .eq('id', paymentId);
+
+      if (updateError) throw updateError;
+
+      alert('✅ אסמכתת התשלום הועלתה בהצלחה!');
+      loadPayments(); // Reload
+    } catch (error: any) {
+      console.error('Error uploading proof:', error);
+      alert('שגיאה בהעלאת אסמכתא: ' + error.message);
+    } finally {
+      setUploadingProof(null);
+    }
   };
 
   if (loading) {
@@ -211,16 +257,81 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
                         >
                           {statusLabels[payment.status || 'pending']}
                         </span>
+                        {payment.status === 'pending' && !payment.proof_url && (
+                          <label
+                            htmlFor={`proof-upload-${payment.id}`}
+                            className="block mt-2 cursor-pointer"
+                          >
+                            <span className="inline-block px-3 py-1 bg-[#f2cc0d] text-black text-xs font-medium rounded hover:bg-[#d4b00b] transition-colors">
+                              {uploadingProof === payment.id ? '⏳ מעלה...' : '📤 העלה אסמכתא'}
+                            </span>
+                            <input
+                              id={`proof-upload-${payment.id}`}
+                              type="file"
+                              accept="image/*,application/pdf"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleUploadProof(payment.id, file);
+                              }}
+                              disabled={uploadingProof === payment.id}
+                              className="hidden"
+                            />
+                          </label>
+                        )}
                       </div>
                     </div>
 
-                    <div className="text-xs text-[#cbc190]">
+                    <div className="text-xs text-[#cbc190] mb-2">
                       נוצר ב-{new Date(payment.created_at).toLocaleDateString('he-IL')}{' '}
                       {new Date(payment.created_at).toLocaleTimeString('he-IL', {
                         hour: '2-digit',
                         minute: '2-digit',
                       })}
+                      {payment.paid_at && (
+                        <span className="mr-2">
+                          • שולם ב-{new Date(payment.paid_at).toLocaleDateString('he-IL')}
+                        </span>
+                      )}
                     </div>
+
+                    {/* Documents Section */}
+                    {(payment.proof_url || payment.invoice_url) && (
+                      <div className="mt-3 pt-3 border-t border-[#494222]">
+                        <div className="text-xs text-[#cbc190] mb-2 font-medium">📎 מסמכים:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {payment.proof_url && (
+                            <a
+                              href={payment.proof_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 bg-[#2e2a1b] border border-[#494222] rounded-lg text-[#f2cc0d] hover:border-[#f2cc0d] transition-colors text-xs flex items-center gap-2"
+                            >
+                              <span>📄</span>
+                              <span>אסמכתת תשלום</span>
+                            </a>
+                          )}
+                          {payment.invoice_url && (
+                            <a
+                              href={payment.invoice_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 bg-[#2e2a1b] border border-[#494222] rounded-lg text-[#f2cc0d] hover:border-[#f2cc0d] transition-colors text-xs flex items-center gap-2"
+                            >
+                              <span>🧾</span>
+                              <span>חשבונית</span>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Notes Section */}
+                    {payment.notes && (
+                      <div className="mt-3 pt-3 border-t border-[#494222]">
+                        <div className="text-xs text-[#cbc190] mb-1 font-medium">💬 הערות:</div>
+                        <p className="text-xs text-white">{payment.notes}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
