@@ -13,6 +13,7 @@ import { ApplicationsTab } from '@/components/brand/tabs/ApplicationsTab';
 import { ShipmentsTab } from '@/components/brand/tabs/ShipmentsTab';
 import { ContentTab } from '@/components/brand/tabs/ContentTab';
 import { PaymentsTab } from '@/components/brand/tabs/PaymentsTab';
+import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 type Campaign = {
   id: string;
@@ -541,6 +542,8 @@ export default function CampaignPage() {
         {activeTab === 'content' && <ContentTab campaignId={campaignId} />}
         {activeTab === 'payments' && <PaymentsTab campaignId={campaignId} />}
       </div>
+
+      <TutorialPopup tutorialKey="brand_campaign_detail" />
     </div>
   );
 }

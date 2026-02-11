@@ -7,6 +7,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { cn } from '@/lib/utils/cn';
+import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 type Task = {
   id: string;
@@ -790,6 +791,8 @@ export default function CreatorTaskDetailPage() {
           )}
         </div>
       </div>
+
+      <TutorialPopup tutorialKey="creator_task_detail" />
     </div>
   );
 }

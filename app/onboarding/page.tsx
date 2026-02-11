@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 export default function OnboardingPage() {
   const [roleType, setRoleType] = useState<'creator' | 'brand' | null>(null);
@@ -50,6 +51,8 @@ export default function OnboardingPage() {
           </button>
         </div>
       </div>
+
+      <TutorialPopup tutorialKey="welcome" />
     </div>
   );
 }

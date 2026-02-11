@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { TutorialPopup } from "@/components/ui/TutorialPopup";
 
 type Platform = {
   name: string;
@@ -756,6 +757,8 @@ export default function CreatorRegisterPage() {
           animation: fadeIn 0.3s ease-in-out;
         }
       `}</style>
+
+      <TutorialPopup tutorialKey="creator_onboarding" />
     </div>
   );
 }

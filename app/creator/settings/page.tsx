@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 type Platform = {
   username: string;
@@ -466,6 +467,8 @@ export default function CreatorSettingsPage() {
           </Card>
         </div>
       </div>
+
+      <TutorialPopup tutorialKey="creator_settings" />
     </div>
   );
 }

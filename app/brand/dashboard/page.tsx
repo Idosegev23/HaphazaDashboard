@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 export default async function BrandDashboardPage() {
   const user = await getUser();
@@ -101,6 +102,8 @@ export default async function BrandDashboardPage() {
           </div>
         </Card>
       </div>
+
+      <TutorialPopup tutorialKey="brand_dashboard" />
     </div>
   );
 }

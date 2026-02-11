@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { TutorialPopup } from "@/components/ui/TutorialPopup";
 
 const INDUSTRIES = [
   "אופנה",
@@ -269,6 +270,8 @@ export default function BrandRegisterPage() {
           </div>
         </div>
       </div>
+
+      <TutorialPopup tutorialKey="brand_onboarding" />
     </div>
   );
 }

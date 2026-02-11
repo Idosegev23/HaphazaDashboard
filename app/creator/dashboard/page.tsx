@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { TierBadge, TierLevel } from '@/components/ui/TierBadge';
 import { TierLegend } from '@/components/creator/TierLegend';
+import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 type Task = {
   id: string;
@@ -411,6 +412,8 @@ export default function CreatorDashboardPage() {
           )}
         </Card>
       </div>
+
+      <TutorialPopup tutorialKey="creator_dashboard" />
     </div>
   );
 }

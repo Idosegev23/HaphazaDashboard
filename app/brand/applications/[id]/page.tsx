@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { TierBadge, TierLevel } from '@/components/ui/TierBadge';
+import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 type Application = {
   id: string;
@@ -938,6 +939,8 @@ export default function ApplicationDetailPage() {
           )}
         </div>
       </div>
+
+      <TutorialPopup tutorialKey="brand_application_detail" />
     </div>
   );
 }

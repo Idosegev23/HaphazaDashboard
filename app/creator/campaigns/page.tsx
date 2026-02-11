@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 type Campaign = {
   id: string;
@@ -166,6 +167,8 @@ export default function CreatorCampaignsPage() {
           </Card>
         )}
       </div>
+
+      <TutorialPopup tutorialKey="creator_campaigns" />
     </div>
   );
 }

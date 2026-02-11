@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 type Campaign = {
   id: string;
@@ -200,6 +201,8 @@ export default function BrandCampaignsPage() {
           </Card>
         )}
       </div>
+
+      <TutorialPopup tutorialKey="brand_campaigns" />
     </div>
   );
 }

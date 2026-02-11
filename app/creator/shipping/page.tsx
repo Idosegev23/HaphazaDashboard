@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 type ShipmentRequest = {
   id: string;
@@ -424,6 +425,8 @@ export default function CreatorShippingPage() {
           </div>
         )}
       </div>
+
+      <TutorialPopup tutorialKey="creator_shipping" />
     </div>
   );
 }
