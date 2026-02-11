@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { TierBadge, TierLevel } from '@/components/ui/TierBadge';
+import { TierLegend } from '@/components/creator/TierLegend';
 
 type Task = {
   id: string;
@@ -55,6 +56,7 @@ export default function CreatorDashboardPage() {
   const [metrics, setMetrics] = useState<CreatorMetrics | null>(null);
   const [creatorInfo, setCreatorInfo] = useState<CreatorInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showTierGuide, setShowTierGuide] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -195,23 +197,43 @@ export default function CreatorDashboardPage() {
         {/* Tier Badge */}
         {creatorInfo?.tier && (
           <div className="mb-6">
-            <Card className="bg-gradient-to-r from-gold/20 to-gold/10 border-2 border-gold">
-              <div className="flex items-center gap-4">
-                <TierBadge 
-                  tier={(creatorInfo.tier as TierLevel) || 'bronze'} 
-                  showTooltip={true}
-                  className="scale-125"
-                />
-                <div>
-                  <div className="text-white font-bold text-xl">
-                    דרגת יוצר: {creatorInfo.tier === 'gold' ? 'זהב' : creatorInfo.tier === 'silver' ? 'כסף' : 'ברונזה'}
-                  </div>
-                  <div className="text-muted text-sm">
-                    לחץ על התג כדי לראות את מדרג הדרגות המלא
+            <Card className="bg-gradient-to-r from-[#f2cc0d]/20 to-[#f2cc0d]/10 border-2 border-[#f2cc0d]">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <TierBadge 
+                    tier={(creatorInfo.tier as TierLevel) || 'starter'} 
+                    showTooltip={false}
+                    className="scale-125"
+                  />
+                  <div>
+                    <div className="text-white font-bold text-xl">
+                      הדרגה שלך: {
+                        creatorInfo.tier === 'elite' ? '👑 Elite' :
+                        creatorInfo.tier === 'pro' ? '⭐ Pro' :
+                        creatorInfo.tier === 'verified' ? '✅ Verified' :
+                        '🌱 Starter'
+                      }
+                    </div>
+                    <div className="text-[#cbc190] text-sm">
+                      {metrics?.approved_tasks || 0} עבודות מאושרות
+                    </div>
                   </div>
                 </div>
+                <button
+                  onClick={() => setShowTierGuide(!showTierGuide)}
+                  className="px-4 py-2 bg-[#f2cc0d] text-black font-bold rounded-lg hover:bg-[#d4b00b] transition-colors"
+                >
+                  {showTierGuide ? 'סגור מדריך' : '🏆 מדריך דרגות'}
+                </button>
               </div>
             </Card>
+          </div>
+        )}
+
+        {/* Tier Guide (collapsible) */}
+        {showTierGuide && (
+          <div className="mb-6">
+            <TierLegend />
           </div>
         )}
 

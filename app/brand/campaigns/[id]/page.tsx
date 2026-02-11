@@ -37,6 +37,17 @@ export default function CampaignDetailPage() {
   const [saving, setSaving] = useState(false);
   const router = useRouter();
 
+  // Quick redirect to manage page if campaign is published
+  useEffect(() => {
+    if (campaign && campaign.status === 'published') {
+      // Show notification about new unified management
+      const hasSeenNotification = sessionStorage.getItem('seen_unified_manage');
+      if (!hasSeenNotification) {
+        sessionStorage.setItem('seen_unified_manage', 'true');
+      }
+    }
+  }, [campaign]);
+
   const [formData, setFormData] = useState({
     title: '',
     objective: '',
@@ -198,8 +209,10 @@ export default function CampaignDetailPage() {
       return;
     }
 
-    alert('הקמפיין פורסם בהצלחה!');
-    loadCampaign();
+    alert('✅ הקמפיין פורסם בהצלחה!\n\nהקמפיין זמין כעת למשפיענים ונפתח למועמדויות.\nתוכל/י לעקוב אחר הבקשות בלוח הבקרה.');
+    
+    // Navigate to dashboard
+    router.push('/brand/dashboard');
   };
 
   if (loading) {
@@ -256,6 +269,14 @@ export default function CampaignDetailPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {currentStatus === 'published' && (
+              <Button
+                onClick={() => router.push(`/brand/campaigns/${campaignId}/manage`)}
+                className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
+              >
+                🎯 ניהול מאוחד
+              </Button>
+            )}
             <Button
               onClick={handleSave}
               disabled={saving}

@@ -27,6 +27,24 @@ export default function NewCampaignPage() {
     photo: 0,
   });
 
+  // Products state
+  const [products, setProducts] = useState<Array<{
+    name: string;
+    sku: string;
+    image_url: string;
+    quantity: number;
+    description: string;
+  }>>([]);
+  
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [productForm, setProductForm] = useState({
+    name: '',
+    sku: '',
+    image_url: '',
+    quantity: '1',
+    description: '',
+  });
+
   const DELIVERABLE_LABELS: Record<string, string> = {
     instagram_story: 'Instagram Story',
     instagram_reel: 'Instagram Reel',
@@ -41,6 +59,35 @@ export default function NewCampaignPage() {
       ...prev,
       [key]: Math.max(0, prev[key] + change)
     }));
+  };
+
+  const handleAddProduct = () => {
+    if (!productForm.name.trim()) {
+      alert('יש למלא לפחות את שם המוצר');
+      return;
+    }
+
+    setProducts([...products, {
+      name: productForm.name,
+      sku: productForm.sku,
+      image_url: productForm.image_url,
+      quantity: parseInt(productForm.quantity) || 1,
+      description: productForm.description,
+    }]);
+
+    // Reset form
+    setProductForm({
+      name: '',
+      sku: '',
+      image_url: '',
+      quantity: '1',
+      description: '',
+    });
+    setShowProductForm(false);
+  };
+
+  const handleRemoveProduct = (index: number) => {
+    setProducts(products.filter((_, i) => i !== index));
   };
   
   const [loading, setLoading] = useState(false);
@@ -115,6 +162,27 @@ export default function NewCampaignPage() {
         .single();
 
       if (error) throw error;
+
+      // Add products if any
+      if (products.length > 0) {
+        const productsToInsert = products.map(p => ({
+          campaign_id: data.id,
+          name: p.name,
+          sku: p.sku || null,
+          image_url: p.image_url || null,
+          quantity: p.quantity,
+          description: p.description || null,
+        }));
+
+        const { error: productsError } = await supabase
+          .from('campaign_products')
+          .insert(productsToInsert);
+
+        if (productsError) {
+          console.error('Error adding products:', productsError);
+          alert('הקמפיין נוצר אך היתה שגיאה בהוספת המוצרים: ' + productsError.message);
+        }
+      }
 
       // Redirect to the campaign detail page
       router.push(`/brand/campaigns/${data.id}`);
@@ -265,6 +333,154 @@ export default function NewCampaignPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Products Section */}
+            <div className="bg-[#2e2a1b] p-6 rounded-lg border border-[#494222]">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-bold text-white mb-1">מוצרים למשלוח (אופציונלי)</h3>
+                  <p className="text-[#cbc190] text-sm">
+                    אם הקמפיין דורש משלוח מוצרים פיזיים למשפיענים
+                  </p>
+                </div>
+                {!showProductForm && (
+                  <Button
+                    type="button"
+                    onClick={() => setShowProductForm(true)}
+                    className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
+                  >
+                    + הוסף מוצר
+                  </Button>
+                )}
+              </div>
+
+              {/* Products List */}
+              {products.length > 0 && (
+                <div className="space-y-3 mb-4">
+                  {products.map((product, idx) => (
+                    <div key={idx} className="bg-[#1E1E1E] rounded-lg p-4 border border-[#494222]">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 flex-1">
+                          {product.image_url ? (
+                            <img
+                              src={product.image_url}
+                              alt={product.name}
+                              className="w-16 h-16 object-cover rounded"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 bg-[#2e2a1b] rounded flex items-center justify-center text-2xl">
+                              📦
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <h4 className="text-white font-medium">{product.name}</h4>
+                            {product.sku && (
+                              <p className="text-[#cbc190] text-xs">SKU: {product.sku}</p>
+                            )}
+                            {product.description && (
+                              <p className="text-[#cbc190] text-sm mt-1">{product.description}</p>
+                            )}
+                            <p className="text-[#f2cc0d] text-sm mt-1">כמות: {product.quantity}</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveProduct(idx)}
+                          className="text-red-500 hover:text-red-400 transition-colors"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Product Form */}
+              {showProductForm && (
+                <div className="bg-[#1E1E1E] rounded-lg p-4 border-2 border-[#f2cc0d] space-y-4">
+                  <h4 className="text-white font-bold">מוצר חדש</h4>
+                  
+                  <Input
+                    label="שם המוצר *"
+                    type="text"
+                    value={productForm.name}
+                    onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                    placeholder="לדוגמה: שמפו טבעי"
+                  />
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Input
+                      label="SKU (מק''ט)"
+                      type="text"
+                      value={productForm.sku}
+                      onChange={(e) => setProductForm({ ...productForm, sku: e.target.value })}
+                      placeholder="SKU-12345"
+                    />
+                    <Input
+                      label="כמות"
+                      type="number"
+                      value={productForm.quantity}
+                      onChange={(e) => setProductForm({ ...productForm, quantity: e.target.value })}
+                      placeholder="1"
+                    />
+                  </div>
+
+                  <Input
+                    label="קישור לתמונה"
+                    type="url"
+                    value={productForm.image_url}
+                    onChange={(e) => setProductForm({ ...productForm, image_url: e.target.value })}
+                    placeholder="https://example.com/image.jpg"
+                  />
+
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-2">
+                      תיאור (אופציונלי)
+                    </label>
+                    <textarea
+                      value={productForm.description}
+                      onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                      className="w-full px-4 py-3 bg-[#2e2a1b] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                      rows={2}
+                      placeholder="תיאור קצר של המוצר..."
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      type="button"
+                      onClick={handleAddProduct}
+                      className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
+                    >
+                      ✅ הוסף מוצר
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setShowProductForm(false);
+                        setProductForm({
+                          name: '',
+                          sku: '',
+                          image_url: '',
+                          quantity: '1',
+                          description: '',
+                        });
+                      }}
+                      className="bg-[#2e2a1b] hover:bg-[#3a3525]"
+                    >
+                      ביטול
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {products.length === 0 && !showProductForm && (
+                <p className="text-[#cbc190] text-sm text-center py-4">
+                  לא נוספו מוצרים למשלוח. אם הקמפיין לא דורש מוצרים - זה בסדר גמור!
+                </p>
+              )}
             </div>
 
             <div className="flex gap-4">

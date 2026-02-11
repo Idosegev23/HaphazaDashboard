@@ -87,54 +87,104 @@ export default function BrandShippingPage() {
   const loadShipments = async () => {
     const supabase = createClient();
 
-    const { data, error } = await supabase
-      .from('shipment_requests')
-      .select(`
-        id,
-        status,
-        created_at,
-        campaign_id,
-        creator_id,
-        campaigns(title),
-        shipment_addresses(street, house_number, city, postal_code, country, phone),
-        shipments(tracking_number, carrier, shipped_at, delivered_at)
-      `)
-      .eq('campaigns.brand_id', user?.brand_id!)
-      .order('created_at', { ascending: false });
+    try {
+      // Step 1: Get all campaigns for this brand
+      const { data: brandCampaigns, error: campaignsError } = await supabase
+        .from('campaigns')
+        .select('id, title')
+        .eq('brand_id', user!.brand_id!);
 
-    if (error) {
-      console.error('Error loading shipments:', error);
-      setLoading(false);
-      return;
-    }
+      if (campaignsError) throw campaignsError;
+      
+      if (!brandCampaigns || brandCampaigns.length === 0) {
+        console.log('No campaigns found for brand');
+        setRequests([]);
+        setLoading(false);
+        return;
+      }
 
-    // טעינת פרטי משפיענים בנפרד
-    const enrichedData = await Promise.all(
-      (data || []).map(async (req: any) => {
-        const { data: profileData } = await supabase
-          .from('users_profiles')
-          .select('display_name, email')
-          .eq('user_id', req.creator_id)
-          .single();
+      const campaignIds = brandCampaigns.map(c => c.id);
+      const campaignsMap = new Map(brandCampaigns.map(c => [c.id, c]));
+
+      // Step 2: Get all shipment requests for these campaigns
+      const { data: requestsData, error: requestsError } = await supabase
+        .from('shipment_requests')
+        .select('*')
+        .in('campaign_id', campaignIds)
+        .order('created_at', { ascending: false });
+
+      if (requestsError) throw requestsError;
+
+      if (!requestsData || requestsData.length === 0) {
+        console.log('No shipment requests found');
+        setRequests([]);
+        setLoading(false);
+        return;
+      }
+
+      const requestIds = requestsData.map(r => r.id);
+      const creatorIds = [...new Set(requestsData.map(r => r.creator_id))];
+
+      // Step 3: Get shipment addresses
+      const { data: addressesData } = await supabase
+        .from('shipment_addresses')
+        .select('*')
+        .in('shipment_request_id', requestIds);
+
+      const addressesMap = new Map(addressesData?.map(a => [a.shipment_request_id, a]) || []);
+
+      // Step 4: Get shipments
+      const { data: shipmentsData } = await supabase
+        .from('shipments')
+        .select('*')
+        .in('shipment_request_id', requestIds);
+
+      const shipmentsMap = new Map<string, any[]>();
+      shipmentsData?.forEach(s => {
+        const existing = shipmentsMap.get(s.shipment_request_id) || [];
+        shipmentsMap.set(s.shipment_request_id, [...existing, s]);
+      });
+
+      // Step 5: Get creator profiles
+      const { data: profilesData } = await supabase
+        .from('users_profiles')
+        .select('user_id, display_name, email')
+        .in('user_id', creatorIds);
+
+      const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
+
+      // Step 6: Combine everything
+      const enriched = requestsData.map(req => {
+        const campaign = campaignsMap.get(req.campaign_id);
+        const address = addressesMap.get(req.id);
+        const shipments = shipmentsMap.get(req.id) || [];
+        const profile = profilesMap.get(req.creator_id);
 
         return {
-          ...req,
+          id: req.id,
+          status: req.status,
+          created_at: req.created_at,
+          campaign_id: req.campaign_id,
+          campaigns: campaign ? { title: campaign.title } : null,
+          shipment_addresses: address || null,
+          shipments: shipments,
           creators: {
-            users_profiles: profileData
+            users_profiles: profile || null
           }
         };
-      })
-    );
+      });
 
-    setRequests(enrichedData as any || []);
-    
-    // Load products for each unique campaign
-    if (data && data.length > 0) {
-      const campaignIds = [...new Set(data.map((r: any) => r.campaign_id))];
+      console.log(`Loaded ${enriched.length} shipment requests`);
+      setRequests(enriched as any);
+      
+      // Load products for campaigns
       await loadProductsForCampaigns(campaignIds);
+    } catch (error: any) {
+      console.error('Error loading shipments:', error);
+      alert('שגיאה בטעינת משלוחים: ' + error.message);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   const loadProductsForCampaigns = async (campaignIds: string[]) => {

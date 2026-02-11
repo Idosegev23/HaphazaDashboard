@@ -68,53 +68,85 @@ export default function BrandAssetsPage() {
   const loadAssets = async () => {
     const supabase = createClient();
 
-    // Get all approved uploads for this brand
-    const { data: uploadsData, error } = await supabase
-      .from('uploads')
-      .select(`
-        id,
-        storage_path,
-        status,
-        created_at,
-        meta,
-        task_id,
-        tasks!inner(
-          title,
-          campaign_id,
-          creator_id,
-          campaigns!inner(
-            id,
-            title,
-            brand_id
-          )
-        )
-      `)
-      .eq('tasks.campaigns.brand_id', user?.brand_id!)
-      .eq('status', 'approved')
-      .order('created_at', { ascending: false });
+    try {
+      // Step 1: Get all campaigns for this brand
+      const { data: brandCampaigns, error: campaignsError } = await supabase
+        .from('campaigns')
+        .select('id')
+        .eq('brand_id', user?.brand_id!);
 
-    if (error) {
-      console.error('Error loading assets:', error);
-      setLoading(false);
-      return;
-    }
+      if (campaignsError) throw campaignsError;
+      
+      if (!brandCampaigns || brandCampaigns.length === 0) {
+        console.log('No campaigns found for brand');
+        setAssets([]);
+        setLoading(false);
+        return;
+      }
 
-    // Enrich with creator data
-    const enriched = await Promise.all(
-      (uploadsData || []).map(async (upload: any) => {
-        // Get creator profile
-        const { data: profileData } = await supabase
-          .from('users_profiles')
-          .select('display_name, avatar_url')
-          .eq('user_id', upload.tasks.creator_id)
-          .single();
-        
-        // Get creator platforms
-        const { data: creatorData } = await supabase
-          .from('creators')
-          .select('platforms')
-          .eq('user_id', upload.tasks.creator_id)
-          .single();
+      const campaignIds = brandCampaigns.map(c => c.id);
+
+      // Step 2: Get all tasks for these campaigns
+      const { data: tasksData, error: tasksError } = await supabase
+        .from('tasks')
+        .select('id, title, campaign_id, creator_id, campaigns!inner(id, title)')
+        .in('campaign_id', campaignIds);
+
+      if (tasksError) throw tasksError;
+      
+      if (!tasksData || tasksData.length === 0) {
+        console.log('No tasks found for campaigns');
+        setAssets([]);
+        setLoading(false);
+        return;
+      }
+
+      const taskIds = tasksData.map(t => t.id);
+      const tasksMap = new Map(tasksData.map(t => [t.id, t]));
+
+      // Step 3: Get all approved uploads for these tasks
+      const { data: uploadsData, error: uploadsError } = await supabase
+        .from('uploads')
+        .select('*')
+        .in('task_id', taskIds)
+        .eq('status', 'approved')
+        .order('created_at', { ascending: false });
+
+      if (uploadsError) throw uploadsError;
+
+      if (!uploadsData || uploadsData.length === 0) {
+        console.log('No approved uploads found');
+        setAssets([]);
+        setLoading(false);
+        return;
+      }
+
+      // Step 4: Enrich with creator data
+      const creatorIds = [...new Set(uploadsData.map(u => {
+        const task = tasksMap.get(u.task_id);
+        return task?.creator_id;
+      }).filter(Boolean))];
+
+      const { data: profilesData } = await supabase
+        .from('users_profiles')
+        .select('user_id, display_name, avatar_url')
+        .in('user_id', creatorIds);
+
+      const { data: creatorsData } = await supabase
+        .from('creators')
+        .select('user_id, platforms')
+        .in('user_id', creatorIds);
+
+      const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
+      const creatorsMap = new Map(creatorsData?.map(c => [c.user_id, c]) || []);
+
+      // Step 5: Combine everything
+      const enriched = uploadsData.map((upload: any) => {
+        const task = tasksMap.get(upload.task_id);
+        if (!task) return null;
+
+        const profile = profilesMap.get(task.creator_id);
+        const creator = creatorsMap.get(task.creator_id);
 
         return {
           upload: {
@@ -126,23 +158,28 @@ export default function BrandAssetsPage() {
             task_id: upload.task_id,
           },
           task: {
-            title: upload.tasks.title,
+            title: task.title,
             campaign: {
-              id: upload.tasks.campaigns.id,
-              title: upload.tasks.campaigns.title,
+              id: task.campaigns.id,
+              title: task.campaigns.title,
             },
-            creator: profileData && creatorData ? {
-              display_name: profileData.display_name,
-              avatar_url: profileData.avatar_url,
-              platforms: creatorData.platforms,
+            creator: profile && creator ? {
+              display_name: profile.display_name,
+              avatar_url: profile.avatar_url,
+              platforms: creator.platforms,
             } : null
           }
         };
-      })
-    );
+      }).filter(Boolean);
 
-    setAssets(enriched);
-    setLoading(false);
+      console.log(`Loaded ${enriched.length} approved assets`);
+      setAssets(enriched as Asset[]);
+    } catch (error: any) {
+      console.error('Error loading assets:', error);
+      alert('שגיאה בטעינת תכנים: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredAssets = assets.filter((asset) => {

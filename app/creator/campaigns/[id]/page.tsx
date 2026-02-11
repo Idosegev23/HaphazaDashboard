@@ -12,6 +12,7 @@ export default function CampaignDetailPage() {
   const router = useRouter();
   const [campaign, setCampaign] = useState<any>(null);
   const [application, setApplication] = useState<any>(null);
+  const [products, setProducts] = useState<any[]>([]);
   const [message, setMessage] = useState('');
   const [availability, setAvailability] = useState('');
   const [portfolioLinks, setPortfolioLinks] = useState('');
@@ -36,6 +37,14 @@ export default function CampaignDetailPage() {
       .single();
 
     setCampaign(campaignData);
+
+    // Check for products in this campaign
+    const { data: productsData } = await supabase
+      .from('campaign_products')
+      .select('*')
+      .eq('campaign_id', params.id as string);
+
+    setProducts(productsData || []);
 
     // Check if already applied
     const { data: appData } = await supabase
@@ -96,6 +105,37 @@ export default function CampaignDetailPage() {
           <h1 className="text-3xl font-bold text-white mb-4">{campaign.title}</h1>
           <div className="text-[#cbc190] mb-4">{campaign.brands?.name}</div>
           
+          {products.length > 0 && (
+            <div className="mb-6 bg-orange-500/10 border-2 border-orange-500 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <span className="text-3xl">📦</span>
+                <div className="flex-1">
+                  <h3 className="text-white font-bold mb-1">⚠️ משלוח מוצר נדרש</h3>
+                  <p className="text-orange-200 text-sm mb-3">
+                    קמפיין זה דורש קבלת מוצרים פיזיים מהמותג. אם תאושר/י, תצטרך/י לספק כתובת למשלוח ולהמתין לקבלת המוצרים לפני שתוכל/י להתחיל בעבודה על התוכן.
+                  </p>
+                  <div className="bg-[#2e2a1b] rounded-lg p-3 space-y-2">
+                    <h4 className="text-white font-medium text-sm">מוצרים שיישלחו:</h4>
+                    {products.map((product, idx) => (
+                      <div key={idx} className="flex items-center gap-3 text-sm">
+                        {product.image_url ? (
+                          <img src={product.image_url} alt={product.name} className="w-12 h-12 object-cover rounded" />
+                        ) : (
+                          <div className="w-12 h-12 bg-[#1E1E1E] rounded flex items-center justify-center text-lg">📦</div>
+                        )}
+                        <div className="flex-1">
+                          <div className="text-white font-medium">{product.name}</div>
+                          {product.sku && <div className="text-[#cbc190] text-xs">SKU: {product.sku}</div>}
+                        </div>
+                        {product.quantity && <div className="text-[#f2cc0d]">x{product.quantity}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {campaign.brief_url && (
             <div className="mb-6 bg-[#f2cc0d]/10 border-2 border-[#f2cc0d] rounded-lg p-4">
               <div className="flex items-center justify-between">

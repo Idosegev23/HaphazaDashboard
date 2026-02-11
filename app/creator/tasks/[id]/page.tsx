@@ -355,9 +355,15 @@ export default function CreatorTaskDetailPage() {
       // Show appropriate message
       if (successCount > 0) {
         if (wasNeedingEdits) {
-          alert(`✅ ${successCount} קבצים הועלו בהצלחה!\n\nהמשימה חזרה לסטטוס "הועלה" והמותג יקבל התראה לבדוק מחדש.${errorCount > 0 ? `\n\n⚠️ ${errorCount} קבצים נכשלו.` : ''}`);
+          alert(`✅ ${successCount} קבצים הועלו בהצלחה!\n\nהמשימה חזרה לסטטוס "הועלה" והמותג יקבל התראה לבדוק מחדש.${errorCount > 0 ? `\n\n⚠️ ${errorCount} קבצים נכשלו.` : ''}\n\nמה הלאה?\n• המותג יסקור את התוכן המעודכן\n• תקבל/י התראה כשהתוכן יאושר או יידרש תיקון נוסף\n• ניתן לראות את סטטוס המשימה בלוח המשימות`);
         } else {
-          alert(`✅ ${successCount} קבצים הועלו בהצלחה!${errorCount > 0 ? `\n\n⚠️ ${errorCount} קבצים נכשלו.` : ''}`);
+          alert(`✅ ${successCount} קבצים הועלו בהצלחה!${errorCount > 0 ? `\n\n⚠️ ${errorCount} קבצים נכשלו.` : ''}\n\nמה הלאה?\n• המותג יסקור את התוכן שלך\n• תקבל/י התראה כשהתוכן יאושר או יידרש תיקון\n• ניתן לראות את סטטוס המשימה בלוח המשימות`);
+        }
+        
+        // Offer to return to tasks page
+        if (confirm('האם תרצה/י לחזור ללוח המשימות?')) {
+          router.push('/creator/tasks');
+          return;
         }
       } else {
         alert('❌ לא הצלחנו להעלות אף קובץ. בדוק את הגודל והסוג.');
