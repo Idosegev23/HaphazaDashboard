@@ -71,11 +71,12 @@ export default function CampaignPage() {
   const [showProductForm, setShowProductForm] = useState(false);
   const [productForm, setProductForm] = useState({
     name: '',
-    sku: '',
     image_url: '',
     quantity: '1',
     description: '',
   });
+  const [imageUploadMethod, setImageUploadMethod] = useState<'url' | 'file'>('url');
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     loadCampaign();
@@ -188,9 +189,40 @@ export default function CampaignPage() {
     }
   };
 
+  const handleImageUpload = async (file: File) => {
+    setUploadingImage(true);
+    const supabase = createClient();
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${campaignId}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('campaign-products')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('campaign-products')
+        .getPublicUrl(fileName);
+
+      setProductForm({ ...productForm, image_url: publicUrl });
+      setUploadingImage(false);
+    } catch (error: any) {
+      alert('שגיאה בהעלאת תמונה: ' + error.message);
+      setUploadingImage(false);
+    }
+  };
+
   const handleAddProduct = async () => {
     if (!productForm.name.trim()) {
       alert('יש למלא לפחות את שם המוצר');
+      return;
+    }
+
+    if (!productForm.description.trim()) {
+      alert('יש למלא תיאור מפורט למוצר - זה עוזר למשפיענים להבין מה הם מקבלים');
       return;
     }
 
@@ -200,7 +232,7 @@ export default function CampaignPage() {
       const { error } = await supabase.from('campaign_products').insert({
         campaign_id: campaignId,
         name: productForm.name,
-        sku: productForm.sku || null,
+        sku: null,
         image_url: productForm.image_url || null,
         quantity: parseInt(productForm.quantity) || 1,
         description: productForm.description || null,
@@ -210,14 +242,14 @@ export default function CampaignPage() {
 
       setProductForm({
         name: '',
-        sku: '',
         image_url: '',
         quantity: '1',
         description: '',
       });
       setShowProductForm(false);
+      setImageUploadMethod('url');
       loadProducts();
-      alert(' המוצר נוסף בהצלחה');
+      alert('המוצר נוסף בהצלחה');
     } catch (error: any) {
       alert('שגיאה בהוספת מוצר: ' + error.message);
     }
@@ -420,61 +452,117 @@ export default function CampaignPage() {
 
               {/* Product Form */}
               {showProductForm && (
-                <div className="bg-white rounded-lg p-4 border-2 border-[#f2cc0d] space-y-4 mb-4">
-                  <h4 className="text-[#212529] font-bold">מוצר חדש</h4>
+                <div className="bg-[#f8f9fa] rounded-lg p-6 border-2 border-[#f2cc0d] space-y-4 mb-4">
+                  <h4 className="text-[#212529] font-bold text-lg">מוצר חדש למשלוח</h4>
 
                   <Input
                     label="שם המוצר *"
                     type="text"
                     value={productForm.name}
                     onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
-                    placeholder="לדוגמה: שמפו טבעי"
+                    placeholder="לדוגמה: שמפו מועשר בויטמינים"
                   />
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <Input
-                      label="SKU (מק״ט)"
-                      type="text"
-                      value={productForm.sku}
-                      onChange={(e) => setProductForm({ ...productForm, sku: e.target.value })}
-                      placeholder="SKU-12345"
-                    />
-                    <Input
-                      label="כמות"
-                      type="number"
-                      value={productForm.quantity}
-                      onChange={(e) => setProductForm({ ...productForm, quantity: e.target.value })}
-                      placeholder="1"
-                    />
-                  </div>
 
                   <Input
-                    label="קישור לתמונה"
-                    type="url"
-                    value={productForm.image_url}
-                    onChange={(e) => setProductForm({ ...productForm, image_url: e.target.value })}
-                    placeholder="https://example.com/image.jpg"
+                    label="כמות ליחידה"
+                    type="number"
+                    value={productForm.quantity}
+                    onChange={(e) => setProductForm({ ...productForm, quantity: e.target.value })}
+                    placeholder="1"
                   />
 
+                  {/* Image Upload Method Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-[#212529] mb-2">תיאור</label>
+                    <label className="block text-sm font-medium text-[#212529] mb-3">תמונת המוצר</label>
+                    <div className="flex gap-3 mb-3">
+                      <button
+                        type="button"
+                        onClick={() => setImageUploadMethod('url')}
+                        className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                          imageUploadMethod === 'url'
+                            ? 'bg-[#f2cc0d] text-black'
+                            : 'bg-white text-[#6c757d] hover:bg-[#e9ecef]'
+                        }`}
+                      >
+                        קישור לתמונה
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setImageUploadMethod('file')}
+                        className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                          imageUploadMethod === 'file'
+                            ? 'bg-[#f2cc0d] text-black'
+                            : 'bg-white text-[#6c757d] hover:bg-[#e9ecef]'
+                        }`}
+                      >
+                        העלאה מהמחשב
+                      </button>
+                    </div>
+
+                    {imageUploadMethod === 'url' ? (
+                      <Input
+                        type="url"
+                        value={productForm.image_url}
+                        onChange={(e) => setProductForm({ ...productForm, image_url: e.target.value })}
+                        placeholder="https://example.com/product-image.jpg"
+                      />
+                    ) : (
+                      <div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file);
+                          }}
+                          className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#f2cc0d] file:text-black file:font-medium hover:file:bg-[#dcb900] transition-colors"
+                          disabled={uploadingImage}
+                        />
+                        {uploadingImage && (
+                          <p className="text-[#f2cc0d] text-sm mt-2">מעלה תמונה...</p>
+                        )}
+                      </div>
+                    )}
+
+                    {productForm.image_url && (
+                      <div className="mt-3">
+                        <img
+                          src={productForm.image_url}
+                          alt="תצוגה מקדימה"
+                          className="w-32 h-32 object-cover rounded-lg border border-[#dee2e6]"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#212529] mb-2">
+                      תיאור מפורט למוצר *
+                    </label>
+                    <p className="text-[#6c757d] text-xs mb-2">
+                      המשפיענים יראו את התיאור הזה כשהם יקבלו את המוצר. כתבו מידע חשוב: תכונות, הוראות שימוש, מרכיבים, וכל מה שחשוב לדעת.
+                    </p>
                     <textarea
                       value={productForm.description}
                       onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
-                      rows={2}
-                      placeholder="תיאור קצר של המוצר..."
+                      className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
+                      rows={6}
+                      placeholder="לדוגמה:&#10;&#10;שמפו טבעי מועשר בויטמינים A, B, E&#10;מתאים לכל סוגי השיער&#10;&#10;מרכיבים: מי ים המלח, שמן ארגן, תמצית אלוורה&#10;&#10;הוראות שימוש: למרוח על שיער רטוב, לעסות ולשטוף ביסודיות&#10;&#10;חשוב להדגיש: נטול פראבנים וסולפטים"
+                      required
                     />
                   </div>
 
                   <div className="flex gap-3">
-                    <Button onClick={handleAddProduct}> הוסף מוצר</Button>
+                    <Button onClick={handleAddProduct} disabled={uploadingImage}>
+                      הוסף מוצר
+                    </Button>
                     <Button
                       onClick={() => {
                         setShowProductForm(false);
-                        setProductForm({ name: '', sku: '', image_url: '', quantity: '1', description: '' });
+                        setProductForm({ name: '', image_url: '', quantity: '1', description: '' });
+                        setImageUploadMethod('url');
                       }}
-                      className="bg-[#f8f9fa] hover:bg-[#e9ecef]"
+                      variant="secondary"
                     >
                       ביטול
                     </Button>
@@ -490,35 +578,51 @@ export default function CampaignPage() {
                       key={product.id}
                       className="bg-white rounded-lg p-4 border border-[#dee2e6] hover:border-[#f2cc0d] transition-colors"
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3 flex-1">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-4 flex-1">
                           {product.image_url ? (
                             <img
                               src={product.image_url}
                               alt={product.name}
-                              className="w-16 h-16 object-cover rounded"
+                              className="w-24 h-24 object-cover rounded-lg border border-[#dee2e6]"
                             />
                           ) : (
-                            <div className="w-16 h-16 bg-[#f8f9fa] rounded flex items-center justify-center text-2xl">
-                              
+                            <div className="w-24 h-24 bg-[#f8f9fa] rounded-lg flex items-center justify-center text-3xl border border-[#dee2e6]">
+                              📦
                             </div>
                           )}
                           <div className="flex-1">
-                            <h4 className="text-[#212529] font-medium">{product.name}</h4>
-                            {product.sku && (
-                              <p className="text-[#6c757d] text-xs">SKU: {product.sku}</p>
-                            )}
+                            <div className="flex items-start justify-between">
+                              <h4 className="text-[#212529] font-bold text-lg">{product.name}</h4>
+                              <span className="text-[#f2cc0d] font-medium text-sm bg-[#f2cc0d]/10 px-3 py-1 rounded-full">
+                                כמות: {product.quantity}
+                              </span>
+                            </div>
                             {product.description && (
-                              <p className="text-[#6c757d] text-sm mt-1">{product.description}</p>
+                              <div className="mt-2 text-[#6c757d] text-sm leading-relaxed whitespace-pre-line bg-[#f8f9fa] p-3 rounded-lg">
+                                {product.description}
+                              </div>
                             )}
-                            <p className="text-[#f2cc0d] text-sm mt-1">כמות: {product.quantity}</p>
                           </div>
                         </div>
                         <button
                           onClick={() => handleRemoveProduct(product.id)}
-                          className="text-red-500 hover:text-red-400 transition-colors"
+                          className="text-red-500 hover:text-red-600 transition-colors p-2 hover:bg-red-50 rounded-lg"
+                          title="מחק מוצר"
                         >
-                          ️
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
                         </button>
                       </div>
                     </div>
@@ -536,7 +640,7 @@ export default function CampaignPage() {
         )}
 
         {/* Other Tabs */}
-        {activeTab === 'overview' && <OverviewTab campaignId={campaignId} campaign={campaign} />}
+        {activeTab === 'overview' && <OverviewTab campaignId={campaignId} campaign={campaign} onTabChange={setActiveTab} />}
         {activeTab === 'applications' && <ApplicationsTab campaignId={campaignId} />}
         {activeTab === 'shipments' && <ShipmentsTab campaignId={campaignId} />}
         {activeTab === 'content' && <ContentTab campaignId={campaignId} />}

@@ -142,7 +142,7 @@ export default function AdminLogsPage() {
                           <div className="text-[#6c757d] text-sm mt-1">
                             <span className="font-medium">{log.entity}</span>
                             {log.entity_id && (
-                              <span className="ml-2 font-mono text-xs bg-[#1a1a1a] px-2 py-0.5 rounded">
+                              <span className="ml-2 font-mono text-xs  bg-white px-2 py-0.5 rounded">
                                 {log.entity_id.slice(0, 12)}...
                               </span>
                             )}
@@ -160,7 +160,7 @@ export default function AdminLogsPage() {
                     {log.actor_id && (
                       <div className="text-xs text-[#6c757d] mt-2 flex items-center gap-2">
                         <span>👤 User:</span>
-                        <span className="font-mono bg-[#1a1a1a] px-2 py-0.5 rounded">
+                        <span className="font-mono  bg-white px-2 py-0.5 rounded">
                           {log.actor_id.slice(0, 12)}...
                         </span>
                       </div>
@@ -171,7 +171,7 @@ export default function AdminLogsPage() {
                         <summary className="text-xs text-[#f2cc0d] cursor-pointer hover:underline">
                           📋 View Metadata
                         </summary>
-                        <pre className="mt-2 p-2 bg-[#1a1a1a] rounded text-xs text-[#6c757d] overflow-x-auto">
+                        <pre className="mt-2 p-2  bg-white rounded text-xs text-[#6c757d] overflow-x-auto">
                           {JSON.stringify(log.meta, null, 2)}
                         </pre>
                       </details>

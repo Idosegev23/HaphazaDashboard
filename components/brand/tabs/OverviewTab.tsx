@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 type OverviewTabProps = {
   campaignId: string;
   campaign: any;
+  onTabChange?: (tabId: string) => void;
 };
 
 type Stats = {
@@ -22,7 +23,7 @@ type Stats = {
   paidPayments: number;
 };
 
-export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
+export function OverviewTab({ campaignId, campaign, onTabChange }: OverviewTabProps) {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -147,7 +148,7 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
       {/* Stats Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Applications */}
-        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30">
+        <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30 cursor-pointer hover:shadow-lg transition-all">
           <div className="flex items-start justify-between mb-3">
             
             <div className="text-right">
@@ -156,23 +157,35 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center text-sm">
-            <div>
+            <button
+              onClick={() => onTabChange?.('applications')}
+              className="hover:bg-white/5 rounded-lg p-2 transition-all cursor-pointer"
+            >
               <div className="text-green-400 font-bold">{stats?.approvedApplications || 0}</div>
               <div className="text-[#6c757d] text-xs">אושרו</div>
-            </div>
-            <div>
+            </button>
+            <button
+              onClick={() => onTabChange?.('applications')}
+              className="hover:bg-white/5 rounded-lg p-2 transition-all cursor-pointer"
+            >
               <div className="text-yellow-400 font-bold">{stats?.pendingApplications || 0}</div>
               <div className="text-[#6c757d] text-xs">ממתינים</div>
-            </div>
-            <div>
+            </button>
+            <button
+              onClick={() => onTabChange?.('applications')}
+              className="hover:bg-white/5 rounded-lg p-2 transition-all cursor-pointer"
+            >
               <div className="text-red-400 font-bold">{stats?.rejectedApplications || 0}</div>
               <div className="text-[#6c757d] text-xs">נדחו</div>
-            </div>
+            </button>
           </div>
         </Card>
 
         {/* Tasks */}
-        <Card className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/30">
+        <Card 
+          className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/30 cursor-pointer hover:shadow-lg transition-all"
+          onClick={() => onTabChange?.('applications')}
+        >
           <div className="flex items-start justify-between mb-3">
             
             <div className="text-right">
@@ -195,7 +208,10 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
         </Card>
 
         {/* Shipments */}
-        <Card className="bg-gradient-to-br from-orange-500/10 to-orange-500/5 border-orange-500/30">
+        <Card 
+          className="bg-gradient-to-br from-orange-500/10 to-orange-500/5 border-orange-500/30 cursor-pointer hover:shadow-lg transition-all"
+          onClick={() => onTabChange?.('shipments')}
+        >
           <div className="flex items-start justify-between">
             
             <div className="text-right">
@@ -206,7 +222,10 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
         </Card>
 
         {/* Content */}
-        <Card className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/30">
+        <Card 
+          className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/30 cursor-pointer hover:shadow-lg transition-all"
+          onClick={() => onTabChange?.('content')}
+        >
           <div className="flex items-start justify-between">
             
             <div className="text-right">
@@ -217,7 +236,10 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
         </Card>
 
         {/* Payments */}
-        <Card className="bg-gradient-to-br from-yellow-500/10 to-yellow-500/5 border-yellow-500/30">
+        <Card 
+          className="bg-gradient-to-br from-yellow-500/10 to-yellow-500/5 border-yellow-500/30 cursor-pointer hover:shadow-lg transition-all"
+          onClick={() => onTabChange?.('payments')}
+        >
           <div className="flex items-start justify-between mb-3">
             
             <div className="text-right">
@@ -258,36 +280,45 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
       </div>
 
       {/* Quick Actions */}
-      <Card className="bg-gradient-to-r from-[#2e2a1b] to-[#1E1E1E]">
+      <Card className="bg-gradient-to-r from-[#f8f9fa] to-white">
         <h3 className="text-lg font-bold text-[#212529] mb-4">פעולות מהירות</h3>
         <div className="flex flex-wrap gap-3">
           {stats && stats.pendingApplications > 0 && (
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg px-4 py-2">
-              <span className="text-yellow-400 font-medium">
-                ️ {stats.pendingApplications} בקשות ממתינות לבדיקה
+            <button
+              onClick={() => onTabChange?.('applications')}
+              className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg px-4 py-2 hover:bg-yellow-500/20 transition-all cursor-pointer"
+            >
+              <span className="text-yellow-600 font-medium">
+                {stats.pendingApplications} בקשות ממתינות לבדיקה
               </span>
-            </div>
+            </button>
           )}
           {stats && stats.pendingShipments > 0 && (
-            <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg px-4 py-2">
-              <span className="text-orange-400 font-medium">
-                 {stats.pendingShipments} משלוחים דורשים טיפול
+            <button
+              onClick={() => onTabChange?.('shipments')}
+              className="bg-orange-500/10 border border-orange-500/30 rounded-lg px-4 py-2 hover:bg-orange-500/20 transition-all cursor-pointer"
+            >
+              <span className="text-orange-600 font-medium">
+                {stats.pendingShipments} משלוחים דורשים טיפול
               </span>
-            </div>
+            </button>
           )}
           {stats && stats.pendingPayments > 0 && (
-            <div className="bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-2">
-              <span className="text-green-400 font-medium">
-                 {stats.pendingPayments} תשלומים ממתינים
+            <button
+              onClick={() => onTabChange?.('payments')}
+              className="bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-2 hover:bg-green-500/20 transition-all cursor-pointer"
+            >
+              <span className="text-green-600 font-medium">
+                {stats.pendingPayments} תשלומים ממתינים
               </span>
-            </div>
+            </button>
           )}
           {stats &&
             stats.pendingApplications === 0 &&
             stats.pendingShipments === 0 &&
             stats.pendingPayments === 0 && (
               <div className="bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-2">
-                <span className="text-green-400 font-medium"> הכל מעודכן!</span>
+                <span className="text-green-600 font-medium">הכל מעודכן!</span>
               </div>
             )}
         </div>

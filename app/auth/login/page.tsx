@@ -35,7 +35,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#121212] to-[#232010] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-[#f8f9fa] p-4">
       <div className="glass-panel w-full max-w-md p-8 rounded-xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-[#f2cc0d] mb-2">LEADERS</h1>

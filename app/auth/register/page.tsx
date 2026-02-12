@@ -2,7 +2,7 @@
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#232010] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-white p-4">
       <div className="w-full max-w-2xl">
         <div className="bg-[#f8f9fa] border border-[#dee2e6] rounded-xl p-12">
           <div className="text-center mb-12">
@@ -18,7 +18,7 @@ export default function RegisterPage() {
             {/* Creator Card */}
             <a
               href="/auth/register/creator"
-              className="group block p-8 bg-[#232010] border-2 border-[#dee2e6] hover:border-[#f2cc0d] rounded-xl transition-all hover:scale-105"
+              className="group block p-8 bg-white border-2 border-[#dee2e6] hover:border-[#f2cc0d] rounded-xl transition-all hover:scale-105"
             >
               <div className="text-center">
                 <div className="w-16 h-16 mx-auto mb-4 bg-[#f2cc0d]/20 rounded-full flex items-center justify-center group-hover:bg-[#f2cc0d]/30 transition-colors">
@@ -41,7 +41,7 @@ export default function RegisterPage() {
             {/* Brand Card */}
             <a
               href="/auth/register/brand"
-              className="group block p-8 bg-[#232010] border-2 border-[#dee2e6] hover:border-[#f2cc0d] rounded-xl transition-all hover:scale-105"
+              className="group block p-8 bg-white border-2 border-[#dee2e6] hover:border-[#f2cc0d] rounded-xl transition-all hover:scale-105"
             >
               <div className="text-center">
                 <div className="w-16 h-16 mx-auto mb-4 bg-[#f2cc0d]/20 rounded-full flex items-center justify-center group-hover:bg-[#f2cc0d]/30 transition-colors">

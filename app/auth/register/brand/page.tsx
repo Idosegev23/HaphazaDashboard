@@ -152,7 +152,7 @@ export default function BrandRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#232010] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-white p-4">
       <div className="w-full max-w-md">
         <div className="bg-[#f8f9fa] border border-[#dee2e6] rounded-xl p-8">
           <div className="text-center mb-8">

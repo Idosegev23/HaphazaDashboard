@@ -359,7 +359,7 @@ export default function CreatorRegisterPage() {
   const progressPercentage = (currentStep / totalSteps) * 100;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#232010] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-white p-4">
       <div className="w-full max-w-2xl">
         <div className="bg-[#f8f9fa] border border-[#dee2e6] rounded-xl p-8">
           {/* Header */}
@@ -374,7 +374,7 @@ export default function CreatorRegisterPage() {
 
           {/* Progress Bar */}
           <div className="mb-8">
-            <div className="h-2 bg-[#232010] rounded-full overflow-hidden">
+            <div className="h-2 bg-white rounded-full overflow-hidden">
               <div
                 className="h-full bg-[#f2cc0d] transition-all duration-300"
                 style={{ width: `${progressPercentage}%` }}
@@ -474,7 +474,7 @@ export default function CreatorRegisterPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, gender: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-[#232010] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#f2cc0d]"
+                    className="w-full px-3 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#f2cc0d]"
                     required
                   >
                     <option value="">בחר מגדר</option>
@@ -517,7 +517,7 @@ export default function CreatorRegisterPage() {
                         className={`px-4 py-2 rounded-lg border-2 transition-all text-sm ${
                           formData.niches.includes(niche)
                             ? "border-[#f2cc0d] bg-[#f2cc0d]/20 text-[#212529]"
-                            : "border-[#dee2e6] bg-[#232010] text-[#6c757d] hover:border-[#f2cc0d]/50"
+                            : "border-[#dee2e6] bg-white text-[#6c757d] hover:border-[#f2cc0d]/50"
                         }`}
                       >
                         {niche}
@@ -542,7 +542,7 @@ export default function CreatorRegisterPage() {
                         className={`px-4 py-2 rounded-lg border-2 transition-all text-sm ${
                           formData.occupations.includes(occupation)
                             ? "border-[#f2cc0d] bg-[#f2cc0d]/20 text-[#212529]"
-                            : "border-[#dee2e6] bg-[#232010] text-[#6c757d] hover:border-[#f2cc0d]/50"
+                            : "border-[#dee2e6] bg-white text-[#6c757d] hover:border-[#f2cc0d]/50"
                         }`}
                       >
                         {occupation}
@@ -582,7 +582,7 @@ export default function CreatorRegisterPage() {
                           className={`px-4 py-2 rounded-lg border-2 transition-all flex items-center gap-2 ${
                             isAdded
                               ? "border-[#f2cc0d] bg-[#f2cc0d]/20 text-[#212529]"
-                              : "border-[#dee2e6] bg-[#232010] text-[#6c757d] hover:border-[#f2cc0d]/50"
+                              : "border-[#dee2e6] bg-white text-[#6c757d] hover:border-[#f2cc0d]/50"
                           }`}
                         >
                           <span>{platform.icon}</span>
@@ -596,7 +596,7 @@ export default function CreatorRegisterPage() {
                   {formData.platforms.map((platform) => (
                     <div
                       key={platform.name}
-                      className="bg-[#232010] border border-[#dee2e6] rounded-lg p-4 mb-4"
+                      className="bg-white border border-[#dee2e6] rounded-lg p-4 mb-4"
                     >
                       <div className="flex items-center justify-between mb-3">
                         <h3 className="text-[#212529] font-bold">
@@ -702,7 +702,7 @@ export default function CreatorRegisterPage() {
               <Button
                 type="button"
                 onClick={handleBack}
-                className="flex-1 bg-[#232010] text-[#212529] border border-[#dee2e6] hover:bg-[#f8f9fa]"
+                className="flex-1 bg-white text-[#212529] border border-[#dee2e6] hover:bg-[#f8f9fa]"
                 disabled={loading}
               >
                 חזור

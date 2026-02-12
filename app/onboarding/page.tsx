@@ -20,7 +20,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#121212] to-[#232010] p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-[#f8f9fa] p-4">
       <div className="glass-panel w-full max-w-2xl p-8 rounded-xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#f2cc0d] mb-4">ברוכים הבאים ל-LEADERS</h1>

@@ -814,7 +814,7 @@ export default function ApplicationDetailPage() {
               <div className="grid md:grid-cols-3 gap-4">
                 {portfolio.map((item) => (
                   <div key={item.id} className="bg-[#f8f9fa] rounded-lg overflow-hidden border border-[#dee2e6]">
-                    <div className="aspect-square bg-[#1a1a1a]">
+                    <div className="aspect-square  bg-white">
                       {item.media_type === 'image' ? (
                         <img
                           src={item.media_url}

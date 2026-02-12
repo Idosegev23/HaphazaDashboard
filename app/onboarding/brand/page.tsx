@@ -121,7 +121,7 @@ export default function BrandOnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#121212] to-[#232010] p-4">
+    <div className="min-h-screen bg-gradient-to-b from-white to-[#f8f9fa] p-4">
       <div className="max-w-3xl mx-auto py-12">
         <div className="glass-panel p-8 rounded-xl">
           <h1 className="text-3xl font-bold text-[#f2cc0d] mb-8">השלמת פרטי המותג</h1>

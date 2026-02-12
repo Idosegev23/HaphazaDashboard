@@ -11,7 +11,7 @@ interface StageShellProps {
 
 /**
  * Main application shell with top navigation
- * Dark-first design with RTL support
+ * Clean light theme with RTL support
  */
 export function StageShell({ children }: StageShellProps) {
   const { user, loading } = useUser();
@@ -22,20 +22,20 @@ export function StageShell({ children }: StageShellProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#121212] flex items-center justify-center">
-        <div className="text-[#f2cc0d] text-xl">Loading...</div>
+      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center">
+        <div className="text-[#f2cc0d] text-xl font-bold">טוען...</div>
       </div>
     );
   }
 
   if (hideNav) {
-    return <div className="min-h-screen bg-[#121212]">{children}</div>;
+    return <div className="min-h-screen bg-white">{children}</div>;
   }
 
   return (
-    <div className="min-h-screen bg-[#121212] flex flex-col" dir={user?.profile?.language === 'he' ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-[#f8f9fa] flex flex-col" dir={user?.profile?.language === 'he' ? 'rtl' : 'ltr'}>
       <TopNav user={user} />
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto bg-[#f8f9fa]">
         {children}
       </main>
     </div>

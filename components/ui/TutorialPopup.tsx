@@ -41,7 +41,7 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => 
         setIsDismissed(true);
       } else {
         setIsDismissed(false);
-        setIsOpen(true); // Auto-show on first visit
+        // Don't auto-open - user must click the button
       }
     };
 
@@ -95,7 +95,7 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => 
   return (
     <>
       {/* Floating help button - always visible when popup is closed */}
-      {!isOpen && (
+      {!isOpen && isDismissed !== null && (
         <button
           onClick={handleOpen}
           className="fixed bottom-6 left-6 z-40 flex items-center gap-2 
