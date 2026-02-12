@@ -20,7 +20,7 @@ export const BrandCampaignsTutorial: React.FC = () => {
           <div style={{ flex: 1 }}>
             <StepCard
               stepNumber={1}
-              icon="📋"
+              icon=""
               title="רשימת הקמפיינים"
               description="כאן מופיעים כל הקמפיינים שלכם: טיוטות, פעילים, וסגורים. לחצו על כל קמפיין כדי לנהל אותו"
               delay={10}
@@ -28,7 +28,7 @@ export const BrandCampaignsTutorial: React.FC = () => {
             />
             <StepCard
               stepNumber={2}
-              icon="🏷️"
+              icon="️"
               title="סינון לפי סטטוס"
               description="השתמשו בסינון כדי לראות רק קמפיינים פעילים, טיוטות או ארכיון"
               delay={35}
@@ -41,7 +41,7 @@ export const BrandCampaignsTutorial: React.FC = () => {
                   <div
                     key={i}
                     style={{
-                      background: i === 0 ? 'rgba(242, 204, 13, 0.08)' : '#2A2A2A',
+                      background: i === 0 ? 'rgba(242, 204, 13, 0.08)' : '#f8f9fa',
                       borderRadius: 10,
                       padding: '10px 14px',
                       marginBottom: 8,
@@ -51,14 +51,14 @@ export const BrandCampaignsTutorial: React.FC = () => {
                       alignItems: 'center',
                     }}
                   >
-                    <span style={{ color: '#fff', fontSize: 13 }}>{name}</span>
+                    <span style={{ color: '#212529', fontSize: 13 }}>{name}</span>
                     <span
                       style={{
                         fontSize: 10,
                         padding: '2px 8px',
                         borderRadius: 6,
                         background: i === 0 ? '#4ade8033' : i === 1 ? '#f2cc0d33' : '#666',
-                        color: i === 0 ? '#4ade80' : i === 1 ? '#f2cc0d' : '#aaa',
+                        color: i === 0 ? '#4ade80' : i === 1 ? '#f2cc0d' : '#6c757d',
                       }}
                     >
                       {i === 0 ? 'פעיל' : i === 1 ? 'טיוטה' : 'ארכיון'}
@@ -83,7 +83,7 @@ export const BrandCampaignsTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="✏️"
+            icon="️"
             title="מלאו את פרטי הקמפיין"
             description="שם, מטרה, תיאור ותקציב. הגדירו מחיר קבוע או השאירו גמיש לקביעה בעת אישור כל משפיען"
             delay={15}
@@ -91,14 +91,14 @@ export const BrandCampaignsTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="📦"
+            icon=""
             title="הוסיפו מוצרים"
             description="הוסיפו את המוצרים שנשלחים למשפיענים - שם, תיאור וכתובת לרכישה"
             delay={35}
           />
           <StepCard
             stepNumber={3}
-            icon="🚀"
+            icon=""
             title="פרסמו את הקמפיין"
             description="לחצו 'פרסם קמפיין' כדי שמשפיענים יוכלו להגיש בקשות להצטרף"
             delay={55}
@@ -109,7 +109,7 @@ export const BrandCampaignsTutorial: React.FC = () => {
       {/* Section 3: Campaign Management */}
       <Sequence from={22 * fps} durationInFrames={13 * fps}>
         <TextReveal
-          text="⚙️ ניהול מרכזי"
+          text="️ ניהול מרכזי"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -118,7 +118,7 @@ export const BrandCampaignsTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="🎯"
+            icon=""
             title="הכל תחת הקמפיין"
             description="לחצו על קמפיין כדי לנהל: משפיענים, תכנים, משלוחים ותשלומים - הכל ממקום אחד"
             delay={15}
@@ -126,14 +126,14 @@ export const BrandCampaignsTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="📊"
+            icon=""
             title="מעקב בזמן אמת"
             description="עקבו אחרי סטטוס כל שלב - מרגע הגשת הבקשה ועד לתשלום הסופי"
             delay={35}
           />
         </div>
         <TextReveal
-          text="💡 טיפ: מהדף הזה אפשר ללחוץ על כל קמפיין כדי לפתוח את מרכז הניהול המלא"
+          text=" טיפ: מהדף הזה אפשר ללחוץ על כל קמפיין כדי לפתוח את מרכז הניהול המלא"
           fontSize={16}
           color="#cbc190"
           delay={60}

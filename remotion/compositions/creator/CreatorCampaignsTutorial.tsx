@@ -20,7 +20,7 @@ export const CreatorCampaignsTutorial: React.FC = () => {
           <div style={{ flex: 1 }}>
             <StepCard
               stepNumber={1}
-              icon="🔍"
+              icon=""
               title="עיון בקמפיינים"
               description="כל הקמפיינים הפתוחים מוצגים כאן עם פרטים: מותג, מטרה, תקציב ודדליין"
               delay={10}
@@ -28,7 +28,7 @@ export const CreatorCampaignsTutorial: React.FC = () => {
             />
             <StepCard
               stepNumber={2}
-              icon="📋"
+              icon=""
               title="פרטי הקמפיין"
               description="לחצו על קמפיין כדי לראות את הבריף המלא, המוצרים והדרישות"
               delay={35}
@@ -41,15 +41,15 @@ export const CreatorCampaignsTutorial: React.FC = () => {
                   <div
                     key={i}
                     style={{
-                      background: i === 0 ? 'rgba(242, 204, 13, 0.08)' : '#2A2A2A',
+                      background: i === 0 ? 'rgba(242, 204, 13, 0.08)' : '#f8f9fa',
                       borderRadius: 10,
                       padding: '10px 14px',
                       marginBottom: 8,
                       border: i === 0 ? '1px solid #f2cc0d44' : '1px solid #333',
                     }}
                   >
-                    <div style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{name}</div>
-                    <div style={{ color: '#888', fontSize: 10, marginTop: 4 }}>
+                    <div style={{ color: '#212529', fontSize: 13, fontWeight: 600 }}>{name}</div>
+                    <div style={{ color: '#6c757d', fontSize: 10, marginTop: 4 }}>
                       {i === 0 ? '₪500 · 7 ימים' : i === 1 ? '₪800 · 14 ימים' : 'גמיש · 30 ימים'}
                     </div>
                   </div>
@@ -63,7 +63,7 @@ export const CreatorCampaignsTutorial: React.FC = () => {
       {/* Section 2: Apply */}
       <Sequence from={10 * fps} durationInFrames={10 * fps}>
         <TextReveal
-          text="📝 הגשת בקשה"
+          text=" הגשת בקשה"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -72,7 +72,7 @@ export const CreatorCampaignsTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="✍️"
+            icon="️"
             title="כתבו למה אתם מתאימים"
             description="הסבירו למותג למה בחרתם בקמפיין ומה הערך שאתם יכולים להביא"
             delay={15}
@@ -80,14 +80,14 @@ export const CreatorCampaignsTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="📎"
+            icon=""
             title="קישורים ודוגמאות"
             description="הוסיפו קישורים לעבודות קודמות או תיק עבודות - זה מגדיל סיכויי אישור!"
             delay={35}
           />
           <StepCard
             stepNumber={3}
-            icon="📤"
+            icon=""
             title="שלחו את הבקשה"
             description="לחצו 'שלח בקשה' - המותג יקבל התראה ויסקור אותה"
             delay={55}
@@ -107,14 +107,14 @@ export const CreatorCampaignsTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="📨"
+            icon=""
             title="ממתין לתשובה"
             description="הבקשה שלכם ממתינה אצל המותג. תקבלו התראה ברגע שיהיה עדכון"
             delay={15}
           />
           <StepCard
             stepNumber={2}
-            icon="✅"
+            icon=""
             title="אושר!"
             description="אם אושרתם - תיפתח משימה חדשה עם כל ההנחיות. מוצרים יישלחו אליכם"
             delay={35}
@@ -122,7 +122,7 @@ export const CreatorCampaignsTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={3}
-            icon="❌"
+            icon=""
             title="נדחה"
             description="לא נורא - המשיכו לגלוש בקמפיינים אחרים ולהגיש בקשות"
             delay={50}

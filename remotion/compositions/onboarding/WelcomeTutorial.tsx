@@ -68,7 +68,7 @@ export const WelcomeTutorial: React.FC = () => {
       {/* Section 2: How it Works */}
       <Sequence from={10 * fps} durationInFrames={8 * fps}>
         <TextReveal
-          text="🔄 איך זה עובד?"
+          text=" איך זה עובד?"
           fontSize={30}
           color="#f2cc0d"
           fontWeight={700}
@@ -78,21 +78,21 @@ export const WelcomeTutorial: React.FC = () => {
         <div style={{ display: 'flex', gap: 20, marginTop: 30 }}>
           <StepCard
             stepNumber={1}
-            icon="🏢"
+            icon=""
             title="מותג מפרסם קמפיין"
             description="מגדיר מטרה, מוצרים ותקציב"
             delay={15}
           />
           <StepCard
             stepNumber={2}
-            icon="🙋"
+            icon=""
             title="יוצר מגיש בקשה"
             description="מגיש בקשה ומספר למה הוא מתאים"
             delay={30}
           />
           <StepCard
             stepNumber={3}
-            icon="🤝"
+            icon=""
             title="שיתוף פעולה"
             description="מוצרים, תכנים ותשלום - הכל בפלטפורמה"
             delay={45}
@@ -113,7 +113,7 @@ export const WelcomeTutorial: React.FC = () => {
           }}
         >
           <TextReveal
-            text="🚀 בואו נתחיל!"
+            text=" בואו נתחיל!"
             fontSize={36}
             color="#f2cc0d"
             fontWeight={800}

@@ -137,10 +137,10 @@ export default function CreatorSettingsPage() {
       if (updateError) throw updateError;
 
       setProfile({ ...profile, avatar_url: avatarUrl });
-      alert('✅ התמונה עודכנה בהצלחה');
+      alert(' התמונה עודכנה בהצלחה');
     } catch (error: any) {
       console.error('Error uploading avatar:', error);
-      alert(`❌ שגיאה בהעלאת התמונה: ${error.message}`);
+      alert(` שגיאה בהעלאת התמונה: ${error.message}`);
     } finally {
       setUploadingAvatar(false);
     }
@@ -161,10 +161,10 @@ export default function CreatorSettingsPage() {
 
       if (profileError) throw profileError;
 
-      alert('✅ הפרופיל עודכן בהצלחה');
+      alert(' הפרופיל עודכן בהצלחה');
     } catch (error: any) {
       console.error('Error saving profile:', error);
-      alert(`❌ שגיאה בשמירת הפרופיל: ${error.message}`);
+      alert(` שגיאה בשמירת הפרופיל: ${error.message}`);
     } finally {
       setSaving(false);
     }
@@ -195,10 +195,10 @@ export default function CreatorSettingsPage() {
 
       if (platformError) throw platformError;
 
-      alert('✅ פלטפורמות עודכנו בהצלחה');
+      alert(' פלטפורמות עודכנו בהצלחה');
     } catch (error: any) {
       console.error('Error saving platforms:', error);
-      alert(`❌ שגיאה בשמירת הפלטפורמות: ${error.message}`);
+      alert(` שגיאה בשמירת הפלטפורמות: ${error.message}`);
     } finally {
       setSaving(false);
     }
@@ -207,23 +207,23 @@ export default function CreatorSettingsPage() {
   if (loading || userLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
-        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">הגדרות</h1>
-        <p className="text-[#cbc190]">ערוך את הפרופיל והקישורים החברתיים שלך</p>
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
+        <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">הגדרות</h1>
+        <p className="text-[#6c757d]">ערוך את הפרופיל והקישורים החברתיים שלך</p>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
         <div className="max-w-3xl mx-auto space-y-6">
           {/* Profile Section */}
           <Card>
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-[#212529] mb-4 flex items-center gap-2">
               <span className="material-symbols-outlined">account_circle</span>
               פרופיל
             </h2>
@@ -231,11 +231,11 @@ export default function CreatorSettingsPage() {
             <div className="space-y-4">
               {/* Avatar Upload */}
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
+                <label className="block text-sm font-medium text-[#212529] mb-2">
                   תמונת פרופיל
                 </label>
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-full overflow-hidden bg-[#2e2a1b] border-2 border-[#f2cc0d] flex-shrink-0">
+                  <div className="w-20 h-20 rounded-full overflow-hidden bg-[#f8f9fa] border-2 border-[#f2cc0d] flex-shrink-0">
                     {profile.avatar_url ? (
                       <img
                         src={profile.avatar_url}
@@ -262,7 +262,7 @@ export default function CreatorSettingsPage() {
                         {uploadingAvatar ? 'מעלה...' : 'העלה תמונה'}
                       </span>
                     </label>
-                    <p className="text-xs text-[#cbc190] mt-1">
+                    <p className="text-xs text-[#6c757d] mt-1">
                       JPG, PNG או GIF. מקסימום 2MB
                     </p>
                   </div>
@@ -290,17 +290,17 @@ export default function CreatorSettingsPage() {
 
           {/* Social Platforms Section */}
           <Card>
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-[#212529] mb-4 flex items-center gap-2">
               <span className="material-symbols-outlined">share</span>
               קישורים חברתיים
             </h2>
 
             <div className="space-y-4">
               {/* Instagram */}
-              <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+              <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">📷</span>
-                  <h3 className="text-white font-medium">Instagram</h3>
+                  
+                  <h3 className="text-[#212529] font-medium">Instagram</h3>
                 </div>
                 <div className="grid gap-3">
                   <Input
@@ -337,10 +337,10 @@ export default function CreatorSettingsPage() {
               </div>
 
               {/* TikTok */}
-              <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+              <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">🎵</span>
-                  <h3 className="text-white font-medium">TikTok</h3>
+                  
+                  <h3 className="text-[#212529] font-medium">TikTok</h3>
                 </div>
                 <div className="grid gap-3">
                   <Input
@@ -377,10 +377,10 @@ export default function CreatorSettingsPage() {
               </div>
 
               {/* YouTube */}
-              <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+              <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">📺</span>
-                  <h3 className="text-white font-medium">YouTube</h3>
+                  
+                  <h3 className="text-[#212529] font-medium">YouTube</h3>
                 </div>
                 <div className="grid gap-3">
                   <Input
@@ -417,10 +417,10 @@ export default function CreatorSettingsPage() {
               </div>
 
               {/* Facebook */}
-              <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+              <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-2xl">👍</span>
-                  <h3 className="text-white font-medium">Facebook</h3>
+                  
+                  <h3 className="text-[#212529] font-medium">Facebook</h3>
                 </div>
                 <div className="grid gap-3">
                   <Input

@@ -200,18 +200,18 @@ export default function BrandAssetsPage() {
   if (loading || userLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">תוכן מאושר</h1>
-            <p className="text-[#cbc190]">ספריית תכנים מאושרים להורדה ושימוש</p>
+            <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">תוכן מאושר</h1>
+            <p className="text-[#6c757d]">ספריית תכנים מאושרים להורדה ושימוש</p>
           </div>
         </div>
 
@@ -220,7 +220,7 @@ export default function BrandAssetsPage() {
           <select
             value={selectedCampaign}
             onChange={(e) => setSelectedCampaign(e.target.value)}
-            className="px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+            className="px-4 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
           >
             <option value="all">כל הקמפיינים</option>
             {campaigns.map((c) => (
@@ -231,7 +231,7 @@ export default function BrandAssetsPage() {
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+            className="px-4 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
           >
             <option value="all">כל הסוגים</option>
             <option value="image">תמונות</option>
@@ -260,7 +260,7 @@ export default function BrandAssetsPage() {
                   <Card key={asset.upload.id} className="overflow-hidden">
                     <div className="space-y-3">
                       {/* Media Preview */}
-                      <div className="aspect-square bg-[#2e2a1b] rounded-lg overflow-hidden">
+                      <div className="aspect-square bg-[#f8f9fa] rounded-lg overflow-hidden">
                         {asset.upload.meta?.type?.startsWith('image/') ? (
                           <img
                             src={`/api/storage/task-uploads/${asset.upload.storage_path}`}
@@ -282,8 +282,8 @@ export default function BrandAssetsPage() {
                       
                       {/* Creator Info */}
                       {asset.task.creator && (
-                        <div className="flex items-center gap-3 pb-3 border-b border-[#494222]">
-                          <div className="w-10 h-10 rounded-full overflow-hidden bg-[#2e2a1b] border-2 border-[#f2cc0d] flex-shrink-0">
+                        <div className="flex items-center gap-3 pb-3 border-b border-[#dee2e6]">
+                          <div className="w-10 h-10 rounded-full overflow-hidden bg-[#f8f9fa] border-2 border-[#f2cc0d] flex-shrink-0">
                             {asset.task.creator.avatar_url ? (
                               <img 
                                 src={asset.task.creator.avatar_url} 
@@ -297,7 +297,7 @@ export default function BrandAssetsPage() {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-white font-medium text-sm truncate">
+                            <div className="text-[#212529] font-medium text-sm truncate">
                               {asset.task.creator.display_name}
                             </div>
                             {socialLink && (
@@ -316,22 +316,22 @@ export default function BrandAssetsPage() {
 
                       {/* Content Details */}
                       <div>
-                        <div className="text-white font-medium mb-1 text-sm">
+                        <div className="text-[#212529] font-medium mb-1 text-sm">
                           {asset.upload.meta?.deliverable_type ? (
                             <span className="inline-block px-2 py-1 bg-[#f2cc0d] text-black text-xs font-bold rounded mb-2">
                               {asset.upload.meta.deliverable_type.replace(/_/g, ' ').toUpperCase()}
                             </span>
                           ) : (
-                            <span className="text-[#cbc190] text-xs">סוג תוכן לא צוין</span>
+                            <span className="text-[#6c757d] text-xs">סוג תוכן לא צוין</span>
                           )}
                         </div>
-                        <div className="text-white font-medium mb-1 text-sm">
+                        <div className="text-[#212529] font-medium mb-1 text-sm">
                           {asset.task.title}
                         </div>
-                        <div className="text-xs text-[#cbc190] mb-1">
+                        <div className="text-xs text-[#6c757d] mb-1">
                           📋 {asset.task.campaign.title}
                         </div>
-                        <div className="text-xs text-[#cbc190]">
+                        <div className="text-xs text-[#6c757d]">
                           📅 {new Date(asset.upload.created_at).toLocaleDateString('he-IL')}
                         </div>
                       </div>
@@ -351,7 +351,7 @@ export default function BrandAssetsPage() {
             </div>
           ) : (
             <Card>
-              <p className="text-[#cbc190] text-center py-12">
+              <p className="text-[#6c757d] text-center py-12">
                 {assets.length === 0 ? 'אין תוכן מאושר עדיין' : 'לא נמצאו תוצאות לפי הסינון'}
               </p>
             </Card>

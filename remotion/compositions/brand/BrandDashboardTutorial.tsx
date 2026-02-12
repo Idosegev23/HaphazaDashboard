@@ -20,7 +20,7 @@ export const BrandDashboardTutorial: React.FC = () => {
           <div style={{ flex: 1 }}>
             <StepCard
               stepNumber={1}
-              icon="📊"
+              icon=""
               title="סטטיסטיקות מהירות"
               description="בחלק העליון של הדשבורד תראו סיכום מספרי: קמפיינים פעילים, בקשות ממתינות, תכנים לאישור ותשלומים"
               delay={10}
@@ -28,7 +28,7 @@ export const BrandDashboardTutorial: React.FC = () => {
             />
             <StepCard
               stepNumber={2}
-              icon="🔔"
+              icon=""
               title="התראות ופעולות"
               description="כרטיסי פעולה צבעוניים מראים מה דורש תשומת לב מיידית"
               delay={30}
@@ -47,7 +47,7 @@ export const BrandDashboardTutorial: React.FC = () => {
                       key={i}
                       style={{
                         flex: 1,
-                        background: '#2A2A2A',
+                        background: '#f8f9fa',
                         borderRadius: 10,
                         padding: '12px 10px',
                         textAlign: 'center',
@@ -57,7 +57,7 @@ export const BrandDashboardTutorial: React.FC = () => {
                       <div style={{ color: stat.color, fontSize: 22, fontWeight: 800 }}>
                         {stat.value}
                       </div>
-                      <div style={{ color: '#888', fontSize: 10, marginTop: 4 }}>
+                      <div style={{ color: '#6c757d', fontSize: 10, marginTop: 4 }}>
                         {stat.label}
                       </div>
                     </div>
@@ -72,7 +72,7 @@ export const BrandDashboardTutorial: React.FC = () => {
       {/* Section 2: Quick Actions */}
       <Sequence from={8 * fps} durationInFrames={8 * fps}>
         <TextReveal
-          text="⚡ פעולות מהירות"
+          text=" פעולות מהירות"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -81,7 +81,7 @@ export const BrandDashboardTutorial: React.FC = () => {
         <div style={{ display: 'flex', gap: 20, marginTop: 30 }}>
           <StepCard
             stepNumber={1}
-            icon="➕"
+            icon=""
             title="יצירת קמפיין חדש"
             description="לחצו על 'צור קמפיין' כדי להתחיל קמפיין חדש מאפס"
             delay={15}
@@ -89,7 +89,7 @@ export const BrandDashboardTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="👁️"
+            icon="️"
             title="צפייה בבקשות"
             description="לחצו על כרטיס בקשה כדי לעבור ישירות לסקירת המשפיען"
             delay={30}
@@ -100,7 +100,7 @@ export const BrandDashboardTutorial: React.FC = () => {
       {/* Section 3: Navigation */}
       <Sequence from={16 * fps} durationInFrames={14 * fps}>
         <TextReveal
-          text="🧭 ניווט בממשק"
+          text=" ניווט בממשק"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -109,7 +109,7 @@ export const BrandDashboardTutorial: React.FC = () => {
         <div style={{ marginTop: 30 }}>
           <StepCard
             stepNumber={1}
-            icon="📊"
+            icon=""
             title="לוח בקרה"
             description="מבט-על על הפעילות - כאן אתם נמצאים עכשיו"
             delay={15}
@@ -117,14 +117,14 @@ export const BrandDashboardTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="🎯"
+            icon=""
             title="הקמפיינים שלי"
             description="ניהול מלא של כל הקמפיינים - מכאן תנהלו הכל: משפיענים, תכנים, משלוחים ותשלומים"
             delay={30}
           />
         </div>
         <TextReveal
-          text="💡 טיפ: כל הניהול נמצא תחת הקמפיין עצמו - אין צורך לנווט לעמודים נפרדים!"
+          text=" טיפ: כל הניהול נמצא תחת הקמפיין עצמו - אין צורך לנווט לעמודים נפרדים!"
           fontSize={16}
           color="#cbc190"
           delay={55}

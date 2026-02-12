@@ -32,7 +32,7 @@ export function LockedTaskCard({
           <span className="material-symbols-outlined">{icon}</span>
         </div>
         <div className="flex flex-col">
-          <h3 className="text-base font-bold text-white">{title}</h3>
+          <h3 className="text-base font-bold text-[#212529]">{title}</h3>
           <p className="text-sm text-text-muted">{description}</p>
         </div>
       </div>
@@ -42,7 +42,7 @@ export function LockedTaskCard({
           <span className="text-xs font-bold text-text-muted uppercase tracking-wider">
             סטטוס
           </span>
-          <span className="text-sm font-medium text-white flex items-center gap-1">
+          <span className="text-sm font-medium text-[#212529] flex items-center gap-1">
             <span className="material-symbols-outlined text-base">lock</span>
             נעול
           </span>
@@ -56,7 +56,7 @@ export function LockedTaskCard({
       </div>
 
       {/* Tooltip on hover */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-black text-white text-xs py-1 px-3 rounded opacity-0 group-hover/task:opacity-100 transition-opacity z-30 pointer-events-none whitespace-nowrap shadow-lg border border-border-dark">
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-[#212529] text-xs py-1 px-3 rounded opacity-0 group-hover/task:opacity-100 transition-opacity z-30 pointer-events-none whitespace-nowrap shadow-lg border border-border-dark">
         {lockReason}
       </div>
     </div>

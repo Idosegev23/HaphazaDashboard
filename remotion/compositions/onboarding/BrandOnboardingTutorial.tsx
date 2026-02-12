@@ -16,7 +16,7 @@ export const BrandOnboardingTutorial: React.FC = () => {
       {/* Section 1: First Steps */}
       <Sequence from={0} durationInFrames={10 * fps}>
         <TextReveal
-          text="📌 הצעדים הראשונים"
+          text=" הצעדים הראשונים"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -25,7 +25,7 @@ export const BrandOnboardingTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="🏢"
+            icon=""
             title="מלאו את פרטי המותג"
             description="שם המותג, תיאור, לוגו ולינקים - ככל שהפרופיל מלא יותר, כך משפיענים ירגישו בטוחים יותר"
             delay={15}
@@ -33,14 +33,14 @@ export const BrandOnboardingTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="🎯"
+            icon=""
             title="צרו את הקמפיין הראשון"
             description="לכו ל'הקמפיינים שלי' > 'צור קמפיין חדש' - הגדירו מטרה, מוצרים ותקציב"
             delay={35}
           />
           <StepCard
             stepNumber={3}
-            icon="🚀"
+            icon=""
             title="פרסמו!"
             description="אחרי שמילאתם הכל - לחצו 'פרסם' כדי שמשפיענים יתחילו להגיש בקשות"
             delay={55}
@@ -51,7 +51,7 @@ export const BrandOnboardingTutorial: React.FC = () => {
       {/* Section 2: Managing */}
       <Sequence from={10 * fps} durationInFrames={10 * fps}>
         <TextReveal
-          text="⚙️ ניהול שוטף"
+          text="️ ניהול שוטף"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -60,14 +60,14 @@ export const BrandOnboardingTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="👥"
+            icon=""
             title="סקרו בקשות"
             description="כל בקשה כוללת פרופיל המשפיען, סטטיסטיקות והודעה אישית"
             delay={15}
           />
           <StepCard
             stepNumber={2}
-            icon="💰"
+            icon=""
             title="תמחרו בגמישות"
             description="אפשר לקבוע מחיר קבוע לכולם או מחיר מותאם לכל משפיען"
             delay={35}
@@ -75,7 +75,7 @@ export const BrandOnboardingTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={3}
-            icon="📊"
+            icon=""
             title="עקבו מהדשבורד"
             description="לוח הבקרה מראה סטטיסטיקות בזמן אמת על כל הקמפיינים"
             delay={55}
@@ -86,7 +86,7 @@ export const BrandOnboardingTutorial: React.FC = () => {
       {/* Section 3: Full Flow */}
       <Sequence from={20 * fps} durationInFrames={10 * fps}>
         <TextReveal
-          text="🔄 הזרימה המלאה"
+          text=" הזרימה המלאה"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -95,21 +95,21 @@ export const BrandOnboardingTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="📋"
+            icon=""
             title="קמפיין → בקשות → אישור"
             description="פרסום הקמפיין, קבלת בקשות ממשפיענים, סקירה ואישור"
             delay={15}
           />
           <StepCard
             stepNumber={2}
-            icon="📦"
+            icon=""
             title="משלוח → יצירה → אישור תוכן"
             description="שליחת מוצרים, המשפיען יוצר תוכן, אתם מאשרים או מבקשים שינוי"
             delay={35}
           />
           <StepCard
             stepNumber={3}
-            icon="💰"
+            icon=""
             title="תשלום"
             description="לאחר אישור התוכן - ניהול ותיעוד התשלום בפלטפורמה"
             delay={55}

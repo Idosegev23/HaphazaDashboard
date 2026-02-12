@@ -15,7 +15,7 @@ export const TextReveal: React.FC<TextRevealProps> = ({
   text,
   delay = 0,
   fontSize = 24,
-  color = '#ffffff',
+  color = '#212529',
   fontWeight = 600,
   align = 'right',
   style = {},

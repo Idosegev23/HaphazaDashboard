@@ -16,7 +16,7 @@ export const CreatorSettingsTutorial: React.FC = () => {
       {/* Section 1: Profile */}
       <Sequence from={0} durationInFrames={10 * fps}>
         <TextReveal
-          text="👤 פרטים אישיים"
+          text=" פרטים אישיים"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -25,7 +25,7 @@ export const CreatorSettingsTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="📸"
+            icon=""
             title="תמונת פרופיל"
             description="העלו תמונה מקצועית - מותגים רואים אותה כשסוקרים את הבקשה שלכם"
             delay={15}
@@ -33,7 +33,7 @@ export const CreatorSettingsTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="✏️"
+            icon="️"
             title="שם ותיאור"
             description="עדכנו את השם המלא וכתבו ביו קצר על עצמכם ותחומי ההתמחות"
             delay={35}
@@ -44,7 +44,7 @@ export const CreatorSettingsTutorial: React.FC = () => {
       {/* Section 2: Social Links */}
       <Sequence from={10 * fps} durationInFrames={8 * fps}>
         <TextReveal
-          text="🔗 רשתות חברתיות"
+          text=" רשתות חברתיות"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -53,14 +53,14 @@ export const CreatorSettingsTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="📱"
+            icon=""
             title="Instagram"
             description="הוסיפו את שם המשתמש שלכם באינסטגרם"
             delay={15}
           />
           <StepCard
             stepNumber={2}
-            icon="🎵"
+            icon=""
             title="TikTok"
             description="קישור לפרופיל TikTok - קריטי לקמפיינים של וידאו קצר"
             delay={30}
@@ -68,7 +68,7 @@ export const CreatorSettingsTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={3}
-            icon="📺"
+            icon=""
             title="YouTube"
             description="אם יש לכם ערוץ - הוסיפו את הקישור"
             delay={45}
@@ -88,7 +88,7 @@ export const CreatorSettingsTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="✅"
+            icon=""
             title="מלאו הכל"
             description="פרופיל מלא מגדיל את הסיכוי לאישור ב-3x לפחות"
             delay={15}
@@ -96,14 +96,14 @@ export const CreatorSettingsTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="🔄"
+            icon=""
             title="עדכנו באופן קבוע"
             description="כשהנתונים שלכם גדלים - עדכנו! מותגים בודקים מספרים"
             delay={30}
           />
         </div>
         <TextReveal
-          text="💡 כל שינוי נשמר אוטומטית - אין צורך ללחוץ 'שמור'"
+          text=" כל שינוי נשמר אוטומטית - אין צורך ללחוץ 'שמור'"
           fontSize={16}
           color="#cbc190"
           delay={45}

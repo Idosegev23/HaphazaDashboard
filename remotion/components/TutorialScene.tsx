@@ -42,7 +42,7 @@ export const TutorialScene: React.FC<TutorialSceneProps> = ({
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: '#1A1A1A',
+        backgroundColor: '#ffffff',
         opacity: bgOpacity,
         fontFamily: 'Arial, Helvetica, sans-serif',
         direction: 'rtl',
@@ -57,7 +57,7 @@ export const TutorialScene: React.FC<TutorialSceneProps> = ({
           right: 0,
           bottom: 0,
           background:
-            'radial-gradient(ellipse at top right, rgba(242, 204, 13, 0.08) 0%, transparent 60%)',
+            'radial-gradient(ellipse at top right, rgba(242, 204, 13, 0.15) 0%, transparent 60%)',
         }}
       />
 
@@ -81,7 +81,7 @@ export const TutorialScene: React.FC<TutorialSceneProps> = ({
           position: 'absolute',
           top: 20,
           left: 30,
-          opacity: interpolate(frame, [10, 25], [0, 0.6], {
+          opacity: interpolate(frame, [10, 25], [0, 1], {
             extrapolateRight: 'clamp',
           }),
           color: '#f2cc0d',
@@ -108,7 +108,7 @@ export const TutorialScene: React.FC<TutorialSceneProps> = ({
             style={{
               fontSize: 36,
               fontWeight: 800,
-              color: '#ffffff',
+              color: '#212529',
               transform: `translateY(${interpolate(titleSpring, [0, 1], [30, 0])}px)`,
               opacity: titleSpring,
               lineHeight: 1.3,
@@ -120,7 +120,7 @@ export const TutorialScene: React.FC<TutorialSceneProps> = ({
             <div
               style={{
                 fontSize: 20,
-                color: '#cbc190',
+                color: '#6c757d',
                 marginTop: 10,
                 transform: `translateY(${interpolate(subtitleSpring, [0, 1], [20, 0])}px)`,
                 opacity: subtitleSpring,

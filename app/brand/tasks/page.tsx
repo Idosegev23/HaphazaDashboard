@@ -100,16 +100,16 @@ export default function BrandTasksPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">🎬 ניהול תוכן</h1>
-            <p className="text-[#cbc190]">מעקב, בקשת תיקונים ואישור תוכן מהמשפיענים</p>
+            <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">🎬 ניהול תוכן</h1>
+            <p className="text-[#6c757d]">מעקב, בקשת תיקונים ואישור תוכן מהמשפיענים</p>
           </div>
           <select
             value={selectedCampaign}
             onChange={(e) => setSelectedCampaign(e.target.value)}
-            className="px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+            className="px-4 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
           >
             <option value="all">כל הקמפיינים</option>
             {campaigns.map((c) => (
@@ -120,14 +120,14 @@ export default function BrandTasksPage() {
       </div>
 
       {/* Mobile Filter - Show only on mobile */}
-      <div className="lg:hidden px-4 py-4 border-b border-[#494222] overflow-x-auto">
+      <div className="lg:hidden px-4 py-4 border-b border-[#dee2e6] overflow-x-auto">
         <div className="flex gap-2">
           <button
             onClick={() => setSelectedFilter('all')}
             className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
               selectedFilter === 'all'
                 ? 'bg-[#f2cc0d] text-[#121212]'
-                : 'bg-[#2e2a1b] text-[#cbc190] hover:bg-[#3a3525]'
+                : 'bg-[#f8f9fa] text-[#6c757d] hover:bg-[#e9ecef]'
             }`}
           >
             הכל ({tasks.length})
@@ -139,7 +139,7 @@ export default function BrandTasksPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2 ${
                 selectedFilter === status
                   ? 'bg-[#f2cc0d] text-[#121212]'
-                  : 'bg-[#2e2a1b] text-[#cbc190] hover:bg-[#3a3525]'
+                  : 'bg-[#f8f9fa] text-[#6c757d] hover:bg-[#e9ecef]'
               }`}
             >
               <div className={`w-2 h-2 rounded-full ${statusColors[status]}`} />
@@ -159,11 +159,11 @@ export default function BrandTasksPage() {
             return (
             <div key={status} className="flex-shrink-0 w-80 flex flex-col">
               {/* Column Header */}
-              <div className="mb-4 pb-3 border-b border-[#494222]">
+              <div className="mb-4 pb-3 border-b border-[#dee2e6]">
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 rounded-full ${statusColors[status]}`} />
-                  <h3 className="text-white font-bold text-lg">{statusLabels[status]}</h3>
-                  <span className="text-[#cbc190] text-sm">({columnTasks.length})</span>
+                  <h3 className="text-[#212529] font-bold text-lg">{statusLabels[status]}</h3>
+                  <span className="text-[#6c757d] text-sm">({columnTasks.length})</span>
                 </div>
               </div>
 
@@ -178,8 +178,8 @@ export default function BrandTasksPage() {
                   >
                     <div className={`absolute top-0 right-0 w-1 h-full ${statusColors[status]}`} />
                     <div className="pr-4">
-                      <h4 className="text-white font-medium mb-2">{task.title}</h4>
-                      <div className="text-sm text-[#cbc190] mb-2">
+                      <h4 className="text-[#212529] font-medium mb-2">{task.title}</h4>
+                      <div className="text-sm text-[#6c757d] mb-2">
                         {task.campaigns?.title}
                       </div>
                       {task.due_at && (
@@ -192,7 +192,7 @@ export default function BrandTasksPage() {
                   </Card>
                 ))}
                 {statusTasks.length === 0 && (
-                  <div className="text-[#cbc190] text-sm text-center py-8 opacity-50">
+                  <div className="text-[#6c757d] text-sm text-center py-8 opacity-50">
                     אין משימות
                   </div>
                 )}
@@ -208,8 +208,8 @@ export default function BrandTasksPage() {
         <div className="space-y-3">
           {filteredTasks.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-[#cbc190] text-lg mb-2">אין משימות</div>
-              <div className="text-[#cbc190] text-sm opacity-70">
+              <div className="text-[#6c757d] text-lg mb-2">אין משימות</div>
+              <div className="text-[#6c757d] text-sm opacity-70">
                 {selectedFilter === 'all' ? 'אין משימות כרגע' : `אין משימות בסטטוס "${statusLabels[selectedFilter]}"`}
               </div>
             </div>
@@ -226,13 +226,13 @@ export default function BrandTasksPage() {
                   {/* Status Badge */}
                   <div className="flex items-center gap-2 mb-3">
                     <div className={`w-2 h-2 rounded-full ${statusColors[task.status]}`} />
-                    <span className="text-xs text-[#cbc190] font-medium">
+                    <span className="text-xs text-[#6c757d] font-medium">
                       {statusLabels[task.status]}
                     </span>
                   </div>
                   
-                  <h4 className="text-white font-medium mb-2 text-lg">{task.title}</h4>
-                  <div className="text-sm text-[#cbc190] mb-2">
+                  <h4 className="text-[#212529] font-medium mb-2 text-lg">{task.title}</h4>
+                  <div className="text-sm text-[#6c757d] mb-2">
                     {task.campaigns?.title}
                   </div>
                   {task.due_at && (

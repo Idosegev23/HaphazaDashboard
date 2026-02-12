@@ -124,7 +124,7 @@ export default function AdminPaymentsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">Loading...</div>
+        <div className="text-[#212529] text-xl">Loading...</div>
       </div>
     );
   }
@@ -153,9 +153,9 @@ export default function AdminPaymentsPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
-        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Payments Console</h1>
-        <p className="text-[#cbc190]">Manage creator payouts</p>
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
+        <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">Payments Console</h1>
+        <p className="text-[#6c757d]">Manage creator payouts</p>
       </div>
 
       {/* Content */}
@@ -164,16 +164,16 @@ export default function AdminPaymentsPage() {
           {/* Stats */}
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
-              <div className="text-[#cbc190] text-sm mb-2">Total Paid</div>
+              <div className="text-[#6c757d] text-sm mb-2">Total Paid</div>
               <div className="text-4xl font-bold text-[#f2cc0d]">₪{totalPaid.toLocaleString()}</div>
-              <div className="text-xs text-[#cbc190] mt-2">
+              <div className="text-xs text-[#6c757d] mt-2">
                 {payments.filter(p => p.status === 'paid').length} payments completed
               </div>
             </Card>
             <Card>
-              <div className="text-[#cbc190] text-sm mb-2">Pending Payouts</div>
+              <div className="text-[#6c757d] text-sm mb-2">Pending Payouts</div>
               <div className="text-4xl font-bold text-yellow-400">₪{totalPending.toLocaleString()}</div>
-              <div className="text-xs text-[#cbc190] mt-2">
+              <div className="text-xs text-[#6c757d] mt-2">
                 {payments.filter(p => p.status === 'pending').length} payments awaiting
               </div>
             </Card>
@@ -181,22 +181,22 @@ export default function AdminPaymentsPage() {
 
           {/* Payments List */}
           <Card>
-            <h2 className="text-xl font-bold text-white mb-4">All Payments</h2>
+            <h2 className="text-xl font-bold text-[#212529] mb-4">All Payments</h2>
             {payments.length > 0 ? (
               <div className="space-y-3">
                 {payments.map((payment) => (
                   <div
                     key={payment.id}
-                    className="flex items-center justify-between p-4 bg-[#2e2a1b] rounded-lg border border-[#494222]"
+                    className="flex items-center justify-between p-4 bg-[#f8f9fa] rounded-lg border border-[#dee2e6]"
                   >
                     <div className="flex-1">
-                      <div className="text-white font-medium mb-1">
+                      <div className="text-[#212529] font-medium mb-1">
                         {payment.tasks?.title || 'Untitled Task'}
                       </div>
-                      <div className="text-sm text-[#cbc190] mb-2">
+                      <div className="text-sm text-[#6c757d] mb-2">
                         {payment.tasks?.campaigns?.brands?.name} • {payment.tasks?.campaigns?.title}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-[#cbc190]">
+                      <div className="flex items-center gap-3 text-xs text-[#6c757d]">
                         <span>Created: {new Date(payment.created_at).toLocaleDateString()}</span>
                         {payment.paid_at && (
                           <span className="text-green-400">
@@ -210,7 +210,7 @@ export default function AdminPaymentsPage() {
                         <div className="text-2xl font-bold text-[#f2cc0d] mb-2">
                           ₪{Number(payment.amount).toLocaleString()}
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[payment.status]}`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${statusColors[payment.status]}`}>
                           {statusLabels[payment.status]}
                         </span>
                       </div>
@@ -230,8 +230,8 @@ export default function AdminPaymentsPage() {
             ) : (
               <div className="text-center py-12">
                 <div className="text-4xl mb-3">💰</div>
-                <p className="text-[#cbc190] text-lg mb-2">No payments yet</p>
-                <p className="text-[#cbc190] text-sm opacity-70">
+                <p className="text-[#6c757d] text-lg mb-2">No payments yet</p>
+                <p className="text-[#6c757d] text-sm opacity-70">
                   Payments will appear here after brands approve content
                 </p>
               </div>

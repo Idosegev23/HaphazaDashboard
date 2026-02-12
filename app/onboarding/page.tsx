@@ -24,7 +24,7 @@ export default function OnboardingPage() {
       <div className="glass-panel w-full max-w-2xl p-8 rounded-xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#f2cc0d] mb-4">ברוכים הבאים ל-LEADERS</h1>
-          <p className="text-[#cbc190] text-lg">בחרו את סוג החשבון שלכם</p>
+          <p className="text-[#6c757d] text-lg">בחרו את סוג החשבון שלכם</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -32,9 +32,9 @@ export default function OnboardingPage() {
             onClick={() => handleRoleSelection('creator')}
             className="glass-panel-hover p-8 rounded-xl text-center transition-all"
           >
-            <div className="text-5xl mb-4">🎨</div>
-            <h2 className="text-2xl font-bold text-white mb-3">יוצר תוכן</h2>
-            <p className="text-[#cbc190]">
+            
+            <h2 className="text-2xl font-bold text-[#212529] mb-3">יוצר תוכן</h2>
+            <p className="text-[#6c757d]">
               אני יוצר/ת תוכן UGC ורוצה לעבוד עם מותגים
             </p>
           </button>
@@ -43,9 +43,9 @@ export default function OnboardingPage() {
             onClick={() => handleRoleSelection('brand')}
             className="glass-panel-hover p-8 rounded-xl text-center transition-all"
           >
-            <div className="text-5xl mb-4">🏢</div>
-            <h2 className="text-2xl font-bold text-white mb-3">מותג</h2>
-            <p className="text-[#cbc190]">
+            
+            <h2 className="text-2xl font-bold text-[#212529] mb-3">מותג</h2>
+            <p className="text-[#6c757d]">
               אני מייצג/ת מותג ומעוניין/נת לעבוד עם יוצרי תוכן
             </p>
           </button>

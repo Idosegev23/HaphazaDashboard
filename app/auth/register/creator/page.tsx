@@ -70,13 +70,13 @@ const OCCUPATIONS = [
 ];
 
 const SOCIAL_PLATFORMS = [
-  { name: "TikTok", icon: "🎵" },
-  { name: "Instagram", icon: "📷" },
-  { name: "YouTube", icon: "📹" },
-  { name: "Facebook", icon: "👍" },
-  { name: "Twitter/X", icon: "🐦" },
-  { name: "LinkedIn", icon: "💼" },
-  { name: "Threads", icon: "🧵" },
+  { name: "TikTok", icon: "" },
+  { name: "Instagram", icon: "" },
+  { name: "YouTube", icon: "" },
+  { name: "Facebook", icon: "" },
+  { name: "Twitter/X", icon: "" },
+  { name: "LinkedIn", icon: "" },
+  { name: "Threads", icon: "" },
 ];
 
 export default function CreatorRegisterPage() {
@@ -361,13 +361,13 @@ export default function CreatorRegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#232010] p-4">
       <div className="w-full max-w-2xl">
-        <div className="bg-[#2e2a1b] border border-[#494222] rounded-xl p-8">
+        <div className="bg-[#f8f9fa] border border-[#dee2e6] rounded-xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-3xl font-bold text-[#212529] mb-2">
               הרשמה למשפיענים
             </h1>
-            <p className="text-[#cbc190]">
+            <p className="text-[#6c757d]">
               שלב {currentStep} מתוך {totalSteps}
             </p>
           </div>
@@ -392,7 +392,7 @@ export default function CreatorRegisterPage() {
             {/* Step 1: Basic Info */}
             {currentStep === 1 && (
               <div className="space-y-4 animate-fadeIn">
-                <h2 className="text-xl font-bold text-white mb-4">
+                <h2 className="text-xl font-bold text-[#212529] mb-4">
                   פרטים בסיסיים
                 </h2>
 
@@ -448,7 +448,7 @@ export default function CreatorRegisterPage() {
             {/* Step 2: Personal Details */}
             {currentStep === 2 && (
               <div className="space-y-4 animate-fadeIn">
-                <h2 className="text-xl font-bold text-white mb-4">
+                <h2 className="text-xl font-bold text-[#212529] mb-4">
                   פרטים אישיים
                 </h2>
 
@@ -466,7 +466,7 @@ export default function CreatorRegisterPage() {
                 />
 
                 <div>
-                  <label className="block text-sm font-medium text-[#cbc190] mb-2">
+                  <label className="block text-sm font-medium text-[#6c757d] mb-2">
                     מגדר
                   </label>
                   <select
@@ -474,7 +474,7 @@ export default function CreatorRegisterPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, gender: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-[#232010] border border-[#494222] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#f2cc0d]"
+                    className="w-full px-3 py-2 bg-[#232010] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#f2cc0d]"
                     required
                   >
                     <option value="">בחר מגדר</option>
@@ -502,10 +502,10 @@ export default function CreatorRegisterPage() {
             {currentStep === 3 && (
               <div className="space-y-6 animate-fadeIn">
                 <div>
-                  <h2 className="text-xl font-bold text-white mb-2">
+                  <h2 className="text-xl font-bold text-[#212529] mb-2">
                     תחומי עניין
                   </h2>
-                  <p className="text-sm text-[#cbc190] mb-4">
+                  <p className="text-sm text-[#6c757d] mb-4">
                     בחר את התחומים שאתה יוצר בהם תוכן (מינימום 1)
                   </p>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -516,8 +516,8 @@ export default function CreatorRegisterPage() {
                         onClick={() => toggleNiche(niche)}
                         className={`px-4 py-2 rounded-lg border-2 transition-all text-sm ${
                           formData.niches.includes(niche)
-                            ? "border-[#f2cc0d] bg-[#f2cc0d]/20 text-white"
-                            : "border-[#494222] bg-[#232010] text-[#cbc190] hover:border-[#f2cc0d]/50"
+                            ? "border-[#f2cc0d] bg-[#f2cc0d]/20 text-[#212529]"
+                            : "border-[#dee2e6] bg-[#232010] text-[#6c757d] hover:border-[#f2cc0d]/50"
                         }`}
                       >
                         {niche}
@@ -527,10 +527,10 @@ export default function CreatorRegisterPage() {
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-bold text-white mb-2">
+                  <h2 className="text-xl font-bold text-[#212529] mb-2">
                     מצב תעסוקתי
                   </h2>
-                  <p className="text-sm text-[#cbc190] mb-4">
+                  <p className="text-sm text-[#6c757d] mb-4">
                     בחר את המצב התעסוקתי שלך (ניתן לבחור כמה)
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -541,8 +541,8 @@ export default function CreatorRegisterPage() {
                         onClick={() => toggleOccupation(occupation)}
                         className={`px-4 py-2 rounded-lg border-2 transition-all text-sm ${
                           formData.occupations.includes(occupation)
-                            ? "border-[#f2cc0d] bg-[#f2cc0d]/20 text-white"
-                            : "border-[#494222] bg-[#232010] text-[#cbc190] hover:border-[#f2cc0d]/50"
+                            ? "border-[#f2cc0d] bg-[#f2cc0d]/20 text-[#212529]"
+                            : "border-[#dee2e6] bg-[#232010] text-[#6c757d] hover:border-[#f2cc0d]/50"
                         }`}
                       >
                         {occupation}
@@ -557,10 +557,10 @@ export default function CreatorRegisterPage() {
             {currentStep === 4 && (
               <div className="space-y-6 animate-fadeIn">
                 <div>
-                  <h2 className="text-xl font-bold text-white mb-2">
+                  <h2 className="text-xl font-bold text-[#212529] mb-2">
                     פלטפורמות סושיאל
                   </h2>
-                  <p className="text-sm text-[#cbc190] mb-4">
+                  <p className="text-sm text-[#6c757d] mb-4">
                     הוסף את הפלטפורמות שבהן אתה פעיל (מינימום 1)
                   </p>
 
@@ -581,13 +581,12 @@ export default function CreatorRegisterPage() {
                           }
                           className={`px-4 py-2 rounded-lg border-2 transition-all flex items-center gap-2 ${
                             isAdded
-                              ? "border-[#f2cc0d] bg-[#f2cc0d]/20 text-white"
-                              : "border-[#494222] bg-[#232010] text-[#cbc190] hover:border-[#f2cc0d]/50"
+                              ? "border-[#f2cc0d] bg-[#f2cc0d]/20 text-[#212529]"
+                              : "border-[#dee2e6] bg-[#232010] text-[#6c757d] hover:border-[#f2cc0d]/50"
                           }`}
                         >
                           <span>{platform.icon}</span>
                           <span>{platform.name}</span>
-                          {isAdded && <span>✓</span>}
                         </button>
                       );
                     })}
@@ -597,10 +596,10 @@ export default function CreatorRegisterPage() {
                   {formData.platforms.map((platform) => (
                     <div
                       key={platform.name}
-                      className="bg-[#232010] border border-[#494222] rounded-lg p-4 mb-4"
+                      className="bg-[#232010] border border-[#dee2e6] rounded-lg p-4 mb-4"
                     >
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-white font-bold">
+                        <h3 className="text-[#212529] font-bold">
                           {platform.name}
                         </h3>
                         <button
@@ -649,10 +648,10 @@ export default function CreatorRegisterPage() {
             {currentStep === 5 && (
               <div className="space-y-4 animate-fadeIn">
                 <div>
-                  <h2 className="text-xl font-bold text-white mb-2">
+                  <h2 className="text-xl font-bold text-[#212529] mb-2">
                     תיק עבודות (אופציונלי)
                   </h2>
-                  <p className="text-sm text-[#cbc190] mb-4">
+                  <p className="text-sm text-[#6c757d] mb-4">
                     הוסף קישורים לעבודות קודמות, תיק עבודות או תוכן מצטיין
                   </p>
 
@@ -682,7 +681,7 @@ export default function CreatorRegisterPage() {
                   <button
                     type="button"
                     onClick={addPortfolioLink}
-                    className="w-full py-2 border-2 border-dashed border-[#494222] rounded-lg text-[#cbc190] hover:border-[#f2cc0d] hover:text-[#f2cc0d] transition-all"
+                    className="w-full py-2 border-2 border-dashed border-[#dee2e6] rounded-lg text-[#6c757d] hover:border-[#f2cc0d] hover:text-[#f2cc0d] transition-all"
                   >
                     + הוסף קישור נוסף
                   </button>
@@ -690,7 +689,7 @@ export default function CreatorRegisterPage() {
 
                 <div className="bg-[#f2cc0d]/10 border border-[#f2cc0d]/30 rounded-lg p-4 mt-6">
                   <p className="text-[#f2cc0d] text-sm">
-                    🎉 כמעט סיימנו! לחץ על "השלם הרשמה" כדי ליצור את החשבון שלך
+                     כמעט סיימנו! לחץ על "השלם הרשמה" כדי ליצור את החשבון שלך
                   </p>
                 </div>
               </div>
@@ -703,7 +702,7 @@ export default function CreatorRegisterPage() {
               <Button
                 type="button"
                 onClick={handleBack}
-                className="flex-1 bg-[#232010] text-white border border-[#494222] hover:bg-[#2e2a1b]"
+                className="flex-1 bg-[#232010] text-[#212529] border border-[#dee2e6] hover:bg-[#f8f9fa]"
                 disabled={loading}
               >
                 חזור
@@ -732,7 +731,7 @@ export default function CreatorRegisterPage() {
 
           {/* Back to Login */}
           <div className="mt-6 text-center">
-            <p className="text-[#cbc190] text-sm">
+            <p className="text-[#6c757d] text-sm">
               כבר יש לך חשבון?{" "}
               <a href="/auth/login" className="text-[#f2cc0d] hover:underline">
                 התחבר

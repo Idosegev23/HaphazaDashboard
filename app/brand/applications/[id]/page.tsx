@@ -280,7 +280,7 @@ export default function ApplicationDetailPage() {
       }
     });
 
-    alert(`✅ הבקשה אושרה בהצלחה!\n\nמשימה נוצרה אוטומטית עבור המשפיען.\nתשלום: ₪${finalPrice}\n\nהמשפיען יראה את המשימה במערכת שלו.`);
+    alert(` הבקשה אושרה בהצלחה!\n\nמשימה נוצרה אוטומטית עבור המשפיען.\nתשלום: ₪${finalPrice}\n\nהמשפיען יראה את המשימה במערכת שלו.`);
     
     // Reload the current page to show updated status
     loadApplication();
@@ -366,7 +366,7 @@ export default function ApplicationDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -374,7 +374,7 @@ export default function ApplicationDetailPage() {
   if (!application) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">בקשה לא נמצאה</div>
+        <div className="text-[#212529] text-xl">בקשה לא נמצאה</div>
       </div>
     );
   }
@@ -394,24 +394,24 @@ export default function ApplicationDetailPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <button
                 onClick={() => router.push('/brand/applications')}
-                className="text-[#cbc190] hover:text-[#f2cc0d] transition-colors"
+                className="text-[#6c757d] hover:text-[#f2cc0d] transition-colors"
               >
                 ← חזרה
               </button>
-              <h1 className="text-2xl lg:text-3xl font-bold text-white">בקשת משפיען</h1>
+              <h1 className="text-2xl lg:text-3xl font-bold text-[#212529]">בקשת משפיען</h1>
             </div>
             <div className="flex items-center gap-2">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[application.status]}`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${statusColors[application.status]}`}>
                 {statusLabels[application.status]}
               </span>
               {application.campaigns && (
-                <span className="text-[#cbc190] text-sm">
+                <span className="text-[#6c757d] text-sm">
                   {application.campaigns.title}
                 </span>
               )}
@@ -465,10 +465,10 @@ export default function ApplicationDetailPage() {
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Creator Info */}
           <Card>
-            <div className="flex items-start gap-6 mb-6 pb-6 border-b border-[#494222]">
+            <div className="flex items-start gap-6 mb-6 pb-6 border-b border-[#dee2e6]">
               {/* Large Profile Picture */}
               <div className="flex-shrink-0">
-                <div className="w-32 h-32 rounded-full overflow-hidden bg-[#2e2a1b] border-4 border-[#f2cc0d]">
+                <div className="w-32 h-32 rounded-full overflow-hidden bg-[#f8f9fa] border-4 border-[#f2cc0d]">
                   {application.creators?.users_profiles?.avatar_url ? (
                     <img 
                       src={application.creators.users_profiles.avatar_url} 
@@ -477,22 +477,22 @@ export default function ApplicationDetailPage() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-5xl text-[#f2cc0d]">
-                      👤
+                      
                     </div>
                   )}
                 </div>
               </div>
 
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-white mb-2">
+                <h2 className="text-2xl font-bold text-[#212529] mb-2">
                   {application.creators?.users_profiles?.display_name || 'משפיען'}
                 </h2>
                 {application.creators?.users_profiles?.email && (
                   <a 
                     href={`mailto:${application.creators.users_profiles.email}`} 
-                    className="text-[#cbc190] hover:text-[#f2cc0d] transition-colors text-sm block mb-3"
+                    className="text-[#6c757d] hover:text-[#f2cc0d] transition-colors text-sm block mb-3"
                   >
-                    📧 {application.creators.users_profiles.email}
+                     {application.creators.users_profiles.email}
                   </a>
                 )}
                 
@@ -508,10 +508,10 @@ export default function ApplicationDetailPage() {
                         data?.url || '#';
                       
                       const icon = 
-                        platform === 'instagram' ? '📸' :
-                        platform === 'tiktok' ? '🎵' :
-                        platform === 'youtube' ? '📺' :
-                        platform === 'facebook' ? '👤' : '🔗';
+                        platform === 'instagram' ? '' :
+                        platform === 'tiktok' ? '' :
+                        platform === 'youtube' ? '' :
+                        platform === 'facebook' ? '' : '';
                       
                       return (
                         <a
@@ -530,22 +530,22 @@ export default function ApplicationDetailPage() {
               </div>
             </div>
 
-            <h3 className="text-lg font-bold text-white mb-4">מידע נוסף</h3>
+            <h3 className="text-lg font-bold text-[#212529] mb-4">מידע נוסף</h3>
             <div className="space-y-4">
               {/* Basic Info */}
               <div className="grid md:grid-cols-2 gap-4">
                 {application.creators?.users_profiles?.display_name && (
                   <div>
-                    <span className="text-[#cbc190] text-sm">שם מלא</span>
-                    <div className="text-white font-medium text-lg">
+                    <span className="text-[#6c757d] text-sm">שם מלא</span>
+                    <div className="text-[#212529] font-medium text-lg">
                       {application.creators.users_profiles.display_name}
                     </div>
                   </div>
                 )}
                 {application.creators?.users_profiles?.email && (
                   <div>
-                    <span className="text-[#cbc190] text-sm">אימייל</span>
-                    <div className="text-white font-medium">
+                    <span className="text-[#6c757d] text-sm">אימייל</span>
+                    <div className="text-[#212529] font-medium">
                       <a href={`mailto:${application.creators.users_profiles.email}`} className="hover:text-[#f2cc0d] transition-colors">
                         {application.creators.users_profiles.email}
                       </a>
@@ -555,17 +555,17 @@ export default function ApplicationDetailPage() {
               </div>
 
               {/* Demographics */}
-              <div className="grid md:grid-cols-3 gap-4 pt-4 border-t border-[#494222]">
+              <div className="grid md:grid-cols-3 gap-4 pt-4 border-t border-[#dee2e6]">
                 {application.creators?.age && (
                   <div>
-                    <span className="text-[#cbc190] text-sm">גיל</span>
-                    <div className="text-white font-medium">{application.creators.age}</div>
+                    <span className="text-[#6c757d] text-sm">גיל</span>
+                    <div className="text-[#212529] font-medium">{application.creators.age}</div>
                   </div>
                 )}
                 {application.creators?.gender && (
                   <div>
-                    <span className="text-[#cbc190] text-sm">מגדר</span>
-                    <div className="text-white font-medium">
+                    <span className="text-[#6c757d] text-sm">מגדר</span>
+                    <div className="text-[#212529] font-medium">
                       {application.creators.gender === 'male' ? 'זכר' : 
                        application.creators.gender === 'female' ? 'נקבה' : 'אחר'}
                     </div>
@@ -573,19 +573,19 @@ export default function ApplicationDetailPage() {
                 )}
                 {application.creators?.country && (
                   <div>
-                    <span className="text-[#cbc190] text-sm">מדינה</span>
-                    <div className="text-white font-medium">{application.creators.country}</div>
+                    <span className="text-[#6c757d] text-sm">מדינה</span>
+                    <div className="text-[#212529] font-medium">{application.creators.country}</div>
                   </div>
                 )}
               </div>
 
               {/* Niches */}
               {application.creators?.niches && application.creators.niches.length > 0 && (
-                <div className="pt-4 border-t border-[#494222]">
-                  <span className="text-[#cbc190] text-sm block mb-2">תחומי עניין</span>
+                <div className="pt-4 border-t border-[#dee2e6]">
+                  <span className="text-[#6c757d] text-sm block mb-2">תחומי עניין</span>
                   <div className="flex flex-wrap gap-2">
                     {application.creators.niches.map((niche, idx) => (
-                      <span key={idx} className="px-3 py-1 bg-[#2e2a1b] rounded-full text-sm text-white border border-[#494222]">
+                      <span key={idx} className="px-3 py-1 bg-[#f8f9fa] rounded-full text-sm text-[#212529] border border-[#dee2e6]">
                         {niche}
                       </span>
                     ))}
@@ -595,16 +595,16 @@ export default function ApplicationDetailPage() {
 
               {/* Bio */}
               {application.creators?.bio && (
-                <div className="pt-4 border-t border-[#494222]">
-                  <span className="text-[#cbc190] text-sm block mb-2">אודות</span>
-                  <p className="text-white">{application.creators.bio}</p>
+                <div className="pt-4 border-t border-[#dee2e6]">
+                  <span className="text-[#6c757d] text-sm block mb-2">אודות</span>
+                  <p className="text-[#212529]">{application.creators.bio}</p>
                 </div>
               )}
 
               {/* Tier & Metrics */}
               {(tier || metrics) && (
-                <div className="pt-4 border-t border-[#494222]">
-                  <span className="text-[#cbc190] text-sm block mb-3">מדדי ביצוע</span>
+                <div className="pt-4 border-t border-[#dee2e6]">
+                  <span className="text-[#6c757d] text-sm block mb-3">מדדי ביצוע</span>
                   
                   {tier && (
                     <div className="mb-4 bg-gradient-to-r from-[#f2cc0d]/20 to-[#f2cc0d]/10 border border-[#f2cc0d] rounded-lg p-3">
@@ -614,10 +614,10 @@ export default function ApplicationDetailPage() {
                           showTooltip={true}
                         />
                         <div>
-                          <div className="text-white font-bold">
+                          <div className="text-[#212529] font-bold">
                             דרגה: {tier === 'gold' ? 'זהב' : tier === 'silver' ? 'כסף' : 'ברונזה'}
                           </div>
-                          <div className="text-[#cbc190] text-xs">
+                          <div className="text-[#6c757d] text-xs">
                             מבוסס על ביצועים קודמים. לחץ על התג לפירוט
                           </div>
                         </div>
@@ -629,7 +629,7 @@ export default function ApplicationDetailPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       <div className="bg-surface rounded-lg p-3 border border-subtle">
                         <div className="text-muted text-xs mb-1">סה"כ משימות</div>
-                        <div className="text-white font-bold text-lg">{metrics.total_tasks || 0}</div>
+                        <div className="text-[#212529] font-bold text-lg">{metrics.total_tasks || 0}</div>
                       </div>
                       <div className="bg-surface rounded-lg p-3 border border-subtle">
                         <div className="text-muted text-xs mb-1">אחוז אישור</div>
@@ -656,17 +656,17 @@ export default function ApplicationDetailPage() {
 
               {/* Social Media Platforms */}
               {application.creators?.platforms && typeof application.creators.platforms === 'object' && (
-                <div className="pt-4 border-t border-[#494222]">
-                  <span className="text-[#cbc190] text-sm block mb-3">רשתות חברתיות</span>
+                <div className="pt-4 border-t border-[#dee2e6]">
+                  <span className="text-[#6c757d] text-sm block mb-3">רשתות חברתיות</span>
                   <div className="grid md:grid-cols-2 gap-4">
                     {Object.entries(application.creators.platforms as Record<string, any>).map(([platform, data]: [string, any]) => (
-                      <div key={platform} className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+                      <div key={platform} className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-white font-medium capitalize">
-                            {platform === 'instagram' ? '📸 Instagram' :
-                             platform === 'tiktok' ? '🎵 TikTok' :
-                             platform === 'youtube' ? '📺 YouTube' :
-                             platform === 'facebook' ? '👤 Facebook' : platform}
+                          <span className="text-[#212529] font-medium capitalize">
+                            {platform === 'instagram' ? ' Instagram' :
+                             platform === 'tiktok' ? ' TikTok' :
+                             platform === 'youtube' ? ' YouTube' :
+                             platform === 'facebook' ? ' Facebook' : platform}
                           </span>
                           {data?.followers && (
                             <span className="text-[#f2cc0d] text-sm font-bold">
@@ -676,7 +676,7 @@ export default function ApplicationDetailPage() {
                         </div>
                         {data?.username && (
                           <div className="text-sm">
-                            <span className="text-[#cbc190]">@</span>
+                            <span className="text-[#6c757d]">@</span>
                             <a 
                               href={
                                 platform === 'instagram' ? `https://instagram.com/${data.username}` :
@@ -687,14 +687,14 @@ export default function ApplicationDetailPage() {
                               }
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-white hover:text-[#f2cc0d] transition-colors"
+                              className="text-[#212529] hover:text-[#f2cc0d] transition-colors"
                             >
                               {data.username}
                             </a>
                           </div>
                         )}
                         {data?.engagement_rate && (
-                          <div className="text-xs text-[#cbc190] mt-1">
+                          <div className="text-xs text-[#6c757d] mt-1">
                             אחוז מעורבות: {(data.engagement_rate * 100).toFixed(2)}%
                           </div>
                         )}
@@ -708,17 +708,17 @@ export default function ApplicationDetailPage() {
 
           {/* Proposal Details */}
           <Card>
-            <h2 className="text-xl font-bold text-white mb-4">פרטי ההצעה ותמחור</h2>
+            <h2 className="text-xl font-bold text-[#212529] mb-4">פרטי ההצעה ותמחור</h2>
             <div className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Fixed Price */}
                 {application.campaigns?.fixed_price ? (
-                  <div className="bg-[#2e2a1b] rounded-lg p-4 border-2 border-[#f2cc0d]">
-                    <span className="text-[#cbc190] text-sm block mb-1">תשלום מוצע למשפיען</span>
+                  <div className="bg-[#f8f9fa] rounded-lg p-4 border-2 border-[#f2cc0d]">
+                    <span className="text-[#6c757d] text-sm block mb-1">תשלום מוצע למשפיען</span>
                     <div className="text-3xl font-bold text-[#f2cc0d]">
                       ₪{application.campaigns.fixed_price.toLocaleString()}
                     </div>
-                    <div className="text-xs text-[#cbc190] mt-1">
+                    <div className="text-xs text-[#6c757d] mt-1">
                       מחיר קבוע לקמפיין
                     </div>
                     {application.status === 'submitted' && (
@@ -731,14 +731,14 @@ export default function ApplicationDetailPage() {
                         }}
                         className="mt-3 text-xs text-[#f2cc0d] hover:text-[#d4b00b] underline"
                       >
-                        {showCustomPriceInput ? '✖ ביטול שינוי מחיר' : '✏️ שנה מחיר למשפיען זה'}
+                        {showCustomPriceInput ? ' ביטול שינוי מחיר' : '️ שנה מחיר למשפיען זה'}
                       </button>
                     )}
                   </div>
                 ) : (
-                  <div className="bg-[#2e2a1b] rounded-lg p-4 border-2 border-[#f2cc0d]">
-                    <span className="text-[#cbc190] text-sm block mb-1">תשלום למשפיען</span>
-                    <div className="text-lg text-[#cbc190] mb-2">
+                  <div className="bg-[#f8f9fa] rounded-lg p-4 border-2 border-[#f2cc0d]">
+                    <span className="text-[#6c757d] text-sm block mb-1">תשלום למשפיען</span>
+                    <div className="text-lg text-[#6c757d] mb-2">
                       לא הוגדר מחיר קבוע - קבע מחיר מותאם אישית
                     </div>
                     {application.status === 'submitted' && (
@@ -746,7 +746,7 @@ export default function ApplicationDetailPage() {
                         onClick={() => setShowCustomPriceInput(!showCustomPriceInput)}
                         className="text-xs text-[#f2cc0d] hover:text-[#d4b00b] underline"
                       >
-                        {showCustomPriceInput ? '✖ ביטול' : '✏️ הגדר מחיר'}
+                        {showCustomPriceInput ? ' ביטול' : '️ הגדר מחיר'}
                       </button>
                     )}
                   </div>
@@ -754,13 +754,13 @@ export default function ApplicationDetailPage() {
 
                 {/* Availability */}
                 {application.availability && (
-                  <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
-                    <span className="text-[#cbc190] text-sm block mb-1">זמינות לביצוע</span>
-                    <div className="text-white font-medium">
-                      {application.availability === 'immediate' && '🟢 מיידי - יכול להתחיל מיד'}
-                      {application.availability === 'within_week' && '🟡 תוך שבוע'}
-                      {application.availability === 'within_two_weeks' && '🟠 תוך שבועיים'}
-                      {application.availability === 'flexible' && '🔵 גמיש - לפי צורכי הקמפיין'}
+                  <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
+                    <span className="text-[#6c757d] text-sm block mb-1">זמינות לביצוע</span>
+                    <div className="text-[#212529] font-medium">
+                      {application.availability === 'immediate' && ' מיידי - יכול להתחיל מיד'}
+                      {application.availability === 'within_week' && ' תוך שבוע'}
+                      {application.availability === 'within_two_weeks' && ' תוך שבועיים'}
+                      {application.availability === 'flexible' && ' גמיש - לפי צורכי הקמפיין'}
                     </div>
                   </div>
                 )}
@@ -768,25 +768,25 @@ export default function ApplicationDetailPage() {
 
               {/* Custom Price Input */}
               {showCustomPriceInput && application.status === 'submitted' && (
-                <div className="bg-[#1E1E1E] border-2 border-[#f2cc0d] rounded-lg p-4">
-                  <label className="block text-sm font-medium text-white mb-2">
-                    💰 מחיר מותאם אישית למשפיען זה (₪)
+                <div className="bg-white border-2 border-[#f2cc0d] rounded-lg p-4">
+                  <label className="block text-sm font-medium text-[#212529] mb-2">
+                     מחיר מותאם אישית למשפיען זה (₪)
                   </label>
                   <input
                     type="number"
                     value={customPrice}
                     onChange={(e) => setCustomPrice(e.target.value)}
                     placeholder="הזן סכום בשקלים"
-                    className="w-full px-4 py-3 bg-[#2e2a1b] border border-[#494222] rounded-lg text-white text-lg focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                    className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-lg focus:outline-none focus:border-gold transition-colors"
                     min="0"
                     step="1"
                   />
-                  <p className="text-[#cbc190] text-xs mt-2">
-                    💡 המחיר שתזין כאן יחליף את המחיר הקבוע של הקמפיין עבור משפיען זה בלבד
+                  <p className="text-[#6c757d] text-xs mt-2">
+                     המחיר שתזין כאן יחליף את המחיר הקבוע של הקמפיין עבור משפיען זה בלבד
                   </p>
                   {customPrice && parseFloat(customPrice) > 0 && (
                     <div className="mt-3 p-3 bg-[#f2cc0d]/10 border border-[#f2cc0d] rounded-lg">
-                      <div className="text-white font-bold">
+                      <div className="text-[#212529] font-bold">
                         סכום לתשלום: ₪{parseFloat(customPrice).toLocaleString()}
                       </div>
                     </div>
@@ -798,10 +798,10 @@ export default function ApplicationDetailPage() {
 
           {/* Application Message */}
           <Card>
-            <h2 className="text-xl font-bold text-white mb-4">למה לבחור במשפיען הזה?</h2>
-            <p className="text-[#cbc190] whitespace-pre-wrap text-lg leading-relaxed">{application.message}</p>
-            <div className="mt-4 pt-4 border-t border-[#494222]">
-              <span className="text-sm text-[#cbc190]">
+            <h2 className="text-xl font-bold text-[#212529] mb-4">למה לבחור במשפיען הזה?</h2>
+            <p className="text-[#6c757d] whitespace-pre-wrap text-lg leading-relaxed">{application.message}</p>
+            <div className="mt-4 pt-4 border-t border-[#dee2e6]">
+              <span className="text-sm text-[#6c757d]">
                 התקבל ב: {new Date(application.created_at).toLocaleDateString('he-IL')} {new Date(application.created_at).toLocaleTimeString('he-IL')}
               </span>
             </div>
@@ -810,10 +810,10 @@ export default function ApplicationDetailPage() {
           {/* Portfolio */}
           {portfolio.length > 0 && (
             <Card>
-              <h2 className="text-xl font-bold text-white mb-4">תיק עבודות</h2>
+              <h2 className="text-xl font-bold text-[#212529] mb-4">תיק עבודות</h2>
               <div className="grid md:grid-cols-3 gap-4">
                 {portfolio.map((item) => (
-                  <div key={item.id} className="bg-[#2e2a1b] rounded-lg overflow-hidden border border-[#494222]">
+                  <div key={item.id} className="bg-[#f8f9fa] rounded-lg overflow-hidden border border-[#dee2e6]">
                     <div className="aspect-square bg-[#1a1a1a]">
                       {item.media_type === 'image' ? (
                         <img
@@ -830,7 +830,7 @@ export default function ApplicationDetailPage() {
                       )}
                     </div>
                     <div className="p-3">
-                      <div className="text-white font-medium text-sm mb-1">{item.title}</div>
+                      <div className="text-[#212529] font-medium text-sm mb-1">{item.title}</div>
                       {item.platform && (
                         <div className="text-xs text-[#f2cc0d]">{item.platform}</div>
                       )}
@@ -844,7 +844,7 @@ export default function ApplicationDetailPage() {
           {/* Portfolio Links */}
           {application.portfolio_links && (
             <Card>
-              <h2 className="text-xl font-bold text-white mb-4">קישורים לעבודות</h2>
+              <h2 className="text-xl font-bold text-[#212529] mb-4">קישורים לעבודות</h2>
               <div className="space-y-2">
                 {application.portfolio_links.split('\n').filter(link => link.trim()).map((link, idx) => (
                   <a
@@ -852,11 +852,11 @@ export default function ApplicationDetailPage() {
                     href={link.trim()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block p-3 bg-[#2e2a1b] rounded-lg border border-[#494222] hover:border-[#f2cc0d] transition-colors group"
+                    className="block p-3 bg-[#f8f9fa] rounded-lg border border-[#dee2e6] hover:border-[#f2cc0d] transition-colors group"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl">🔗</span>
-                      <span className="text-white group-hover:text-[#f2cc0d] transition-colors break-all">
+                      
+                      <span className="text-[#212529] group-hover:text-[#f2cc0d] transition-colors break-all">
                         {link.trim()}
                       </span>
                     </div>
@@ -869,25 +869,25 @@ export default function ApplicationDetailPage() {
           {/* Reject Form */}
           {showRejectForm && (application.status === 'submitted' || application.status === 'approved') && (
             <Card className="border-2 border-red-500">
-              <h2 className="text-xl font-bold text-white mb-4">
+              <h2 className="text-xl font-bold text-[#212529] mb-4">
                 {application.status === 'approved' ? 'שינוי החלטה - דחיית הבקשה' : 'דחיית הבקשה'}
               </h2>
               {application.status === 'approved' && (
                 <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 mb-4">
                   <p className="text-orange-400 text-sm">
-                    ⚠️ שים לב: שינוי ההחלטה לא ימחק את המשימה שכבר נוצרה, אבל יעדכן את הסטטוס לנדחה.
+                    ️ שים לב: שינוי ההחלטה לא ימחק את המשימה שכבר נוצרה, אבל יעדכן את הסטטוס לנדחה.
                   </p>
                 </div>
               )}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-[#212529] mb-2">
                     סיבת הדחייה (חובה) *
                   </label>
                   <select
                     value={rejectReasonCode}
                     onChange={(e) => setRejectReasonCode(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                     required
                   >
                     <option value="">בחר סיבה...</option>
@@ -899,7 +899,7 @@ export default function ApplicationDetailPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-[#212529] mb-2">
                     הסבר מפורט (חובה - מינימום 10 תווים) *
                   </label>
                   <textarea
@@ -907,11 +907,11 @@ export default function ApplicationDetailPage() {
                     onChange={(e) => setRejectReason(e.target.value)}
                     placeholder="הסבר למשפיען למה הבקשה נדחתה והמלץ לו מה לשפר..."
                     rows={4}
-                    className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                     required
                     minLength={10}
                   />
-                  <div className="text-xs text-[#cbc190] mt-1">
+                  <div className="text-xs text-[#6c757d] mt-1">
                     {rejectReason.length}/10 תווים מינימום
                   </div>
                 </div>
@@ -929,7 +929,7 @@ export default function ApplicationDetailPage() {
                       setRejectReason('');
                       setRejectReasonCode('');
                     }}
-                    className="bg-[#2e2a1b] hover:bg-[#3a3525]"
+                    className="bg-[#f8f9fa] hover:bg-[#e9ecef]"
                   >
                     ביטול
                   </Button>

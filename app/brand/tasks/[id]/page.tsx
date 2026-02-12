@@ -396,7 +396,7 @@ export default function BrandTaskDetailPage() {
   if (userLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -404,9 +404,9 @@ export default function BrandTaskDetailPage() {
   if (!user?.brand_id) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-center">
+        <div className="text-[#212529] text-center">
           <div className="text-xl mb-4">שגיאה: לא נמצא מותג למשתמש</div>
-          <div className="text-sm text-[#cbc190]">Debug: {debugInfo}</div>
+          <div className="text-sm text-[#6c757d]">Debug: {debugInfo}</div>
           <button 
             onClick={() => router.push('/brand/dashboard')}
             className="mt-4 px-6 py-2 bg-[#f2cc0d] text-black rounded-lg hover:bg-[#d4b00b]"
@@ -421,9 +421,9 @@ export default function BrandTaskDetailPage() {
   if (!task) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-center">
+        <div className="text-[#212529] text-center">
           <div className="text-xl mb-4">משימה לא נמצאה</div>
-          <div className="text-sm text-[#cbc190] mb-4">
+          <div className="text-sm text-[#6c757d] mb-4">
             Task ID: {taskId}<br/>
             Brand ID: {user.brand_id}<br/>
             Debug: {debugInfo}
@@ -462,24 +462,24 @@ export default function BrandTaskDetailPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <button
                 onClick={() => router.push('/brand/tasks')}
-                className="text-[#cbc190] hover:text-[#f2cc0d] transition-colors"
+                className="text-[#6c757d] hover:text-[#f2cc0d] transition-colors"
               >
                 ← חזרה למשימות
               </button>
-              <h1 className="text-2xl lg:text-3xl font-bold text-white">{task.title}</h1>
+              <h1 className="text-2xl lg:text-3xl font-bold text-[#212529]">{task.title}</h1>
             </div>
             <div className="flex items-center gap-3">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[task.status]}`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${statusColors[task.status]}`}>
                 {statusLabels[task.status]}
               </span>
               {task.campaigns && (
-                <span className="text-[#cbc190] text-sm">{task.campaigns.title}</span>
+                <span className="text-[#6c757d] text-sm">{task.campaigns.title}</span>
               )}
             </div>
           </div>
@@ -510,18 +510,18 @@ export default function BrandTaskDetailPage() {
           {/* Creator Details */}
           {task.creators && (
             <Card className="border border-[#f2cc0d]">
-              <h2 className="text-xl font-bold text-white mb-4">👤 פרטי המשפיענית</h2>
+              <h2 className="text-xl font-bold text-[#212529] mb-4">👤 פרטי המשפיענית</h2>
               <div className="space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <span className="text-[#cbc190] text-sm">שם</span>
-                    <div className="text-white font-medium text-lg">
+                    <span className="text-[#6c757d] text-sm">שם</span>
+                    <div className="text-[#212529] font-medium text-lg">
                       {task.creators.users_profiles?.display_name || 'לא זמין'}
                     </div>
                   </div>
                   <div>
-                    <span className="text-[#cbc190] text-sm">אימייל</span>
-                    <div className="text-white font-medium">
+                    <span className="text-[#6c757d] text-sm">אימייל</span>
+                    <div className="text-[#212529] font-medium">
                       <a href={`mailto:${task.creators.users_profiles?.email}`} className="hover:text-[#f2cc0d] transition-colors">
                         {task.creators.users_profiles?.email || 'לא זמין'}
                       </a>
@@ -532,32 +532,32 @@ export default function BrandTaskDetailPage() {
                 <div className="grid md:grid-cols-3 gap-4">
                   {task.creators.age && (
                     <div>
-                      <span className="text-[#cbc190] text-sm">גיל</span>
-                      <div className="text-white font-medium">{task.creators.age}</div>
+                      <span className="text-[#6c757d] text-sm">גיל</span>
+                      <div className="text-[#212529] font-medium">{task.creators.age}</div>
                     </div>
                   )}
                   {task.creators.gender && (
                     <div>
-                      <span className="text-[#cbc190] text-sm">מגדר</span>
-                      <div className="text-white font-medium">
+                      <span className="text-[#6c757d] text-sm">מגדר</span>
+                      <div className="text-[#212529] font-medium">
                         {task.creators.gender === 'female' ? 'נקבה' : task.creators.gender === 'male' ? 'זכר' : 'אחר'}
                       </div>
                     </div>
                   )}
                   {task.creators.country && (
                     <div>
-                      <span className="text-[#cbc190] text-sm">מדינה</span>
-                      <div className="text-white font-medium">{task.creators.country}</div>
+                      <span className="text-[#6c757d] text-sm">מדינה</span>
+                      <div className="text-[#212529] font-medium">{task.creators.country}</div>
                     </div>
                   )}
                 </div>
 
                 {task.creators.niches && task.creators.niches.length > 0 && (
                   <div>
-                    <span className="text-[#cbc190] text-sm block mb-2">נישות</span>
+                    <span className="text-[#6c757d] text-sm block mb-2">נישות</span>
                     <div className="flex flex-wrap gap-2">
                       {task.creators.niches.map((niche, idx) => (
-                        <span key={idx} className="px-3 py-1 bg-[#2e2a1b] border border-[#494222] rounded-full text-white text-sm">
+                        <span key={idx} className="px-3 py-1 bg-[#f8f9fa] border border-[#dee2e6] rounded-full text-[#212529] text-sm">
                           {niche}
                         </span>
                       ))}
@@ -567,19 +567,19 @@ export default function BrandTaskDetailPage() {
 
                 {task.creators.platforms && (
                   <div>
-                    <span className="text-[#cbc190] text-sm block mb-2">פלטפורמות</span>
+                    <span className="text-[#6c757d] text-sm block mb-2">פלטפורמות</span>
                     <div className="grid md:grid-cols-2 gap-3">
                       {task.creators.platforms.instagram && (
                         <a
                           href={`https://instagram.com/${task.creators.platforms.instagram}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 p-3 bg-[#2e2a1b] border border-[#494222] rounded-lg hover:border-[#f2cc0d] transition-colors"
+                          className="flex items-center gap-2 p-3 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg hover:border-[#f2cc0d] transition-colors"
                         >
                           <span className="text-2xl">📷</span>
                           <div>
-                            <div className="text-white text-sm font-medium">Instagram</div>
-                            <div className="text-[#cbc190] text-xs">@{task.creators.platforms.instagram}</div>
+                            <div className="text-[#212529] text-sm font-medium">Instagram</div>
+                            <div className="text-[#6c757d] text-xs">@{task.creators.platforms.instagram}</div>
                           </div>
                         </a>
                       )}
@@ -588,12 +588,12 @@ export default function BrandTaskDetailPage() {
                           href={`https://tiktok.com/@${task.creators.platforms.tiktok}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 p-3 bg-[#2e2a1b] border border-[#494222] rounded-lg hover:border-[#f2cc0d] transition-colors"
+                          className="flex items-center gap-2 p-3 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg hover:border-[#f2cc0d] transition-colors"
                         >
                           <span className="text-2xl">🎵</span>
                           <div>
-                            <div className="text-white text-sm font-medium">TikTok</div>
-                            <div className="text-[#cbc190] text-xs">@{task.creators.platforms.tiktok}</div>
+                            <div className="text-[#212529] text-sm font-medium">TikTok</div>
+                            <div className="text-[#6c757d] text-xs">@{task.creators.platforms.tiktok}</div>
                           </div>
                         </a>
                       )}
@@ -602,12 +602,12 @@ export default function BrandTaskDetailPage() {
                           href={task.creators.platforms.youtube}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 p-3 bg-[#2e2a1b] border border-[#494222] rounded-lg hover:border-[#f2cc0d] transition-colors"
+                          className="flex items-center gap-2 p-3 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg hover:border-[#f2cc0d] transition-colors"
                         >
                           <span className="text-2xl">▶️</span>
                           <div>
-                            <div className="text-white text-sm font-medium">YouTube</div>
-                            <div className="text-[#cbc190] text-xs">ערוץ</div>
+                            <div className="text-[#212529] text-sm font-medium">YouTube</div>
+                            <div className="text-[#6c757d] text-xs">ערוץ</div>
                           </div>
                         </a>
                       )}
@@ -620,18 +620,18 @@ export default function BrandTaskDetailPage() {
 
           {/* Task Details */}
           <Card>
-            <h2 className="text-xl font-bold text-white mb-4">פרטי המשימה</h2>
+            <h2 className="text-xl font-bold text-[#212529] mb-4">פרטי המשימה</h2>
             <div className="space-y-3">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <span className="text-[#cbc190] text-sm">קמפיין</span>
-                  <div className="text-white font-medium">
+                  <span className="text-[#6c757d] text-sm">קמפיין</span>
+                  <div className="text-[#212529] font-medium">
                     {task.campaigns?.title || 'לא זמין'}
                   </div>
                 </div>
                 {task.payment_amount && (
                   <div>
-                    <span className="text-[#cbc190] text-sm">תשלום למשפיענית</span>
+                    <span className="text-[#6c757d] text-sm">תשלום למשפיענית</span>
                     <div className="text-[#f2cc0d] font-bold text-lg">
                       ₪{task.payment_amount.toLocaleString()}
                     </div>
@@ -640,24 +640,24 @@ export default function BrandTaskDetailPage() {
               </div>
               {task.due_at && (
                 <div>
-                  <span className="text-[#cbc190] text-sm">תאריך יעד</span>
-                  <div className="text-white font-medium">
+                  <span className="text-[#6c757d] text-sm">תאריך יעד</span>
+                  <div className="text-[#212529] font-medium">
                     {new Date(task.due_at).toLocaleDateString('he-IL')}
                   </div>
                 </div>
               )}
               {task.requires_product && (
                 <div>
-                  <span className="text-[#cbc190] text-sm">דרוש מוצר פיזי</span>
-                  <div className="text-white font-medium">✅ כן</div>
+                  <span className="text-[#6c757d] text-sm">דרוש מוצר פיזי</span>
+                  <div className="text-[#212529] font-medium">✅ כן</div>
                 </div>
               )}
             </div>
 
             {/* Deliverables Display */}
             {task.campaigns?.deliverables && Object.keys(task.campaigns.deliverables).length > 0 && (
-              <div className="mt-4 pt-4 border-t border-[#494222]">
-                <h3 className="text-sm font-medium text-[#cbc190] mb-3">תוצרים נדרשים</h3>
+              <div className="mt-4 pt-4 border-t border-[#dee2e6]">
+                <h3 className="text-sm font-medium text-[#6c757d] mb-3">תוצרים נדרשים</h3>
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(task.campaigns.deliverables).map(([key, value]) => {
                     if (!value || (value as number) === 0) return null;
@@ -670,7 +670,7 @@ export default function BrandTaskDetailPage() {
                       photo: 'Photo (תמונה)',
                     };
                     return (
-                      <span key={key} className="px-3 py-1 bg-[#2e2a1b] border border-[#f2cc0d] rounded-full text-white text-sm">
+                      <span key={key} className="px-3 py-1 bg-[#f8f9fa] border border-[#f2cc0d] rounded-full text-[#212529] text-sm">
                         {value as number} x {labels[key] || key}
                       </span>
                     );
@@ -683,13 +683,13 @@ export default function BrandTaskDetailPage() {
           {/* Rating Form */}
           {showRatingForm && canReview && (
             <Card className="border-2 border-green-500">
-              <h2 className="text-xl font-bold text-white mb-4">דרג את המשפיען (חובה)</h2>
-              <p className="text-[#cbc190] mb-4">לפני אישור התוכן, אנא דרג את העבודה של המשפיען</p>
+              <h2 className="text-xl font-bold text-[#212529] mb-4">דרג את המשפיען (חובה)</h2>
+              <p className="text-[#6c757d] mb-4">לפני אישור התוכן, אנא דרג את העבודה של המשפיען</p>
               
               <div className="space-y-4">
                 {/* Quality Score */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-[#212529] mb-2">
                     איכות התוכן (חובה) *
                   </label>
                   <div className="flex gap-2">
@@ -699,20 +699,20 @@ export default function BrandTaskDetailPage() {
                         onClick={() => setQualityScore(score)}
                         className={`w-12 h-12 rounded-lg border-2 transition-all ${
                           qualityScore === score
-                            ? 'bg-green-500 border-green-500 text-white'
-                            : 'bg-[#2e2a1b] border-[#494222] text-[#cbc190] hover:border-green-500'
+                            ? 'bg-green-500 border-green-500 text-[#212529]'
+                            : 'bg-[#f8f9fa] border-[#dee2e6] text-[#6c757d] hover:border-green-500'
                         }`}
                       >
                         {score}
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-[#cbc190] mt-1">1 = גרוע, 5 = מצוין</p>
+                  <p className="text-xs text-[#6c757d] mt-1">1 = גרוע, 5 = מצוין</p>
                 </div>
 
                 {/* Timeliness Score */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-[#212529] mb-2">
                     עמידה בזמנים (חובה) *
                   </label>
                   <div className="flex gap-2">
@@ -722,8 +722,8 @@ export default function BrandTaskDetailPage() {
                         onClick={() => setTimelinessScore(score)}
                         className={`w-12 h-12 rounded-lg border-2 transition-all ${
                           timelinessScore === score
-                            ? 'bg-green-500 border-green-500 text-white'
-                            : 'bg-[#2e2a1b] border-[#494222] text-[#cbc190] hover:border-green-500'
+                            ? 'bg-green-500 border-green-500 text-[#212529]'
+                            : 'bg-[#f8f9fa] border-[#dee2e6] text-[#6c757d] hover:border-green-500'
                         }`}
                       >
                         {score}
@@ -734,7 +734,7 @@ export default function BrandTaskDetailPage() {
 
                 {/* Communication Score */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-[#212529] mb-2">
                     תקשורת (חובה) *
                   </label>
                   <div className="flex gap-2">
@@ -744,8 +744,8 @@ export default function BrandTaskDetailPage() {
                         onClick={() => setCommunicationScore(score)}
                         className={`w-12 h-12 rounded-lg border-2 transition-all ${
                           communicationScore === score
-                            ? 'bg-green-500 border-green-500 text-white'
-                            : 'bg-[#2e2a1b] border-[#494222] text-[#cbc190] hover:border-green-500'
+                            ? 'bg-green-500 border-green-500 text-[#212529]'
+                            : 'bg-[#f8f9fa] border-[#dee2e6] text-[#6c757d] hover:border-green-500'
                         }`}
                       >
                         {score}
@@ -756,7 +756,7 @@ export default function BrandTaskDetailPage() {
 
                 {/* Optional Note */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-[#212529] mb-2">
                     הערות נוספות (אופציונלי)
                   </label>
                   <textarea
@@ -764,7 +764,7 @@ export default function BrandTaskDetailPage() {
                     onChange={(e) => setRatingNote(e.target.value)}
                     placeholder="הערות או פידבק נוסף למשפיען..."
                     rows={3}
-                    className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                   />
                 </div>
 
@@ -784,7 +784,7 @@ export default function BrandTaskDetailPage() {
                       setCommunicationScore(0);
                       setRatingNote('');
                     }}
-                    className="bg-[#2e2a1b] hover:bg-[#3a3525]"
+                    className="bg-[#f8f9fa] hover:bg-[#e9ecef]"
                   >
                     ביטול
                   </Button>
@@ -796,10 +796,10 @@ export default function BrandTaskDetailPage() {
           {/* Revision Form */}
           {showRevisionForm && canReview && (
             <Card className="border-2 border-orange-500">
-              <h2 className="text-xl font-bold text-white mb-4">בקשת תיקונים</h2>
+              <h2 className="text-xl font-bold text-[#212529] mb-4">בקשת תיקונים</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-white mb-3">
+                  <label className="block text-sm font-medium text-[#212529] mb-3">
                     בחר תגיות (חובה) *
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -809,8 +809,8 @@ export default function BrandTaskDetailPage() {
                         onClick={() => toggleTag(tag.value)}
                         className={`px-4 py-2 rounded-lg border-2 transition-colors ${
                           selectedTags.includes(tag.value)
-                            ? 'bg-orange-500 border-orange-500 text-white'
-                            : 'bg-[#2e2a1b] border-[#494222] text-[#cbc190] hover:border-orange-500'
+                            ? 'bg-orange-500 border-orange-500 text-[#212529]'
+                            : 'bg-[#f8f9fa] border-[#dee2e6] text-[#6c757d] hover:border-orange-500'
                         }`}
                       >
                         {tag.label}
@@ -819,7 +819,7 @@ export default function BrandTaskDetailPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">
+                  <label className="block text-sm font-medium text-[#212529] mb-2">
                     הערה למשפיען (חובה) *
                   </label>
                   <textarea
@@ -827,7 +827,7 @@ export default function BrandTaskDetailPage() {
                     onChange={(e) => setRevisionNote(e.target.value)}
                     placeholder="הסבר למשפיען מה צריך לתקן..."
                     rows={4}
-                    className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                     required
                   />
                 </div>
@@ -845,7 +845,7 @@ export default function BrandTaskDetailPage() {
                       setSelectedTags([]);
                       setRevisionNote('');
                     }}
-                    className="bg-[#2e2a1b] hover:bg-[#3a3525]"
+                    className="bg-[#f8f9fa] hover:bg-[#e9ecef]"
                   >
                     ביטול
                   </Button>
@@ -857,10 +857,10 @@ export default function BrandTaskDetailPage() {
           {/* Uploaded Content */}
           {uploads.length > 0 && (
             <Card>
-              <h2 className="text-xl font-bold text-white mb-4">תוכן שהועלה</h2>
+              <h2 className="text-xl font-bold text-[#212529] mb-4">תוכן שהועלה</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 {uploads.map((upload) => (
-                  <div key={upload.id} className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+                  <div key={upload.id} className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
                     <div className="mb-3">
                       {upload.meta?.type?.startsWith('image/') ? (
                         <img
@@ -879,15 +879,15 @@ export default function BrandTaskDetailPage() {
                           className="w-full h-48 rounded-lg"
                         />
                       ) : (
-                        <div className="w-full h-48 bg-[#1E1E1E] rounded-lg flex items-center justify-center">
+                        <div className="w-full h-48 bg-white rounded-lg flex items-center justify-center">
                           <span className="text-4xl">📄</span>
                         </div>
                       )}
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-white font-medium text-sm">{upload.meta?.filename || 'קובץ'}</div>
-                        <span className="text-xs text-[#cbc190]">
+                        <div className="text-[#212529] font-medium text-sm">{upload.meta?.filename || 'קובץ'}</div>
+                        <span className="text-xs text-[#6c757d]">
                           {new Date(upload.created_at).toLocaleDateString('he-IL')}
                         </span>
                       </div>
@@ -908,24 +908,24 @@ export default function BrandTaskDetailPage() {
           {/* Revision History */}
           {revisions.length > 0 && (
             <Card>
-              <h2 className="text-xl font-bold text-white mb-4">היסטוריית תיקונים</h2>
+              <h2 className="text-xl font-bold text-[#212529] mb-4">היסטוריית תיקונים</h2>
               <div className="space-y-3">
                 {revisions.map((revision) => (
-                  <div key={revision.id} className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+                  <div key={revision.id} className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
                     <div className="flex flex-wrap gap-2 mb-3">
                       {revision.tags.map((tag, idx) => (
-                        <span key={idx} className="px-2 py-1 bg-orange-500 text-white text-xs rounded-full">
+                        <span key={idx} className="px-2 py-1 bg-orange-500 text-[#212529] text-xs rounded-full">
                           {REVISION_TAGS.find(t => t.value === tag)?.label || tag}
                         </span>
                       ))}
                       <span className={`px-2 py-1 text-xs rounded-full ${
-                        revision.status === 'open' ? 'bg-orange-500 text-white' : 'bg-green-500 text-white'
+                        revision.status === 'open' ? 'bg-orange-500 text-[#212529]' : 'bg-green-500 text-[#212529]'
                       }`}>
                         {revision.status === 'open' ? 'פתוח' : 'טופל'}
                       </span>
                     </div>
-                    <p className="text-white mb-2">{revision.note}</p>
-                    <span className="text-xs text-[#cbc190]">
+                    <p className="text-[#212529] mb-2">{revision.note}</p>
+                    <span className="text-xs text-[#6c757d]">
                       {new Date(revision.created_at).toLocaleDateString('he-IL')} {new Date(revision.created_at).toLocaleTimeString('he-IL')}
                     </span>
                   </div>

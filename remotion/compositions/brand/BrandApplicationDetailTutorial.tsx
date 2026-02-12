@@ -20,7 +20,7 @@ export const BrandApplicationDetailTutorial: React.FC = () => {
           <div style={{ flex: 1 }}>
             <StepCard
               stepNumber={1}
-              icon="👤"
+              icon=""
               title="פרטי המשפיען"
               description="בחלק העליון תראו את שם המשפיען, תמונת פרופיל, דירוג ופלטפורמות פעילות"
               delay={10}
@@ -28,7 +28,7 @@ export const BrandApplicationDetailTutorial: React.FC = () => {
             />
             <StepCard
               stepNumber={2}
-              icon="💬"
+              icon=""
               title="הודעת הבקשה"
               description="המשפיען כותב למה הוא מתאים לקמפיין. קראו בעיון לפני ההחלטה"
               delay={35}
@@ -50,20 +50,20 @@ export const BrandApplicationDetailTutorial: React.FC = () => {
                       fontSize: 18,
                     }}
                   >
-                    👩
+                    
                   </div>
                   <div>
-                    <div style={{ color: '#fff', fontSize: 14, fontWeight: 700 }}>שרה כהן</div>
-                    <div style={{ color: '#888', fontSize: 10 }}>⭐ 4.8 · Instagram, TikTok</div>
+                    <div style={{ color: '#212529', fontSize: 14, fontWeight: 700 }}>שרה כהן</div>
+                    <div style={{ color: '#6c757d', fontSize: 10 }}>⭐ 4.8 · Instagram, TikTok</div>
                   </div>
                 </div>
                 <div
                   style={{
-                    background: '#2A2A2A',
+                    background: '#f8f9fa',
                     borderRadius: 8,
                     padding: 10,
                     fontSize: 11,
-                    color: '#ccc',
+                    color: '#6c757d',
                     lineHeight: 1.6,
                   }}
                 >
@@ -78,7 +78,7 @@ export const BrandApplicationDetailTutorial: React.FC = () => {
       {/* Section 2: Custom Pricing */}
       <Sequence from={10 * fps} durationInFrames={12 * fps}>
         <TextReveal
-          text="💰 תמחור גמיש"
+          text=" תמחור גמיש"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -87,14 +87,14 @@ export const BrandApplicationDetailTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="🏷️"
+            icon="️"
             title="מחיר קבוע מהקמפיין"
             description="אם הגדרתם מחיר קבוע בהגדרות הקמפיין, הוא יוצג כברירת מחדל"
             delay={15}
           />
           <StepCard
             stepNumber={2}
-            icon="💡"
+            icon=""
             title="מחיר מותאם אישית"
             description="לחצו 'שנה מחיר' כדי להגדיר סכום ייחודי למשפיען זה - אידיאלי כשיש הבדלי ערך"
             delay={35}
@@ -102,7 +102,7 @@ export const BrandApplicationDetailTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={3}
-            icon="💵"
+            icon=""
             title="אישור סופי"
             description="המחיר הסופי יוצג בחלון האישור לפני השליחה"
             delay={55}
@@ -113,7 +113,7 @@ export const BrandApplicationDetailTutorial: React.FC = () => {
       {/* Section 3: Approve / Reject */}
       <Sequence from={22 * fps} durationInFrames={13 * fps}>
         <TextReveal
-          text="✅❌ אישור ודחייה"
+          text=" אישור ודחייה"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -123,7 +123,7 @@ export const BrandApplicationDetailTutorial: React.FC = () => {
           <div style={{ flex: 1 }}>
             <StepCard
               stepNumber={1}
-              icon="✅"
+              icon=""
               title="אשר בקשה"
               description="אישור יוצר משימה אוטומטית למשפיען ומתחיל את תהליך העבודה"
               delay={15}
@@ -133,7 +133,7 @@ export const BrandApplicationDetailTutorial: React.FC = () => {
           <div style={{ flex: 1 }}>
             <StepCard
               stepNumber={2}
-              icon="❌"
+              icon=""
               title="דחה בקשה"
               description="דחייה עם סיבה. אפשר לשנות החלטה מאוחר יותר!"
               delay={30}
@@ -141,7 +141,7 @@ export const BrandApplicationDetailTutorial: React.FC = () => {
           </div>
         </div>
         <TextReveal
-          text="💡 טיפ: גם אם דחיתם בקשה, ניתן לחזור ולאשר אותה בהמשך"
+          text=" טיפ: גם אם דחיתם בקשה, ניתן לחזור ולאשר אותה בהמשך"
           fontSize={16}
           color="#cbc190"
           delay={55}

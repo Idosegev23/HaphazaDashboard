@@ -193,7 +193,7 @@ export default function AdminDisputesPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0d0d0d] flex items-center justify-center">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -204,17 +204,17 @@ export default function AdminDisputesPage() {
   return (
     <div className="min-h-screen bg-[#0d0d0d]">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-white mb-6">ניהול מחלוקות</h1>
+        <h1 className="text-3xl font-bold text-[#212529] mb-6">ניהול מחלוקות</h1>
 
         {/* Open Disputes */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4">
+          <h2 className="text-2xl font-bold text-[#212529] mb-4">
             מחלוקות פתוחות ({openDisputes.length})
           </h2>
           
           {openDisputes.length === 0 ? (
             <Card>
-              <p className="text-[#cbc190]">אין מחלוקות פתוחות</p>
+              <p className="text-[#6c757d]">אין מחלוקות פתוחות</p>
             </Card>
           ) : (
             <div className="space-y-4">
@@ -223,10 +223,10 @@ export default function AdminDisputesPage() {
                   <div className="space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="text-lg font-bold text-white">
+                        <h3 className="text-lg font-bold text-[#212529]">
                           {dispute.tasks?.title || 'משימה לא ידועה'}
                         </h3>
-                        <div className="text-sm text-[#cbc190] space-y-1 mt-2">
+                        <div className="text-sm text-[#6c757d] space-y-1 mt-2">
                           <div>קמפיין: {dispute.tasks?.campaigns?.title || 'לא זמין'}</div>
                           <div>מותג: {dispute.tasks?.campaigns?.brands?.name || 'לא זמין'}</div>
                           <div>משפיען: {dispute.tasks?.creators?.users_profiles?.display_name || 'לא זמין'}</div>
@@ -234,29 +234,29 @@ export default function AdminDisputesPage() {
                           <div>תאריך: {new Date(dispute.created_at).toLocaleDateString('he-IL')}</div>
                         </div>
                       </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white">
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-[#212529]">
                         פתוח
                       </span>
                     </div>
 
-                    <div className="bg-[#1E1E1E] p-4 rounded-lg">
-                      <div className="text-sm text-[#cbc190] mb-1">סיבת המחלוקת:</div>
-                      <div className="text-white">{dispute.reason}</div>
+                    <div className="bg-white p-4 rounded-lg">
+                      <div className="text-sm text-[#6c757d] mb-1">סיבת המחלוקת:</div>
+                      <div className="text-[#212529]">{dispute.reason}</div>
                     </div>
 
                     {selectedDispute === dispute.id ? (
-                      <div className="bg-[#2e2a1b] p-4 rounded-lg border border-[#494222]">
-                        <h4 className="text-white font-bold mb-3">פתרון המחלוקת</h4>
+                      <div className="bg-[#f8f9fa] p-4 rounded-lg border border-[#dee2e6]">
+                        <h4 className="text-[#212529] font-bold mb-3">פתרון המחלוקת</h4>
                         
                         <div className="space-y-3">
                           <div>
-                            <label className="block text-sm font-medium text-white mb-2">
+                            <label className="block text-sm font-medium text-[#212529] mb-2">
                               פעולה לנקיטה *
                             </label>
                             <select
                               value={resolutionAction}
                               onChange={(e) => setResolutionAction(e.target.value as any)}
-                              className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+                              className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
                             >
                               <option value="approve">אישור התוכן</option>
                               <option value="needs_edits">דרישת תיקונים</option>
@@ -264,7 +264,7 @@ export default function AdminDisputesPage() {
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-white mb-2">
+                            <label className="block text-sm font-medium text-[#212529] mb-2">
                               הערת פתרון (חובה) *
                             </label>
                             <textarea
@@ -272,7 +272,7 @@ export default function AdminDisputesPage() {
                               onChange={(e) => setResolutionNote(e.target.value)}
                               placeholder="הסבר את ההחלטה..."
                               rows={4}
-                              className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+                              className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
                             />
                           </div>
 
@@ -289,7 +289,7 @@ export default function AdminDisputesPage() {
                                 setSelectedDispute(null);
                                 setResolutionNote('');
                               }}
-                              className="bg-[#2e2a1b] hover:bg-[#3a3525]"
+                              className="bg-[#f8f9fa] hover:bg-[#e9ecef]"
                             >
                               ביטול
                             </Button>
@@ -313,13 +313,13 @@ export default function AdminDisputesPage() {
 
         {/* Resolved Disputes */}
         <div>
-          <h2 className="text-2xl font-bold text-white mb-4">
+          <h2 className="text-2xl font-bold text-[#212529] mb-4">
             מחלוקות שנפתרו ({resolvedDisputes.length})
           </h2>
           
           {resolvedDisputes.length === 0 ? (
             <Card>
-              <p className="text-[#cbc190]">אין מחלוקות שנפתרו</p>
+              <p className="text-[#6c757d]">אין מחלוקות שנפתרו</p>
             </Card>
           ) : (
             <div className="space-y-4">
@@ -328,23 +328,23 @@ export default function AdminDisputesPage() {
                   <div className="space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="text-lg font-bold text-white">
+                        <h3 className="text-lg font-bold text-[#212529]">
                           {dispute.tasks?.title || 'משימה לא ידועה'}
                         </h3>
-                        <div className="text-sm text-[#cbc190] space-y-1 mt-2">
+                        <div className="text-sm text-[#6c757d] space-y-1 mt-2">
                           <div>הועלה: {new Date(dispute.created_at).toLocaleDateString('he-IL')}</div>
                           <div>נפתר: {dispute.resolved_at ? new Date(dispute.resolved_at).toLocaleDateString('he-IL') : 'לא זמין'}</div>
                         </div>
                       </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-500 text-white">
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-500 text-[#212529]">
                         נפתר
                       </span>
                     </div>
 
                     {dispute.resolution_note && (
-                      <div className="bg-[#1E1E1E] p-4 rounded-lg">
-                        <div className="text-sm text-[#cbc190] mb-1">הערת פתרון:</div>
-                        <div className="text-white">{dispute.resolution_note}</div>
+                      <div className="bg-white p-4 rounded-lg">
+                        <div className="text-sm text-[#6c757d] mb-1">הערת פתרון:</div>
+                        <div className="text-[#212529]">{dispute.resolution_note}</div>
                       </div>
                     )}
                   </div>

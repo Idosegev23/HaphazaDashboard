@@ -194,7 +194,7 @@ export default function BrandPaymentsPage() {
   if (loading || userLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -211,16 +211,16 @@ export default function BrandPaymentsPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">תשלומים</h1>
-            <p className="text-[#cbc190]">ניהול תשלומים למשפיענים</p>
+            <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">תשלומים</h1>
+            <p className="text-[#6c757d]">ניהול תשלומים למשפיענים</p>
           </div>
           <select
             value={selectedCampaign}
             onChange={(e) => setSelectedCampaign(e.target.value)}
-            className="px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+            className="px-4 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
           >
             <option value="all">כל הקמפיינים</option>
             {campaigns.map((c) => (
@@ -235,32 +235,32 @@ export default function BrandPaymentsPage() {
           
           {/* Section 1: To Pay */}
           <section>
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-[#212529] mb-4 flex items-center gap-2">
               <span>💳</span> לתשלום ({toPayPayments.length})
             </h2>
             <Card className="border-l-4 border-l-yellow-500">
               <div className="space-y-4">
                 {toPayPayments.length === 0 ? (
-                  <p className="text-center text-[#cbc190] py-4">אין תשלומים ממתינים לביצוע</p>
+                  <p className="text-center text-[#6c757d] py-4">אין תשלומים ממתינים לביצוע</p>
                 ) : (
                   toPayPayments.map((payment) => (
                     <div
                       key={payment.id}
-                      className="bg-[#2e2a1b] rounded-lg p-6 border border-[#494222] flex flex-col md:flex-row md:items-center justify-between gap-4"
+                      className="bg-[#f8f9fa] rounded-lg p-6 border border-[#dee2e6] flex flex-col md:flex-row md:items-center justify-between gap-4"
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-bold text-white">
+                          <h3 className="text-lg font-bold text-[#212529]">
                             {payment.tasks?.title}
                           </h3>
                           <span className="px-3 py-1 rounded-full text-xs font-bold text-black bg-yellow-500">
                             ממתין לתשלום
                           </span>
                         </div>
-                        <div className="text-sm text-[#cbc190] mb-1">
+                        <div className="text-sm text-[#6c757d] mb-1">
                           קמפיין: {payment.tasks?.campaigns?.title}
                         </div>
-                        <div className="text-sm text-[#cbc190]">
+                        <div className="text-sm text-[#6c757d]">
                           משפיען: {payment.tasks?.creators?.users_profiles?.display_name} ({payment.tasks?.creators?.users_profiles?.email})
                         </div>
                       </div>
@@ -287,7 +287,7 @@ export default function BrandPaymentsPage() {
                           >
                             {uploading === payment.id ? 'מעלה...' : '📤 העלה אישור העברה'}
                           </Button>
-                          <p className="text-xs text-[#cbc190] mt-2 text-center">
+                          <p className="text-xs text-[#6c757d] mt-2 text-center">
                             העלאת אישור תסמן את התשלום כשולם
                           </p>
                         </div>
@@ -301,35 +301,35 @@ export default function BrandPaymentsPage() {
 
           {/* Section 2: Waiting for Invoice */}
           <section>
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-[#212529] mb-4 flex items-center gap-2">
               <span>📄</span> ממתין לחשבונית ({waitingInvoicePayments.length})
             </h2>
             <Card className="border-l-4 border-l-orange-500">
               <div className="space-y-4">
                 {waitingInvoicePayments.length === 0 ? (
-                  <p className="text-center text-[#cbc190] py-4">אין תשלומים שממתינים לחשבונית</p>
+                  <p className="text-center text-[#6c757d] py-4">אין תשלומים שממתינים לחשבונית</p>
                 ) : (
                   waitingInvoicePayments.map((payment) => (
                     <div
                       key={payment.id}
-                      className="bg-[#2e2a1b] rounded-lg p-6 border border-[#494222] flex flex-col md:flex-row md:items-center justify-between gap-4"
+                      className="bg-[#f8f9fa] rounded-lg p-6 border border-[#dee2e6] flex flex-col md:flex-row md:items-center justify-between gap-4"
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-bold text-white">
+                          <h3 className="text-lg font-bold text-[#212529]">
                             {payment.tasks?.title}
                           </h3>
-                          <span className="px-3 py-1 rounded-full text-xs font-bold text-white bg-green-600">
+                          <span className="px-3 py-1 rounded-full text-xs font-bold text-[#212529] bg-green-600">
                             שולם
                           </span>
-                          <span className="px-3 py-1 rounded-full text-xs font-bold text-white bg-orange-500 animate-pulse">
+                          <span className="px-3 py-1 rounded-full text-xs font-bold text-[#212529] bg-orange-500 animate-pulse">
                             חסרה חשבונית
                           </span>
                         </div>
-                        <div className="text-sm text-[#cbc190] mb-1">
+                        <div className="text-sm text-[#6c757d] mb-1">
                           קמפיין: {payment.tasks?.campaigns?.title}
                         </div>
-                        <div className="text-sm text-[#cbc190] mb-3">
+                        <div className="text-sm text-[#6c757d] mb-3">
                           משפיען: {payment.tasks?.creators?.users_profiles?.display_name}
                         </div>
                         {payment.proof_url && (
@@ -360,32 +360,32 @@ export default function BrandPaymentsPage() {
 
           {/* Section 3: History / Completed */}
           <section>
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-[#212529] mb-4 flex items-center gap-2">
               <span>✅</span> היסטוריה ({completedPayments.length})
             </h2>
             <Card className="border-l-4 border-l-green-500">
               <div className="space-y-4">
                 {completedPayments.length === 0 ? (
-                  <p className="text-center text-[#cbc190] py-4">אין היסטוריית תשלומים</p>
+                  <p className="text-center text-[#6c757d] py-4">אין היסטוריית תשלומים</p>
                 ) : (
                   completedPayments.map((payment) => (
                     <div
                       key={payment.id}
-                      className="bg-[#2e2a1b] rounded-lg p-6 border border-[#494222] flex flex-col md:flex-row md:items-center justify-between gap-4 opacity-75 hover:opacity-100 transition-opacity"
+                      className="bg-[#f8f9fa] rounded-lg p-6 border border-[#dee2e6] flex flex-col md:flex-row md:items-center justify-between gap-4 opacity-75 hover:opacity-100 transition-opacity"
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-bold text-white">
+                          <h3 className="text-lg font-bold text-[#212529]">
                             {payment.tasks?.title}
                           </h3>
-                          <span className="px-3 py-1 rounded-full text-xs font-bold text-white bg-green-600">
+                          <span className="px-3 py-1 rounded-full text-xs font-bold text-[#212529] bg-green-600">
                             הושלם
                           </span>
                         </div>
-                        <div className="text-sm text-[#cbc190] mb-1">
+                        <div className="text-sm text-[#6c757d] mb-1">
                           קמפיין: {payment.tasks?.campaigns?.title}
                         </div>
-                        <div className="text-sm text-[#cbc190] mb-3">
+                        <div className="text-sm text-[#6c757d] mb-3">
                           משפיען: {payment.tasks?.creators?.users_profiles?.display_name}
                         </div>
                         <div className="flex gap-4">

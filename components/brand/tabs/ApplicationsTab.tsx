@@ -92,7 +92,7 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-white text-xl">טוען מועמדויות...</div>
+        <div className="text-[#212529] text-xl">טוען מועמדויות...</div>
       </div>
     );
   }
@@ -119,8 +119,8 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
       {/* Header with Filter */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">👥 משפיענים</h2>
-          <p className="text-[#cbc190] text-sm">
+          <h2 className="text-2xl font-bold text-[#212529]"> משפיענים</h2>
+          <p className="text-[#6c757d] text-sm">
             {filteredApplications.length} מועמדויות
             {statusFilter !== 'all' && ` (${statusLabels[statusFilter]})`}
           </p>
@@ -128,7 +128,7 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 bg-[#2e2a1b] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+          className="px-4 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
         >
           <option value="all">כל הסטטוסים</option>
           <option value="submitted">ממתין ({applications.filter((a) => a.status === 'submitted').length})</option>
@@ -159,7 +159,7 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
                     <div className="flex items-start gap-4">
                       {/* Avatar */}
                       <div className="flex-shrink-0">
-                        <div className="w-16 h-16 rounded-full overflow-hidden bg-[#2e2a1b] border-2 border-[#f2cc0d]">
+                        <div className="w-16 h-16 rounded-full overflow-hidden bg-[#f8f9fa] border-2 border-[#f2cc0d]">
                           {application.creators?.users_profiles?.avatar_url ? (
                             <img
                               src={application.creators.users_profiles.avatar_url}
@@ -168,7 +168,7 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-2xl text-[#f2cc0d]">
-                              👤
+                              
                             </div>
                           )}
                         </div>
@@ -178,7 +178,7 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <span className="text-white font-bold text-lg">
+                            <span className="text-[#212529] font-bold text-lg">
                               {application.creators?.users_profiles?.display_name || 'לא זמין'}
                             </span>
                             {socialLink && (
@@ -189,12 +189,12 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
                                 onClick={(e) => e.stopPropagation()}
                                 className="text-[#f2cc0d] hover:text-[#d4b00b] text-xs ml-2"
                               >
-                                🔗 פרופיל
+                                 פרופיל
                               </a>
                             )}
                           </div>
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-bold text-white ${
+                            className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${
                               statusColors[application.status || 'submitted']
                             }`}
                           >
@@ -202,7 +202,7 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
                           </span>
                         </div>
 
-                        <div className="text-sm text-[#cbc190] mb-2 space-y-1">
+                        <div className="text-sm text-[#6c757d] mb-2 space-y-1">
                           {application.creators?.age && (
                             <div>
                               <span>גיל {application.creators.age}</span>
@@ -219,16 +219,16 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
                               )}
                             </div>
                           )}
-                          <div>🏷️ {application.creators?.niches?.join(', ') || 'לא צוין'}</div>
+                          <div>️ {application.creators?.niches?.join(', ') || 'לא צוין'}</div>
                         </div>
 
                         {application.message && (
-                          <p className="text-[#cbc190] text-sm line-clamp-2 italic">
+                          <p className="text-[#6c757d] text-sm line-clamp-2 italic">
                             "{application.message}"
                           </p>
                         )}
 
-                        <div className="text-xs text-[#cbc190] mt-2">
+                        <div className="text-xs text-[#6c757d] mt-2">
                           נשלח ב-{new Date(application.created_at).toLocaleDateString('he-IL')}
                         </div>
                       </div>
@@ -241,7 +241,7 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
         </div>
       ) : (
         <Card>
-          <p className="text-[#cbc190] text-center py-8">
+          <p className="text-[#6c757d] text-center py-8">
             {applications.length === 0
               ? 'עדיין לא התקבלו מועמדויות לקמפיין זה'
               : 'לא נמצאו מועמדויות בסטטוס זה'}

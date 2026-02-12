@@ -194,7 +194,7 @@ export default function NewCampaignPage() {
     }
   };
 
-  if (!user) return <div className="p-8 text-white">טוען...</div>;
+  if (!user) return <div className="p-8 text-[#212529]">טוען...</div>;
 
   return (
     <div className="p-8">
@@ -204,7 +204,7 @@ export default function NewCampaignPage() {
         </Button>
 
         <Card>
-          <h1 className="text-3xl font-bold text-white mb-8">קמפיין חדש</h1>
+          <h1 className="text-3xl font-bold text-[#212529] mb-8">קמפיין חדש</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input
@@ -217,22 +217,22 @@ export default function NewCampaignPage() {
             />
 
             <div>
-              <label className="block text-sm font-medium text-white mb-2">יעד הקמפיין</label>
+              <label className="block text-sm font-medium text-[#212529] mb-2">יעד הקמפיין</label>
               <textarea
                 value={formData.objective}
                 onChange={(e) => setFormData({ ...formData, objective: e.target.value })}
-                className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                 rows={3}
                 placeholder="מה אתם מנסים להשיג עם הקמפיין?"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white mb-2">קונספט</label>
+              <label className="block text-sm font-medium text-[#212529] mb-2">קונספט</label>
               <textarea
                 value={formData.concept}
                 onChange={(e) => setFormData({ ...formData, concept: e.target.value })}
-                className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                 rows={4}
                 placeholder="תארו את הקונספט של הקמפיין..."
                 required
@@ -256,19 +256,19 @@ export default function NewCampaignPage() {
             />
 
             {/* Brief Upload Section */}
-            <div className="bg-[#2e2a1b] p-6 rounded-lg border border-[#494222]">
-              <h3 className="text-lg font-bold text-white mb-3">העלאת בריף (אופציונלי)</h3>
-              <p className="text-[#cbc190] text-sm mb-4">
+            <div className="bg-[#f8f9fa] p-6 rounded-lg border border-[#dee2e6]">
+              <h3 className="text-lg font-bold text-[#212529] mb-3">העלאת בריף (אופציונלי)</h3>
+              <p className="text-[#6c757d] text-sm mb-4">
                 העלה קובץ בריף מפורט (PDF/DOCX) שהמשפיען יוכל להוריד ולקרוא
               </p>
               
               {briefFile ? (
-                <div className="flex items-center justify-between bg-[#1E1E1E] p-4 rounded-lg border border-[#494222]">
+                <div className="flex items-center justify-between bg-white p-4 rounded-lg border border-[#dee2e6]">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">📄</span>
+                    
                     <div>
-                      <div className="text-white font-medium">{briefFile.name}</div>
-                      <div className="text-xs text-[#cbc190]">{(briefFile.size / 1024).toFixed(1)} KB</div>
+                      <div className="text-[#212529] font-medium">{briefFile.name}</div>
+                      <div className="text-xs text-[#6c757d]">{(briefFile.size / 1024).toFixed(1)} KB</div>
                     </div>
                   </div>
                   <button
@@ -276,7 +276,7 @@ export default function NewCampaignPage() {
                     onClick={() => setBriefFile(null)}
                     className="text-red-500 hover:text-red-400 transition-colors"
                   >
-                    🗑️ הסר
+                    ️ הסר
                   </button>
                 </div>
               ) : (
@@ -294,28 +294,28 @@ export default function NewCampaignPage() {
                   <Button
                     type="button"
                     onClick={() => document.getElementById('brief-upload')?.click()}
-                    className="bg-[#2e2a1b] border border-[#494222] hover:bg-[#3a3525]"
+                    className="bg-[#f8f9fa] border border-[#dee2e6] hover:bg-[#e9ecef]"
                   >
-                    📎 בחר קובץ בריף
+                     בחר קובץ בריף
                   </Button>
                 </div>
               )}
             </div>
 
             {/* Deliverables Section */}
-            <div className="bg-[#2e2a1b] p-6 rounded-lg border border-[#494222]">
-              <h3 className="text-lg font-bold text-white mb-4">תמהיל תוצרים דרוש</h3>
-              <p className="text-[#cbc190] text-sm mb-4">בחר את כמות התוצרים מכל סוג שעל המשפיען לספק:</p>
+            <div className="bg-[#f8f9fa] p-6 rounded-lg border border-[#dee2e6]">
+              <h3 className="text-lg font-bold text-[#212529] mb-4">תמהיל תוצרים דרוש</h3>
+              <p className="text-[#6c757d] text-sm mb-4">בחר את כמות התוצרים מכל סוג שעל המשפיען לספק:</p>
               
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {Object.entries(DELIVERABLE_LABELS).map(([key, label]) => (
-                  <div key={key} className="flex flex-col items-center p-3 bg-[#1E1E1E] rounded-lg border border-[#494222]">
-                    <span className="text-white text-sm mb-2">{label}</span>
+                  <div key={key} className="flex flex-col items-center p-3 bg-white rounded-lg border border-[#dee2e6]">
+                    <span className="text-[#212529] text-sm mb-2">{label}</span>
                     <div className="flex items-center gap-3">
                       <button
                         type="button"
                         onClick={() => updateDeliverable(key as any, -1)}
-                        className="w-8 h-8 rounded-full bg-[#2e2a1b] text-white hover:bg-[#3a3525] flex items-center justify-center text-xl"
+                        className="w-8 h-8 rounded-full bg-[#f8f9fa] text-[#212529] hover:bg-[#e9ecef] flex items-center justify-center text-xl"
                       >
                         -
                       </button>
@@ -336,11 +336,11 @@ export default function NewCampaignPage() {
             </div>
 
             {/* Products Section */}
-            <div className="bg-[#2e2a1b] p-6 rounded-lg border border-[#494222]">
+            <div className="bg-[#f8f9fa] p-6 rounded-lg border border-[#dee2e6]">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-lg font-bold text-white mb-1">מוצרים למשלוח (אופציונלי)</h3>
-                  <p className="text-[#cbc190] text-sm">
+                  <h3 className="text-lg font-bold text-[#212529] mb-1">מוצרים למשלוח (אופציונלי)</h3>
+                  <p className="text-[#6c757d] text-sm">
                     אם הקמפיין דורש משלוח מוצרים פיזיים למשפיענים
                   </p>
                 </div>
@@ -359,7 +359,7 @@ export default function NewCampaignPage() {
               {products.length > 0 && (
                 <div className="space-y-3 mb-4">
                   {products.map((product, idx) => (
-                    <div key={idx} className="bg-[#1E1E1E] rounded-lg p-4 border border-[#494222]">
+                    <div key={idx} className="bg-white rounded-lg p-4 border border-[#dee2e6]">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3 flex-1">
                           {product.image_url ? (
@@ -369,17 +369,17 @@ export default function NewCampaignPage() {
                               className="w-16 h-16 object-cover rounded"
                             />
                           ) : (
-                            <div className="w-16 h-16 bg-[#2e2a1b] rounded flex items-center justify-center text-2xl">
-                              📦
+                            <div className="w-16 h-16 bg-[#f8f9fa] rounded flex items-center justify-center text-2xl">
+                              
                             </div>
                           )}
                           <div className="flex-1">
-                            <h4 className="text-white font-medium">{product.name}</h4>
+                            <h4 className="text-[#212529] font-medium">{product.name}</h4>
                             {product.sku && (
-                              <p className="text-[#cbc190] text-xs">SKU: {product.sku}</p>
+                              <p className="text-[#6c757d] text-xs">SKU: {product.sku}</p>
                             )}
                             {product.description && (
-                              <p className="text-[#cbc190] text-sm mt-1">{product.description}</p>
+                              <p className="text-[#6c757d] text-sm mt-1">{product.description}</p>
                             )}
                             <p className="text-[#f2cc0d] text-sm mt-1">כמות: {product.quantity}</p>
                           </div>
@@ -389,7 +389,7 @@ export default function NewCampaignPage() {
                           onClick={() => handleRemoveProduct(idx)}
                           className="text-red-500 hover:text-red-400 transition-colors"
                         >
-                          🗑️
+                          ️
                         </button>
                       </div>
                     </div>
@@ -399,8 +399,8 @@ export default function NewCampaignPage() {
 
               {/* Product Form */}
               {showProductForm && (
-                <div className="bg-[#1E1E1E] rounded-lg p-4 border-2 border-[#f2cc0d] space-y-4">
-                  <h4 className="text-white font-bold">מוצר חדש</h4>
+                <div className="bg-white rounded-lg p-4 border-2 border-[#f2cc0d] space-y-4">
+                  <h4 className="text-[#212529] font-bold">מוצר חדש</h4>
                   
                   <Input
                     label="שם המוצר *"
@@ -436,13 +436,13 @@ export default function NewCampaignPage() {
                   />
 
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">
+                    <label className="block text-sm font-medium text-[#212529] mb-2">
                       תיאור (אופציונלי)
                     </label>
                     <textarea
                       value={productForm.description}
                       onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#2e2a1b] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                      className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                       rows={2}
                       placeholder="תיאור קצר של המוצר..."
                     />
@@ -454,7 +454,7 @@ export default function NewCampaignPage() {
                       onClick={handleAddProduct}
                       className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
                     >
-                      ✅ הוסף מוצר
+                       הוסף מוצר
                     </Button>
                     <Button
                       type="button"
@@ -468,7 +468,7 @@ export default function NewCampaignPage() {
                           description: '',
                         });
                       }}
-                      className="bg-[#2e2a1b] hover:bg-[#3a3525]"
+                      className="bg-[#f8f9fa] hover:bg-[#e9ecef]"
                     >
                       ביטול
                     </Button>
@@ -477,7 +477,7 @@ export default function NewCampaignPage() {
               )}
 
               {products.length === 0 && !showProductForm && (
-                <p className="text-[#cbc190] text-sm text-center py-4">
+                <p className="text-[#6c757d] text-sm text-center py-4">
                   לא נוספו מוצרים למשלוח. אם הקמפיין לא דורש מוצרים - זה בסדר גמור!
                 </p>
               )}

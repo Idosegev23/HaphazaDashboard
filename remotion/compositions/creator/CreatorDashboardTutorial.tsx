@@ -20,7 +20,7 @@ export const CreatorDashboardTutorial: React.FC = () => {
           <div style={{ flex: 1 }}>
             <StepCard
               stepNumber={1}
-              icon="🏅"
+              icon=""
               title="דירוג (Tier)"
               description="הדירוג שלך מוצג בחלק העליון - ככל שתשלימו יותר קמפיינים בהצלחה, הדירוג עולה!"
               delay={10}
@@ -28,7 +28,7 @@ export const CreatorDashboardTutorial: React.FC = () => {
             />
             <StepCard
               stepNumber={2}
-              icon="📈"
+              icon=""
               title="מדדים"
               description="מספר קמפיינים שהשתתפתם, אחוז אישור, ותכנים שהועלו"
               delay={35}
@@ -46,8 +46,8 @@ export const CreatorDashboardTutorial: React.FC = () => {
                     marginBottom: 12,
                   }}
                 >
-                  <div style={{ color: '#1A1A1A', fontSize: 12, fontWeight: 700 }}>TIER</div>
-                  <div style={{ color: '#1A1A1A', fontSize: 24, fontWeight: 900 }}>Silver</div>
+                  <div style={{ color: '#ffffff', fontSize: 12, fontWeight: 700 }}>TIER</div>
+                  <div style={{ color: '#ffffff', fontSize: 24, fontWeight: 900 }}>Silver</div>
                 </div>
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
                   {[
@@ -58,14 +58,14 @@ export const CreatorDashboardTutorial: React.FC = () => {
                     <div
                       key={i}
                       style={{
-                        background: '#2A2A2A',
+                        background: '#f8f9fa',
                         borderRadius: 8,
                         padding: '8px 14px',
                         textAlign: 'center',
                       }}
                     >
                       <div style={{ color: '#f2cc0d', fontSize: 16, fontWeight: 800 }}>{s.value}</div>
-                      <div style={{ color: '#888', fontSize: 9 }}>{s.label}</div>
+                      <div style={{ color: '#6c757d', fontSize: 9 }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
@@ -78,7 +78,7 @@ export const CreatorDashboardTutorial: React.FC = () => {
       {/* Section 2: Recent Activity */}
       <Sequence from={10 * fps} durationInFrames={8 * fps}>
         <TextReveal
-          text="🔔 פעילות אחרונה"
+          text=" פעילות אחרונה"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -87,7 +87,7 @@ export const CreatorDashboardTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="📬"
+            icon=""
             title="התראות"
             description="תראו כאן בקשות שאושרו, משימות חדשות, ותגובות ממותגים"
             delay={15}
@@ -106,7 +106,7 @@ export const CreatorDashboardTutorial: React.FC = () => {
       {/* Section 3: Quick Navigation */}
       <Sequence from={18 * fps} durationInFrames={12 * fps}>
         <TextReveal
-          text="🧭 לאן ממשיכים?"
+          text=" לאן ממשיכים?"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -114,10 +114,10 @@ export const CreatorDashboardTutorial: React.FC = () => {
         />
         <div style={{ display: 'flex', gap: 15, marginTop: 20, flexWrap: 'wrap' }}>
           {[
-            { icon: '🎯', title: 'קמפיינים', desc: 'חפשו והגישו בקשות' },
-            { icon: '📋', title: 'משימות', desc: 'עבדו על תכנים' },
-            { icon: '📦', title: 'משלוחים', desc: 'כתובת ואישור' },
-            { icon: '⚙️', title: 'הגדרות', desc: 'פרופיל ורשתות' },
+            { icon: '', title: 'קמפיינים', desc: 'חפשו והגישו בקשות' },
+            { icon: '', title: 'משימות', desc: 'עבדו על תכנים' },
+            { icon: '', title: 'משלוחים', desc: 'כתובת ואישור' },
+            { icon: '️', title: 'הגדרות', desc: 'פרופיל ורשתות' },
           ].map((item, i) => (
             <StepCard
               key={i}

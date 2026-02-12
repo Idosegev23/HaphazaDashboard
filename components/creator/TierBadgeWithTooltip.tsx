@@ -86,7 +86,7 @@ export function TierBadgeWithTooltip({ tier, showLabel = true, size = 'md' }: Pr
 
       {showTooltip && (
         <div 
-          className="absolute z-50 w-80 bg-[#1E1E1E] border-2 border-[#f2cc0d] rounded-lg shadow-2xl p-4 bottom-full mb-2 left-1/2 transform -translate-x-1/2"
+          className="absolute z-50 w-80 bg-white border-2 border-[#f2cc0d] rounded-lg shadow-2xl p-4 bottom-full mb-2 left-1/2 transform -translate-x-1/2"
           style={{ pointerEvents: 'none' }}
         >
           {/* Arrow */}
@@ -96,8 +96,8 @@ export function TierBadgeWithTooltip({ tier, showLabel = true, size = 'md' }: Pr
 
           {/* Content */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#494222]">
-              <h3 className="text-xl font-bold text-white">{tierInfo.name}</h3>
+            <div className="flex items-center justify-between pb-2 border-b border-[#dee2e6]">
+              <h3 className="text-xl font-bold text-[#212529]">{tierInfo.name}</h3>
               <div className="text-2xl">
                 {tier === 'starter' && '🌱'}
                 {tier === 'verified' && '✅'}
@@ -107,19 +107,19 @@ export function TierBadgeWithTooltip({ tier, showLabel = true, size = 'md' }: Pr
             </div>
 
             <div>
-              <p className="text-[#cbc190] text-sm">{tierInfo.description}</p>
+              <p className="text-[#6c757d] text-sm">{tierInfo.description}</p>
             </div>
 
-            <div className="bg-[#2e2a1b] rounded-lg p-3 border border-[#494222]">
-              <h4 className="text-white font-bold text-sm mb-1">📊 דרישות</h4>
-              <p className="text-[#cbc190] text-sm">{tierInfo.requirements}</p>
+            <div className="bg-[#f8f9fa] rounded-lg p-3 border border-[#dee2e6]">
+              <h4 className="text-[#212529] font-bold text-sm mb-1">📊 דרישות</h4>
+              <p className="text-[#6c757d] text-sm">{tierInfo.requirements}</p>
             </div>
 
             <div>
-              <h4 className="text-white font-bold text-sm mb-2">🎁 יתרונות</h4>
+              <h4 className="text-[#212529] font-bold text-sm mb-2">🎁 יתרונות</h4>
               <ul className="space-y-1">
                 {tierInfo.benefits.map((benefit, idx) => (
-                  <li key={idx} className="text-[#cbc190] text-xs flex items-start gap-2">
+                  <li key={idx} className="text-[#6c757d] text-xs flex items-start gap-2">
                     <span className="text-[#f2cc0d] mt-0.5">•</span>
                     <span>{benefit}</span>
                   </li>
@@ -127,8 +127,8 @@ export function TierBadgeWithTooltip({ tier, showLabel = true, size = 'md' }: Pr
               </ul>
             </div>
 
-            <div className="pt-2 border-t border-[#494222]">
-              <p className="text-[#cbc190] text-xs italic text-center">
+            <div className="pt-2 border-t border-[#dee2e6]">
+              <p className="text-[#6c757d] text-xs italic text-center">
                 הדרגה מתעדכנת אוטומטית לפי ביצועים
               </p>
             </div>

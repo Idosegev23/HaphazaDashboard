@@ -39,7 +39,7 @@ export default function LoginPage() {
       <div className="glass-panel w-full max-w-md p-8 rounded-xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-[#f2cc0d] mb-2">LEADERS</h1>
-          <p className="text-[#cbc190]">UGC Operations Platform</p>
+          <p className="text-[#6c757d]">UGC Operations Platform</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
@@ -50,7 +50,7 @@ export default function LoginPage() {
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-white mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-[#212529] mb-2">
               {t('email')}
             </label>
             <input
@@ -59,13 +59,13 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+              className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
               placeholder="name@example.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-white mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-[#212529] mb-2">
               {t('password')}
             </label>
             <input
@@ -74,7 +74,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+              className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -91,7 +91,7 @@ export default function LoginPage() {
         <div className="mt-6 text-center">
           <a
             href="/auth/register"
-            className="text-sm text-[#cbc190] hover:text-[#f2cc0d] transition-colors"
+            className="text-sm text-[#6c757d] hover:text-[#f2cc0d] transition-colors"
           >
             {t('register')}
           </a>

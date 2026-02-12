@@ -3,22 +3,22 @@
 /* Design Tokens - LEADERS Platform */
 @layer theme {
   :root {
-    /* Colors - Premium Slate Theme */
+    /* Colors - Light Theme */
     --color-primary: #f2cc0d;
     --color-primary-hover: #dcb900;
     
-    --color-background-light: #f8f8f5;
-    --color-background-dark: #09090b; /* Zinc 950 */
-    --color-background-dark-alt: #18181b; /* Zinc 900 */
+    --color-background-light: #ffffff;
+    --color-background-dark: #f8f9fa; /* Light gray */
+    --color-background-dark-alt: #f1f3f5; /* Slightly darker */
     
-    --color-surface-dark: #18181b; /* Zinc 900 */
-    --color-surface-dark-alt: #27272a; /* Zinc 800 */
+    --color-surface-dark: #ffffff; /* White surface */
+    --color-surface-dark-alt: #f8f9fa; /* Light gray surface */
     
-    --color-border-dark: #27272a; /* Zinc 800 */
-    --color-glass-border: rgba(255, 255, 255, 0.08);
+    --color-border-dark: #dee2e6; /* Light border */
+    --color-glass-border: rgba(0, 0, 0, 0.08);
     
-    --color-text-muted: #a1a1aa; /* Zinc 400 */
-    --color-text-main: #fafafa; /* Zinc 50 */
+    --color-text-muted: #6c757d; /* Medium gray */
+    --color-text-main: #212529; /* Dark text */
     
     /* Status Colors */
     --color-status-active: #f2cc0d;
@@ -57,11 +57,11 @@ html {
 
 body {
   font-family: var(--font-body);
-  background: var(--color-background-dark);
+  background: var(--color-background-light);
   color: var(--color-text-main);
   margin: 0;
   padding: 0;
-  background-image: radial-gradient(circle at 50% 0%, rgba(242, 204, 13, 0.03) 0%, transparent 50%);
+  background-image: radial-gradient(circle at 50% 0%, rgba(242, 204, 13, 0.08) 0%, transparent 50%);
   min-height: 100vh;
 }
 
@@ -77,7 +77,7 @@ body {
 /* Selection */
 ::selection {
   background-color: var(--color-primary);
-  color: var(--color-background-dark);
+  color: #000000;
 }
 
 /* Custom Scrollbar */
@@ -87,7 +87,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-background-dark);
+  background: var(--color-background-light);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -101,7 +101,7 @@ body {
 
 /* Glassmorphism Utility Classes */
 .glass-panel {
-  background: rgba(24, 24, 27, 0.6); /* Zinc 900 with opacity */
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--color-border-dark);
@@ -109,9 +109,9 @@ body {
 }
 
 .glass-panel-hover:hover {
-  background: rgba(39, 39, 42, 0.8); /* Zinc 800 */
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  background: rgba(248, 249, 250, 1);
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
   transform: translateY(-2px);
   transition: all 0.3s ease;
 }

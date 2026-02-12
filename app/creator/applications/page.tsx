@@ -97,7 +97,7 @@ export default function CreatorApplicationsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -106,8 +106,8 @@ export default function CreatorApplicationsPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">📝 המועמדויות שלי</h1>
-          <p className="text-[#cbc190]">הצעות שהגשת לקמפיינים - ממתין/אושר/נדחה</p>
+          <h1 className="text-3xl font-bold text-[#212529] mb-2">📝 המועמדויות שלי</h1>
+          <p className="text-[#6c757d]">הצעות שהגשת לקמפיינים - ממתין/אושר/נדחה</p>
         </div>
 
         {applications && applications.length > 0 ? (
@@ -119,25 +119,25 @@ export default function CreatorApplicationsPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-white font-bold text-lg">
+                        <h3 className="text-[#212529] font-bold text-lg">
                           {application.campaigns?.title}
                         </h3>
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[application.status || 'submitted']}`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${statusColors[application.status || 'submitted']}`}>
                           {statusLabels[application.status || 'submitted']}
                         </span>
                       </div>
-                      <div className="text-sm text-[#cbc190] mb-2">
+                      <div className="text-sm text-[#6c757d] mb-2">
                         מותג: {application.campaigns?.brands?.name}
                       </div>
-                      <p className="text-[#cbc190] text-sm mb-3">
+                      <p className="text-[#6c757d] text-sm mb-3">
                         {statusDescriptions[application.status || 'submitted']}
                       </p>
                       {application.message && (
-                        <p className="text-[#cbc190] text-sm line-clamp-2 italic">
+                        <p className="text-[#6c757d] text-sm line-clamp-2 italic">
                           "{application.message}"
                         </p>
                       )}
-                      <div className="text-xs text-[#cbc190] mt-3">
+                      <div className="text-xs text-[#6c757d] mt-3">
                         נשלח ב: {new Date(application.created_at || '').toLocaleDateString('he-IL')} {new Date(application.created_at || '').toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
@@ -151,14 +151,14 @@ export default function CreatorApplicationsPage() {
                       )}
                       {application.status === 'submitted' && (
                         <Link href={`/creator/applications/${application.id}/edit`}>
-                          <button className="px-4 py-2 bg-[#2e2a1b] text-white font-medium rounded-lg hover:bg-[#3a3525] transition-colors border border-[#494222]">
+                          <button className="px-4 py-2 bg-[#f8f9fa] text-[#212529] font-medium rounded-lg hover:bg-[#e9ecef] transition-colors border border-[#dee2e6]">
                             ערוך מועמדות
                           </button>
                         </Link>
                       )}
                       {application.status === 'rejected' && (
                         <Link href="/creator/campaigns">
-                          <button className="px-4 py-2 bg-[#2e2a1b] text-white font-bold rounded-lg hover:bg-[#3a3525] transition-colors">
+                          <button className="px-4 py-2 bg-[#f8f9fa] text-[#212529] font-bold rounded-lg hover:bg-[#e9ecef] transition-colors">
                             לקמפיינים
                           </button>
                         </Link>
@@ -172,7 +172,7 @@ export default function CreatorApplicationsPage() {
         ) : (
           <Card>
             <div className="text-center py-12">
-              <p className="text-[#cbc190] text-lg mb-4">עדיין לא הגשת בקשות לקמפיינים</p>
+              <p className="text-[#6c757d] text-lg mb-4">עדיין לא הגשת בקשות לקמפיינים</p>
               <Link href="/creator/campaigns">
                 <button className="px-6 py-3 bg-[#f2cc0d] text-black font-bold rounded-lg hover:bg-[#d4b00b] transition-colors">
                   עבור לקמפיינים פתוחים →

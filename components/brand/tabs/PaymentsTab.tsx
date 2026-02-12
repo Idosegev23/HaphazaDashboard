@@ -116,7 +116,7 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
 
       if (updateError) throw updateError;
 
-      alert('✅ אסמכתת התשלום הועלתה בהצלחה!');
+      alert(' אסמכתת התשלום הועלתה בהצלחה!');
       loadPayments(); // Reload
     } catch (error: any) {
       console.error('Error uploading proof:', error);
@@ -129,7 +129,7 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-white text-xl">טוען תשלומים...</div>
+        <div className="text-[#212529] text-xl">טוען תשלומים...</div>
       </div>
     );
   }
@@ -164,35 +164,35 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
       {/* Stats */}
       <div className="grid md:grid-cols-3 gap-4">
         <Card className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/30">
-          <div className="text-[#cbc190] text-sm mb-1">תשלומים ששולמו</div>
+          <div className="text-[#6c757d] text-sm mb-1">תשלומים ששולמו</div>
           <div className="text-2xl font-bold text-green-400">₪{paidAmount.toLocaleString()}</div>
-          <div className="text-xs text-[#cbc190] mt-1">
+          <div className="text-xs text-[#6c757d] mt-1">
             {payments.filter((p) => p.status === 'paid').length} תשלומים
           </div>
         </Card>
 
         <Card className="bg-gradient-to-br from-yellow-500/10 to-yellow-500/5 border-yellow-500/30">
-          <div className="text-[#cbc190] text-sm mb-1">ממתינים לתשלום</div>
+          <div className="text-[#6c757d] text-sm mb-1">ממתינים לתשלום</div>
           <div className="text-2xl font-bold text-yellow-400">₪{pendingAmount.toLocaleString()}</div>
-          <div className="text-xs text-[#cbc190] mt-1">
+          <div className="text-xs text-[#6c757d] mt-1">
             {payments.filter((p) => p.status === 'pending').length} תשלומים
           </div>
         </Card>
 
         <Card className="bg-gradient-to-br from-[#f2cc0d]/10 to-[#f2cc0d]/5 border-[#f2cc0d]/30">
-          <div className="text-[#cbc190] text-sm mb-1">סה"כ</div>
+          <div className="text-[#6c757d] text-sm mb-1">סה"כ</div>
           <div className="text-2xl font-bold text-[#f2cc0d]">
             ₪{(paidAmount + pendingAmount).toLocaleString()}
           </div>
-          <div className="text-xs text-[#cbc190] mt-1">{payments.length} תשלומים</div>
+          <div className="text-xs text-[#6c757d] mt-1">{payments.length} תשלומים</div>
         </Card>
       </div>
 
       {/* Header with Filter */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">💰 תשלומים</h2>
-          <p className="text-[#cbc190] text-sm">
+          <h2 className="text-2xl font-bold text-[#212529]"> תשלומים</h2>
+          <p className="text-[#6c757d] text-sm">
             {filteredPayments.length} תשלומים
             {statusFilter !== 'all' && ` (${statusLabels[statusFilter]})`}
           </p>
@@ -200,7 +200,7 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 bg-[#2e2a1b] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+          className="px-4 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
         >
           <option value="all">כל הסטטוסים</option>
           <option value="pending">
@@ -224,7 +224,7 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
                   <div className="flex-shrink-0">
-                    <div className="w-14 h-14 rounded-full overflow-hidden bg-[#2e2a1b] border-2 border-[#f2cc0d]">
+                    <div className="w-14 h-14 rounded-full overflow-hidden bg-[#f8f9fa] border-2 border-[#f2cc0d]">
                       {payment.creator_avatar ? (
                         <img
                           src={payment.creator_avatar}
@@ -233,7 +233,7 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-xl text-[#f2cc0d]">
-                          👤
+                          
                         </div>
                       )}
                     </div>
@@ -243,15 +243,15 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <h3 className="text-white font-bold">{payment.creator_name}</h3>
-                        <p className="text-[#cbc190] text-sm">{payment.task_title}</p>
+                        <h3 className="text-[#212529] font-bold">{payment.creator_name}</h3>
+                        <p className="text-[#6c757d] text-sm">{payment.task_title}</p>
                       </div>
                       <div className="text-right">
                         <div className="text-[#f2cc0d] font-bold text-xl">
                           ₪{payment.amount.toLocaleString()}
                         </div>
                         <span
-                          className={`inline-block px-2 py-1 rounded text-xs font-bold text-white ${
+                          className={`inline-block px-2 py-1 rounded text-xs font-bold text-[#212529] ${
                             statusColors[payment.status || 'pending']
                           }`}
                         >
@@ -263,7 +263,7 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
                             className="block mt-2 cursor-pointer"
                           >
                             <span className="inline-block px-3 py-1 bg-[#f2cc0d] text-black text-xs font-medium rounded hover:bg-[#d4b00b] transition-colors">
-                              {uploadingProof === payment.id ? '⏳ מעלה...' : '📤 העלה אסמכתא'}
+                              {uploadingProof === payment.id ? '⏳ מעלה...' : ' העלה אסמכתא'}
                             </span>
                             <input
                               id={`proof-upload-${payment.id}`}
@@ -281,7 +281,7 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
                       </div>
                     </div>
 
-                    <div className="text-xs text-[#cbc190] mb-2">
+                    <div className="text-xs text-[#6c757d] mb-2">
                       נוצר ב-{new Date(payment.created_at).toLocaleDateString('he-IL')}{' '}
                       {new Date(payment.created_at).toLocaleTimeString('he-IL', {
                         hour: '2-digit',
@@ -296,17 +296,17 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
 
                     {/* Documents Section */}
                     {(payment.proof_url || payment.invoice_url) && (
-                      <div className="mt-3 pt-3 border-t border-[#494222]">
-                        <div className="text-xs text-[#cbc190] mb-2 font-medium">📎 מסמכים:</div>
+                      <div className="mt-3 pt-3 border-t border-[#dee2e6]">
+                        <div className="text-xs text-[#6c757d] mb-2 font-medium"> מסמכים:</div>
                         <div className="flex flex-wrap gap-2">
                           {payment.proof_url && (
                             <a
                               href={payment.proof_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-3 py-1.5 bg-[#2e2a1b] border border-[#494222] rounded-lg text-[#f2cc0d] hover:border-[#f2cc0d] transition-colors text-xs flex items-center gap-2"
+                              className="px-3 py-1.5 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#f2cc0d] hover:border-[#f2cc0d] transition-colors text-xs flex items-center gap-2"
                             >
-                              <span>📄</span>
+                              
                               <span>אסמכתת תשלום</span>
                             </a>
                           )}
@@ -315,9 +315,9 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
                               href={payment.invoice_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-3 py-1.5 bg-[#2e2a1b] border border-[#494222] rounded-lg text-[#f2cc0d] hover:border-[#f2cc0d] transition-colors text-xs flex items-center gap-2"
+                              className="px-3 py-1.5 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#f2cc0d] hover:border-[#f2cc0d] transition-colors text-xs flex items-center gap-2"
                             >
-                              <span>🧾</span>
+                              
                               <span>חשבונית</span>
                             </a>
                           )}
@@ -327,9 +327,9 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
 
                     {/* Notes Section */}
                     {payment.notes && (
-                      <div className="mt-3 pt-3 border-t border-[#494222]">
-                        <div className="text-xs text-[#cbc190] mb-1 font-medium">💬 הערות:</div>
-                        <p className="text-xs text-white">{payment.notes}</p>
+                      <div className="mt-3 pt-3 border-t border-[#dee2e6]">
+                        <div className="text-xs text-[#6c757d] mb-1 font-medium"> הערות:</div>
+                        <p className="text-xs text-[#212529]">{payment.notes}</p>
                       </div>
                     )}
                   </div>
@@ -340,7 +340,7 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
         </div>
       ) : (
         <Card>
-          <p className="text-[#cbc190] text-center py-8">
+          <p className="text-[#6c757d] text-center py-8">
             {payments.length === 0
               ? 'עדיין לא נוצרו תשלומים לקמפיין זה. תשלומים נוצרים אוטומטית כשתוכן מאושר.'
               : 'לא נמצאו תשלומים בסטטוס זה'}
@@ -352,9 +352,9 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
       {payments.filter((p) => p.status === 'pending').length > 0 && (
         <Card className="bg-yellow-500/10 border-yellow-500/30">
           <div className="flex items-start gap-3">
-            <span className="text-2xl">⚠️</span>
+            <span className="text-2xl">️</span>
             <div>
-              <h4 className="text-white font-bold mb-1">תשלומים ממתינים</h4>
+              <h4 className="text-[#212529] font-bold mb-1">תשלומים ממתינים</h4>
               <p className="text-yellow-200 text-sm">
                 יש {payments.filter((p) => p.status === 'pending').length} תשלומים ממתינים בסכום כולל של
                 ₪{pendingAmount.toLocaleString()}. תשלומים אלו נוצרו אוטומטית לאחר אישור תוכן.

@@ -16,7 +16,7 @@ export const CreatorOnboardingTutorial: React.FC = () => {
       {/* Section 1: First Steps */}
       <Sequence from={0} durationInFrames={10 * fps}>
         <TextReveal
-          text="📌 הצעדים הראשונים"
+          text=" הצעדים הראשונים"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -25,7 +25,7 @@ export const CreatorOnboardingTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="👤"
+            icon=""
             title="השלימו את הפרופיל"
             description="מלאו שם, תיאור, תמונה וקישורים לרשתות - מותגים בודקים את הפרופיל לפני אישור!"
             delay={15}
@@ -33,14 +33,14 @@ export const CreatorOnboardingTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="🔗"
+            icon=""
             title="חברו רשתות חברתיות"
             description="הוסיפו Instagram, TikTok, YouTube - ככל שיש יותר, כך הסיכוי לאישור גדל"
             delay={35}
           />
           <StepCard
             stepNumber={3}
-            icon="🎯"
+            icon=""
             title="גלשו בקמפיינים"
             description="חפשו קמפיינים שמתאימים לתחום ההתמחות שלכם"
             delay={55}
@@ -51,7 +51,7 @@ export const CreatorOnboardingTutorial: React.FC = () => {
       {/* Section 2: Apply & Work */}
       <Sequence from={10 * fps} durationInFrames={10 * fps}>
         <TextReveal
-          text="💪 הגשה ועבודה"
+          text=" הגשה ועבודה"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -60,7 +60,7 @@ export const CreatorOnboardingTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="📝"
+            icon=""
             title="הגישו בקשה"
             description="כתבו הודעה אישית למותג - הסבירו למה אתם הבחירה הנכונה"
             delay={15}
@@ -68,14 +68,14 @@ export const CreatorOnboardingTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="📦"
+            icon=""
             title="קבלו מוצרים"
             description="אם אושרתם - הזינו כתובת למשלוח ואשרו קבלת החבילה"
             delay={35}
           />
           <StepCard
             stepNumber={3}
-            icon="🎬"
+            icon=""
             title="צרו תוכן"
             description="עבדו לפי הבריף, העלו תכנים, וקבלו פידבק מהמותג"
             delay={55}
@@ -86,7 +86,7 @@ export const CreatorOnboardingTutorial: React.FC = () => {
       {/* Section 3: Growth */}
       <Sequence from={20 * fps} durationInFrames={10 * fps}>
         <TextReveal
-          text="🏅 צמיחה בפלטפורמה"
+          text=" צמיחה בפלטפורמה"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -102,7 +102,7 @@ export const CreatorOnboardingTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="📈"
+            icon=""
             title="Bronze → Silver → Gold → Platinum"
             description="כל רמה פותחת קמפיינים בלעדיים עם תשלום גבוה יותר"
             delay={35}
@@ -110,14 +110,14 @@ export const CreatorOnboardingTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={3}
-            icon="💰"
+            icon=""
             title="תשלומים"
             description="אחרי אישור תוכן - התשלום מתבצע דרך הפלטפורמה. הכל מתועד ושקוף"
             delay={55}
           />
         </div>
         <TextReveal
-          text="💡 בהצלחה! אנחנו כאן לעזור בכל שלב"
+          text=" בהצלחה! אנחנו כאן לעזור בכל שלב"
           fontSize={16}
           color="#cbc190"
           delay={70}

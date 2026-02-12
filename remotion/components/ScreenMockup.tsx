@@ -33,21 +33,21 @@ export const ScreenMockup: React.FC<ScreenMockupProps> = ({
         opacity,
         borderRadius: 16,
         overflow: 'hidden',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
-        background: '#2A2A2A',
+        border: '1px solid #dee2e6',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
+        background: '#ffffff',
       }}
     >
       {/* Window title bar */}
       <div
         style={{
           height: 36,
-          background: '#333',
+          background: '#f8f9fa',
           display: 'flex',
           alignItems: 'center',
           padding: '0 14px',
           gap: 8,
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          borderBottom: '1px solid #dee2e6',
         }}
       >
         <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f57' }} />
@@ -58,7 +58,7 @@ export const ScreenMockup: React.FC<ScreenMockupProps> = ({
             style={{
               flex: 1,
               textAlign: 'center',
-              color: '#888',
+              color: '#6c757d',
               fontSize: 12,
               fontWeight: 500,
             }}
@@ -73,7 +73,7 @@ export const ScreenMockup: React.FC<ScreenMockupProps> = ({
         style={{
           padding: 20,
           minHeight: 200,
-          background: '#1E1E1E',
+          background: '#ffffff',
         }}
       >
         {children}

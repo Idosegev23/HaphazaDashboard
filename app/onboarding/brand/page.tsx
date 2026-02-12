@@ -143,14 +143,14 @@ export default function BrandOnboardingPage() {
             />
 
             <div>
-              <label className="block text-sm font-medium text-white mb-2">
+              <label className="block text-sm font-medium text-[#212529] mb-2">
                 תעשייה *
               </label>
               <select
                 value={formData.industry}
                 onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
                 required
-                className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
               >
                 <option value="" disabled>בחר תעשייה...</option>
                 {INDUSTRIES.map((industry) => (

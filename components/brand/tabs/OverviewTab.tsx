@@ -116,7 +116,7 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-white text-xl">טוען נתונים...</div>
+        <div className="text-[#212529] text-xl">טוען נתונים...</div>
       </div>
     );
   }
@@ -125,18 +125,18 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
     <div className="space-y-6">
       {/* Campaign Info */}
       <Card>
-        <h2 className="text-xl font-bold text-white mb-4">פרטי קמפיין</h2>
+        <h2 className="text-xl font-bold text-[#212529] mb-4">פרטי קמפיין</h2>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <span className="text-[#cbc190] text-sm">מחיר למשפיען</span>
+            <span className="text-[#6c757d] text-sm">מחיר למשפיען</span>
             <div className="text-[#f2cc0d] font-bold text-2xl">
               ₪{campaign.fixed_price?.toLocaleString() || 0}
             </div>
           </div>
           {campaign.deadline && (
             <div>
-              <span className="text-[#cbc190] text-sm">תאריך יעד</span>
-              <div className="text-white font-medium">
+              <span className="text-[#6c757d] text-sm">תאריך יעד</span>
+              <div className="text-[#212529] font-medium">
                 {new Date(campaign.deadline).toLocaleDateString('he-IL')}
               </div>
             </div>
@@ -149,24 +149,24 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
         {/* Applications */}
         <Card className="bg-gradient-to-br from-blue-500/10 to-blue-500/5 border-blue-500/30">
           <div className="flex items-start justify-between mb-3">
-            <span className="text-4xl">👥</span>
+            
             <div className="text-right">
-              <div className="text-[#cbc190] text-sm">בקשות מועמדות</div>
-              <div className="text-3xl font-bold text-white">{stats?.totalApplications || 0}</div>
+              <div className="text-[#6c757d] text-sm">בקשות מועמדות</div>
+              <div className="text-3xl font-bold text-[#212529]">{stats?.totalApplications || 0}</div>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center text-sm">
             <div>
               <div className="text-green-400 font-bold">{stats?.approvedApplications || 0}</div>
-              <div className="text-[#cbc190] text-xs">אושרו</div>
+              <div className="text-[#6c757d] text-xs">אושרו</div>
             </div>
             <div>
               <div className="text-yellow-400 font-bold">{stats?.pendingApplications || 0}</div>
-              <div className="text-[#cbc190] text-xs">ממתינים</div>
+              <div className="text-[#6c757d] text-xs">ממתינים</div>
             </div>
             <div>
               <div className="text-red-400 font-bold">{stats?.rejectedApplications || 0}</div>
-              <div className="text-[#cbc190] text-xs">נדחו</div>
+              <div className="text-[#6c757d] text-xs">נדחו</div>
             </div>
           </div>
         </Card>
@@ -174,10 +174,10 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
         {/* Tasks */}
         <Card className="bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/30">
           <div className="flex items-start justify-between mb-3">
-            <span className="text-4xl">📋</span>
+            
             <div className="text-right">
-              <div className="text-[#cbc190] text-sm">משימות</div>
-              <div className="text-3xl font-bold text-white">
+              <div className="text-[#6c757d] text-sm">משימות</div>
+              <div className="text-3xl font-bold text-[#212529]">
                 {(stats?.activeTasks || 0) + (stats?.completedTasks || 0)}
               </div>
             </div>
@@ -185,11 +185,11 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
           <div className="grid grid-cols-2 gap-2 text-center text-sm">
             <div>
               <div className="text-yellow-400 font-bold">{stats?.activeTasks || 0}</div>
-              <div className="text-[#cbc190] text-xs">פעילות</div>
+              <div className="text-[#6c757d] text-xs">פעילות</div>
             </div>
             <div>
               <div className="text-green-400 font-bold">{stats?.completedTasks || 0}</div>
-              <div className="text-[#cbc190] text-xs">הושלמו</div>
+              <div className="text-[#6c757d] text-xs">הושלמו</div>
             </div>
           </div>
         </Card>
@@ -197,10 +197,10 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
         {/* Shipments */}
         <Card className="bg-gradient-to-br from-orange-500/10 to-orange-500/5 border-orange-500/30">
           <div className="flex items-start justify-between">
-            <span className="text-4xl">📦</span>
+            
             <div className="text-right">
-              <div className="text-[#cbc190] text-sm">משלוחים ממתינים</div>
-              <div className="text-3xl font-bold text-white">{stats?.pendingShipments || 0}</div>
+              <div className="text-[#6c757d] text-sm">משלוחים ממתינים</div>
+              <div className="text-3xl font-bold text-[#212529]">{stats?.pendingShipments || 0}</div>
             </div>
           </div>
         </Card>
@@ -208,10 +208,10 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
         {/* Content */}
         <Card className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/30">
           <div className="flex items-start justify-between">
-            <span className="text-4xl">📤</span>
+            
             <div className="text-right">
-              <div className="text-[#cbc190] text-sm">תכנים מאושרים</div>
-              <div className="text-3xl font-bold text-white">{stats?.approvedContent || 0}</div>
+              <div className="text-[#6c757d] text-sm">תכנים מאושרים</div>
+              <div className="text-3xl font-bold text-[#212529]">{stats?.approvedContent || 0}</div>
             </div>
           </div>
         </Card>
@@ -219,10 +219,10 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
         {/* Payments */}
         <Card className="bg-gradient-to-br from-yellow-500/10 to-yellow-500/5 border-yellow-500/30">
           <div className="flex items-start justify-between mb-3">
-            <span className="text-4xl">💰</span>
+            
             <div className="text-right">
-              <div className="text-[#cbc190] text-sm">תשלומים</div>
-              <div className="text-3xl font-bold text-white">
+              <div className="text-[#6c757d] text-sm">תשלומים</div>
+              <div className="text-3xl font-bold text-[#212529]">
                 {(stats?.pendingPayments || 0) + (stats?.paidPayments || 0)}
               </div>
             </div>
@@ -230,11 +230,11 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
           <div className="grid grid-cols-2 gap-2 text-center text-sm">
             <div>
               <div className="text-yellow-400 font-bold">{stats?.pendingPayments || 0}</div>
-              <div className="text-[#cbc190] text-xs">ממתינים</div>
+              <div className="text-[#6c757d] text-xs">ממתינים</div>
             </div>
             <div>
               <div className="text-green-400 font-bold">{stats?.paidPayments || 0}</div>
-              <div className="text-[#cbc190] text-xs">שולמו</div>
+              <div className="text-[#6c757d] text-xs">שולמו</div>
             </div>
           </div>
         </Card>
@@ -242,9 +242,9 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
         {/* Campaign Health */}
         <Card className="bg-gradient-to-br from-[#f2cc0d]/10 to-[#f2cc0d]/5 border-[#f2cc0d]/30">
           <div className="flex items-start justify-between mb-3">
-            <span className="text-4xl">📊</span>
+            
             <div className="text-right">
-              <div className="text-[#cbc190] text-sm">בריאות קמפיין</div>
+              <div className="text-[#6c757d] text-sm">בריאות קמפיין</div>
               <div className="text-3xl font-bold text-[#f2cc0d]">
                 {stats && stats.totalApplications > 0
                   ? Math.round((stats.approvedApplications / stats.totalApplications) * 100)
@@ -253,32 +253,32 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
               </div>
             </div>
           </div>
-          <div className="text-[#cbc190] text-xs">אחוז אישור מועמדויות</div>
+          <div className="text-[#6c757d] text-xs">אחוז אישור מועמדויות</div>
         </Card>
       </div>
 
       {/* Quick Actions */}
       <Card className="bg-gradient-to-r from-[#2e2a1b] to-[#1E1E1E]">
-        <h3 className="text-lg font-bold text-white mb-4">פעולות מהירות</h3>
+        <h3 className="text-lg font-bold text-[#212529] mb-4">פעולות מהירות</h3>
         <div className="flex flex-wrap gap-3">
           {stats && stats.pendingApplications > 0 && (
             <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg px-4 py-2">
               <span className="text-yellow-400 font-medium">
-                ⚠️ {stats.pendingApplications} בקשות ממתינות לבדיקה
+                ️ {stats.pendingApplications} בקשות ממתינות לבדיקה
               </span>
             </div>
           )}
           {stats && stats.pendingShipments > 0 && (
             <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg px-4 py-2">
               <span className="text-orange-400 font-medium">
-                📦 {stats.pendingShipments} משלוחים דורשים טיפול
+                 {stats.pendingShipments} משלוחים דורשים טיפול
               </span>
             </div>
           )}
           {stats && stats.pendingPayments > 0 && (
             <div className="bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-2">
               <span className="text-green-400 font-medium">
-                💰 {stats.pendingPayments} תשלומים ממתינים
+                 {stats.pendingPayments} תשלומים ממתינים
               </span>
             </div>
           )}
@@ -287,7 +287,7 @@ export function OverviewTab({ campaignId, campaign }: OverviewTabProps) {
             stats.pendingShipments === 0 &&
             stats.pendingPayments === 0 && (
               <div className="bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-2">
-                <span className="text-green-400 font-medium">✅ הכל מעודכן!</span>
+                <span className="text-green-400 font-medium"> הכל מעודכן!</span>
               </div>
             )}
         </div>

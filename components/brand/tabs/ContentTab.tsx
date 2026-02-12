@@ -85,7 +85,7 @@ export function ContentTab({ campaignId }: ContentTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-white text-xl">טוען תכנים...</div>
+        <div className="text-[#212529] text-xl">טוען תכנים...</div>
       </div>
     );
   }
@@ -116,8 +116,8 @@ export function ContentTab({ campaignId }: ContentTabProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white">📤 תכנים</h2>
-          <p className="text-[#cbc190] text-sm">
+          <h2 className="text-2xl font-bold text-[#212529]"> תכנים</h2>
+          <p className="text-[#6c757d] text-sm">
             {filteredUploads.length} קבצים
             {statusFilter !== 'all' && ` (${statusLabels[statusFilter]})`}
           </p>
@@ -125,7 +125,7 @@ export function ContentTab({ campaignId }: ContentTabProps) {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 bg-[#2e2a1b] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+          className="px-4 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
         >
           <option value="all">כל הסטטוסים</option>
           <option value="pending">ממתין ({uploads.filter((u) => u.status === 'pending').length})</option>
@@ -150,7 +150,7 @@ export function ContentTab({ campaignId }: ContentTabProps) {
                 
                 {/* File Preview */}
                 <div
-                  className="aspect-video bg-[#2e2a1b] flex items-center justify-center mb-3 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity relative group"
+                  className="aspect-video bg-[#f8f9fa] flex items-center justify-center mb-3 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity relative group"
                   onClick={() =>
                     (fileType === 'image' || fileType === 'video') &&
                     setViewingContent({ url: urlData.publicUrl, type: fileType })
@@ -163,30 +163,26 @@ export function ContentTab({ campaignId }: ContentTabProps) {
                         alt="Upload"
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                        <span className="text-white text-4xl opacity-0 group-hover:opacity-100 transition-opacity">
-                          🔍
-                        </span>
+                      <div className="absolute inset-0 bg-white/0 group-hover:bg-white/20 transition-colors flex items-center justify-center">
+                        
                       </div>
                     </>
                   ) : fileType === 'video' ? (
                     <>
                       <video src={urlData.publicUrl} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center pointer-events-none">
-                        <span className="text-white text-4xl opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute inset-0 bg-white/0 group-hover:bg-white/20 transition-colors flex items-center justify-center pointer-events-none">
+                        <span className="text-[#212529] text-4xl opacity-0 group-hover:opacity-100 transition-opacity">
                           ▶️
                         </span>
                       </div>
                     </>
-                  ) : (
-                    <div className="text-4xl">📄</div>
-                  )}
+                  ) : null}
                 </div>
 
                 {/* Info */}
                 <div className="px-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-[#2e2a1b]">
+                    <div className="w-8 h-8 rounded-full overflow-hidden bg-[#f8f9fa]">
                       {upload.creator_avatar ? (
                         <img
                           src={upload.creator_avatar}
@@ -195,21 +191,21 @@ export function ContentTab({ campaignId }: ContentTabProps) {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-sm text-[#f2cc0d]">
-                          👤
+                          
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-white text-sm font-medium truncate">
+                      <div className="text-[#212529] text-sm font-medium truncate">
                         {upload.creator_name}
                       </div>
-                      <div className="text-[#cbc190] text-xs truncate">{upload.task_title}</div>
+                      <div className="text-[#6c757d] text-xs truncate">{upload.task_title}</div>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <span
-                      className={`px-2 py-1 rounded text-xs font-bold text-white ${
+                      className={`px-2 py-1 rounded text-xs font-bold text-[#212529] ${
                         statusColors[upload.status || 'pending']
                       }`}
                     >
@@ -221,7 +217,7 @@ export function ContentTab({ campaignId }: ContentTabProps) {
                       rel="noopener noreferrer"
                       className="text-[#f2cc0d] hover:text-[#d4b00b] text-xs"
                     >
-                      🔗 פתח
+                       פתח
                     </a>
                   </div>
                 </div>
@@ -231,7 +227,7 @@ export function ContentTab({ campaignId }: ContentTabProps) {
         </div>
       ) : (
         <Card>
-          <p className="text-[#cbc190] text-center py-8">
+          <p className="text-[#6c757d] text-center py-8">
             {uploads.length === 0
               ? 'עדיין לא הועלו תכנים לקמפיין זה'
               : 'לא נמצאו תכנים בסטטוס זה'}
@@ -242,14 +238,14 @@ export function ContentTab({ campaignId }: ContentTabProps) {
       {/* Full Screen Viewer Modal */}
       {viewingContent && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-white/95 flex items-center justify-center p-4"
           onClick={() => setViewingContent(null)}
         >
           <button
             onClick={() => setViewingContent(null)}
-            className="absolute top-4 right-4 text-white text-4xl hover:text-[#f2cc0d] transition-colors z-10"
+            className="absolute top-4 right-4 text-[#212529] text-4xl hover:text-[#f2cc0d] transition-colors z-10"
           >
-            ✕
+            
           </button>
           
           <div className="max-w-7xl max-h-full w-full h-full flex items-center justify-center">
@@ -271,7 +267,7 @@ export function ContentTab({ campaignId }: ContentTabProps) {
             ) : null}
           </div>
 
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-4 py-2 rounded-lg">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[#212529] text-sm bg-white/50 px-4 py-2 rounded-lg">
             לחץ בכל מקום כדי לסגור
           </div>
         </div>

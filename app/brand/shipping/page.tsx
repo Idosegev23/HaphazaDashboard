@@ -304,7 +304,7 @@ export default function BrandShippingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -326,16 +326,16 @@ export default function BrandShippingPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">ניהול משלוחים</h1>
-            <p className="text-[#cbc190]">מעקב אחר משלוחי מוצרים למשפיענים</p>
+            <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">ניהול משלוחים</h1>
+            <p className="text-[#6c757d]">מעקב אחר משלוחי מוצרים למשפיענים</p>
           </div>
           <select
             value={selectedCampaign}
             onChange={(e) => setSelectedCampaign(e.target.value)}
-            className="px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+            className="px-4 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
           >
             <option value="all">כל הקמפיינים</option>
             {campaigns.map((c) => (
@@ -350,7 +350,7 @@ export default function BrandShippingPage() {
         <div className="max-w-4xl mx-auto space-y-4">
           {requests.length === 0 ? (
             <Card>
-              <p className="text-[#cbc190] text-center py-8">אין בקשות משלוח</p>
+              <p className="text-[#6c757d] text-center py-8">אין בקשות משלוח</p>
             </Card>
           ) : (
             requests
@@ -361,32 +361,32 @@ export default function BrandShippingPage() {
                   {/* Header */}
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-white font-bold text-lg mb-1">
+                      <h3 className="text-[#212529] font-bold text-lg mb-1">
                         {request.campaigns?.title || 'קמפיין ללא שם'}
                       </h3>
-                      <div className="text-sm text-[#cbc190]">
+                      <div className="text-sm text-[#6c757d]">
                         משפיען: {request.creators?.users_profiles?.display_name || 'לא זמין'}
                       </div>
                       {request.creators?.users_profiles?.email && (
-                        <div className="text-sm text-[#cbc190]">
+                        <div className="text-sm text-[#6c757d]">
                           <a href={`mailto:${request.creators.users_profiles.email}`} className="hover:text-[#f2cc0d] transition-colors">
                             {request.creators.users_profiles.email}
                           </a>
                         </div>
                       )}
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[request.status]}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${statusColors[request.status]}`}>
                       {statusLabels[request.status]}
                     </span>
                   </div>
 
                   {/* Products */}
                   {products[request.campaign_id] && products[request.campaign_id].length > 0 && (
-                    <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
-                      <h4 className="text-white font-medium mb-3">מוצרים למשלוח</h4>
+                    <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
+                      <h4 className="text-[#212529] font-medium mb-3">מוצרים למשלוח</h4>
                       <div className="space-y-2">
                         {products[request.campaign_id].map((product) => (
-                          <div key={product.id} className="flex items-center gap-3 bg-[#1E1E1E] rounded-lg p-3">
+                          <div key={product.id} className="flex items-center gap-3 bg-white rounded-lg p-3">
                             {product.image_url ? (
                               <img
                                 src={product.image_url}
@@ -394,14 +394,14 @@ export default function BrandShippingPage() {
                                 className="w-12 h-12 object-cover rounded"
                               />
                             ) : (
-                              <div className="w-12 h-12 bg-[#2e2a1b] rounded flex items-center justify-center text-xl">
+                              <div className="w-12 h-12 bg-[#f8f9fa] rounded flex items-center justify-center text-xl">
                                 📦
                               </div>
                             )}
                             <div className="flex-1">
-                              <div className="text-white font-medium">{product.name}</div>
+                              <div className="text-[#212529] font-medium">{product.name}</div>
                               {product.sku && (
-                                <div className="text-xs text-[#cbc190]">SKU: {product.sku}</div>
+                                <div className="text-xs text-[#6c757d]">SKU: {product.sku}</div>
                               )}
                             </div>
                             {product.quantity && (
@@ -417,13 +417,13 @@ export default function BrandShippingPage() {
 
                   {/* Address */}
                   {request.shipment_addresses && (
-                    <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
-                      <h4 className="text-white font-medium mb-2">כתובת למשלוח</h4>
-                      <div className="text-sm text-[#cbc190] space-y-1">
+                    <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
+                      <h4 className="text-[#212529] font-medium mb-2">כתובת למשלוח</h4>
+                      <div className="text-sm text-[#6c757d] space-y-1">
                         <div>{request.shipment_addresses.street} {request.shipment_addresses.house_number}</div>
                         <div>{request.shipment_addresses.city}, {request.shipment_addresses.postal_code}</div>
                         <div>{request.shipment_addresses.country}</div>
-                        <div className="pt-2 border-t border-[#494222] mt-2">
+                        <div className="pt-2 border-t border-[#dee2e6] mt-2">
                           טלפון: {request.shipment_addresses.phone}
                         </div>
                       </div>
@@ -432,26 +432,26 @@ export default function BrandShippingPage() {
 
                   {/* Tracking Info */}
                   {request.shipments && request.shipments.length > 0 && (
-                    <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
-                      <h4 className="text-white font-medium mb-2">פרטי משלוח</h4>
+                    <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
+                      <h4 className="text-[#212529] font-medium mb-2">פרטי משלוח</h4>
                       <div className="text-sm space-y-1">
                         <div>
-                          <span className="text-[#cbc190]">מספר מעקב: </span>
+                          <span className="text-[#6c757d]">מספר מעקב: </span>
                           <span className="text-[#f2cc0d] font-mono">{request.shipments[0].tracking_number}</span>
                         </div>
                         <div>
-                          <span className="text-[#cbc190]">חברת שילוח: </span>
-                          <span className="text-white">{request.shipments[0].carrier}</span>
+                          <span className="text-[#6c757d]">חברת שילוח: </span>
+                          <span className="text-[#212529]">{request.shipments[0].carrier}</span>
                         </div>
                         <div>
-                          <span className="text-[#cbc190]">נשלח ב: </span>
-                          <span className="text-white">
+                          <span className="text-[#6c757d]">נשלח ב: </span>
+                          <span className="text-[#212529]">
                             {new Date(request.shipments[0].shipped_at).toLocaleDateString('he-IL')}
                           </span>
                         </div>
                         {request.shipments[0].delivered_at && (
                           <div>
-                            <span className="text-[#cbc190]">נמסר ב: </span>
+                            <span className="text-[#6c757d]">נמסר ב: </span>
                             <span className="text-green-400">
                               {new Date(request.shipments[0].delivered_at).toLocaleDateString('he-IL')}
                             </span>
@@ -473,26 +473,26 @@ export default function BrandShippingPage() {
 
                   {/* Ship Form */}
                   {showShipForm === request.id && (
-                    <div className="bg-[#2e2a1b] rounded-lg p-4 border-2 border-green-500 space-y-3">
-                      <h4 className="text-white font-medium">פרטי משלוח</h4>
+                    <div className="bg-[#f8f9fa] rounded-lg p-4 border-2 border-green-500 space-y-3">
+                      <h4 className="text-[#212529] font-medium">פרטי משלוח</h4>
                       <div>
-                        <label className="block text-sm text-[#cbc190] mb-1">מספר מעקב *</label>
+                        <label className="block text-sm text-[#6c757d] mb-1">מספר מעקב *</label>
                         <input
                           type="text"
                           value={trackingNumber}
                           onChange={(e) => setTrackingNumber(e.target.value)}
                           placeholder="לדוגמה: 1234567890"
-                          className="w-full px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                          className="w-full px-4 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-[#cbc190] mb-1">חברת שילוח *</label>
+                        <label className="block text-sm text-[#6c757d] mb-1">חברת שילוח *</label>
                         <input
                           type="text"
                           value={carrier}
                           onChange={(e) => setCarrier(e.target.value)}
                           placeholder="לדוגמה: DHL, FedEx, דואר ישראל"
-                          className="w-full px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                          className="w-full px-4 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                         />
                       </div>
                       <div className="flex gap-3">
@@ -509,7 +509,7 @@ export default function BrandShippingPage() {
                             setTrackingNumber('');
                             setCarrier('');
                           }}
-                          className="bg-[#2e2a1b] hover:bg-[#3a3525]"
+                          className="bg-[#f8f9fa] hover:bg-[#e9ecef]"
                         >
                           ביטול
                         </Button>

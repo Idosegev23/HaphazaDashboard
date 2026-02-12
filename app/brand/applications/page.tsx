@@ -238,7 +238,7 @@ export default function BrandApplicationsPage() {
   if (userLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -246,9 +246,9 @@ export default function BrandApplicationsPage() {
   if (!user?.brand_id) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-center">
+        <div className="text-[#212529] text-center">
           <div className="text-xl mb-4">שגיאה: לא נמצא מותג למשתמש</div>
-          <div className="text-sm text-[#cbc190] mb-4">
+          <div className="text-sm text-[#6c757d] mb-4">
             User ID: {user?.id || 'N/A'}<br/>
             Role: {user?.role || 'N/A'}<br/>
             Brand ID: {user?.brand_id || 'MISSING'}
@@ -287,8 +287,8 @@ export default function BrandApplicationsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">👥 בחירת משפיענים</h1>
-              <p className="text-[#cbc190]">סקירת מועמדויות ובחירת משפיענים לקמפיינים</p>
+              <h1 className="text-3xl font-bold text-[#212529] mb-2">👥 בחירת משפיענים</h1>
+              <p className="text-[#6c757d]">סקירת מועמדויות ובחירת משפיענים לקמפיינים</p>
             </div>
             <Button
               onClick={() => setShowFilters(!showFilters)}
@@ -300,9 +300,9 @@ export default function BrandApplicationsPage() {
 
           {/* Filters Panel */}
           {showFilters && (
-            <Card className="mb-6 bg-[#2e2a1b] border border-[#494222]">
+            <Card className="mb-6 bg-[#f8f9fa] border border-[#dee2e6]">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-white font-bold">סינון יוצרות</h3>
+                <h3 className="text-[#212529] font-bold">סינון יוצרות</h3>
                 <Button
                   onClick={resetFilters}
                   className="bg-gray-600 hover:bg-gray-700 text-sm"
@@ -314,32 +314,32 @@ export default function BrandApplicationsPage() {
               <div className="grid md:grid-cols-3 gap-4">
                 {/* Age Range */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">גיל</label>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">גיל</label>
                   <div className="flex gap-2">
                     <input
                       type="number"
                       placeholder="מינ'"
                       value={filters.ageMin}
                       onChange={(e) => setFilters({ ...filters, ageMin: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+                      className="w-full px-3 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
                     />
                     <input
                       type="number"
                       placeholder="מקס'"
                       value={filters.ageMax}
                       onChange={(e) => setFilters({ ...filters, ageMax: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+                      className="w-full px-3 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
                     />
                   </div>
                 </div>
 
                 {/* Gender */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">מגדר</label>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">מגדר</label>
                   <select
                     value={filters.gender}
                     onChange={(e) => setFilters({ ...filters, gender: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+                    className="w-full px-3 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
                   >
                     <option value="all">הכל</option>
                     <option value="female">נקבה</option>
@@ -350,11 +350,11 @@ export default function BrandApplicationsPage() {
 
                 {/* Niche */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">נישה</label>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">נישה</label>
                   <select
                     value={filters.niche}
                     onChange={(e) => setFilters({ ...filters, niche: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+                    className="w-full px-3 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
                   >
                     <option value="all">הכל</option>
                     {availableNiches.map((niche) => (
@@ -365,11 +365,11 @@ export default function BrandApplicationsPage() {
 
                 {/* Country */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">מדינה</label>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">מדינה</label>
                   <select
                     value={filters.country}
                     onChange={(e) => setFilters({ ...filters, country: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+                    className="w-full px-3 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
                   >
                     <option value="all">הכל</option>
                     {availableCountries.map((country) => (
@@ -380,11 +380,11 @@ export default function BrandApplicationsPage() {
 
                 {/* Status */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">סטטוס</label>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">סטטוס</label>
                   <select
                     value={filters.status}
                     onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+                    className="w-full px-3 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
                   >
                     <option value="all">הכל</option>
                     <option value="submitted">ממתין</option>
@@ -395,11 +395,11 @@ export default function BrandApplicationsPage() {
 
                 {/* Campaign */}
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">קמפיין</label>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">קמפיין</label>
                   <select
                     value={filters.campaign}
                     onChange={(e) => setFilters({ ...filters, campaign: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+                    className="w-full px-3 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
                   >
                     <option value="all">כל הקמפיינים</option>
                     {campaigns.map((c) => (
@@ -409,7 +409,7 @@ export default function BrandApplicationsPage() {
                 </div>
               </div>
 
-              <div className="mt-4 text-sm text-[#cbc190]">
+              <div className="mt-4 text-sm text-[#6c757d]">
                 מציג {filteredApplications.length} מתוך {applications.length} בקשות
               </div>
             </Card>
@@ -438,7 +438,7 @@ export default function BrandApplicationsPage() {
                       <div className="flex items-start gap-4">
                         {/* Creator Avatar */}
                         <div className="flex-shrink-0">
-                          <div className="w-16 h-16 rounded-full overflow-hidden bg-[#2e2a1b] border-2 border-[#f2cc0d]">
+                          <div className="w-16 h-16 rounded-full overflow-hidden bg-[#f8f9fa] border-2 border-[#f2cc0d]">
                             {application.creators?.users_profiles?.avatar_url ? (
                               <img 
                                 src={application.creators.users_profiles.avatar_url} 
@@ -456,11 +456,11 @@ export default function BrandApplicationsPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <h3 className="text-white font-bold mb-1">
+                              <h3 className="text-[#212529] font-bold mb-1">
                                 {application.campaigns?.title || 'ללא שם'}
                               </h3>
                               <div className="flex items-center gap-2">
-                                <span className="text-white font-medium">
+                                <span className="text-[#212529] font-medium">
                                   {application.creators?.users_profiles?.display_name || 'לא זמין'}
                                 </span>
                                 {socialLink && (
@@ -481,7 +481,7 @@ export default function BrandApplicationsPage() {
                             </div>
                           </div>
                           
-                          <div className="text-sm text-[#cbc190] mb-2 space-y-1">
+                          <div className="text-sm text-[#6c757d] mb-2 space-y-1">
                             <div>
                               {application.creators?.age && (
                                 <span>גיל {application.creators.age}</span>
@@ -498,7 +498,7 @@ export default function BrandApplicationsPage() {
                             )}
                           </div>
                           {application.message && (
-                            <p className="text-[#cbc190] text-sm line-clamp-2">{application.message}</p>
+                            <p className="text-[#6c757d] text-sm line-clamp-2">{application.message}</p>
                           )}
                         </div>
                       </div>
@@ -510,7 +510,7 @@ export default function BrandApplicationsPage() {
           </div>
         ) : (
           <Card>
-            <p className="text-[#cbc190] text-center py-8">
+            <p className="text-[#6c757d] text-center py-8">
               {applications.length === 0 ? 'אין בקשות עדיין' : 'לא נמצאו בקשות התואמות את הפילטרים'}
             </p>
           </Card>

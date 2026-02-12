@@ -218,7 +218,7 @@ export default function CampaignDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -226,7 +226,7 @@ export default function CampaignDetailPage() {
   if (!campaign) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">קמפיין לא נמצא</div>
+        <div className="text-[#212529] text-xl">קמפיין לא נמצא</div>
       </div>
     );
   }
@@ -250,20 +250,20 @@ export default function CampaignDetailPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <button
                 onClick={() => router.push('/brand/campaigns')}
-                className="text-[#cbc190] hover:text-[#f2cc0d] transition-colors"
+                className="text-[#6c757d] hover:text-[#f2cc0d] transition-colors"
               >
                 ← חזרה
               </button>
-              <h1 className="text-2xl lg:text-3xl font-bold text-white">{campaign.title}</h1>
+              <h1 className="text-2xl lg:text-3xl font-bold text-[#212529]">{campaign.title}</h1>
             </div>
             <div className="flex items-center gap-2">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[currentStatus]}`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${statusColors[currentStatus]}`}>
                 {statusLabels[currentStatus]}
               </span>
             </div>
@@ -280,7 +280,7 @@ export default function CampaignDetailPage() {
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="bg-[#2e2a1b] hover:bg-[#3a3525]"
+              className="bg-[#f8f9fa] hover:bg-[#e9ecef]"
             >
               {saving ? 'שומר...' : 'שמור'}
             </Button>
@@ -310,7 +310,7 @@ export default function CampaignDetailPage() {
             <div className="space-y-6">
               {/* Basic Info */}
               <Card id="section-details">
-                <h2 className="text-xl font-bold text-white mb-4">פרטי הקמפיין</h2>
+                <h2 className="text-xl font-bold text-[#212529] mb-4">פרטי הקמפיין</h2>
             <div className="space-y-4">
               <Input
                 label="שם הקמפיין"
@@ -321,7 +321,7 @@ export default function CampaignDetailPage() {
               />
 
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
+                <label className="block text-sm font-medium text-[#212529] mb-2">
                   מטרת הקמפיין
                 </label>
                 <textarea
@@ -329,12 +329,12 @@ export default function CampaignDetailPage() {
                   onChange={(e) => setFormData({ ...formData, objective: e.target.value })}
                   placeholder="תאר את המטרה העיקרית של הקמפיין"
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                  className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
+                <label className="block text-sm font-medium text-[#212529] mb-2">
                   קונספט
                 </label>
                 <textarea
@@ -342,7 +342,7 @@ export default function CampaignDetailPage() {
                   onChange={(e) => setFormData({ ...formData, concept: e.target.value })}
                   placeholder="תאר את הרעיון והסגנון של הקמפיין"
                   rows={4}
-                  className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                  className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                 />
               </div>
 
@@ -368,8 +368,8 @@ export default function CampaignDetailPage() {
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">📄</span>
                       <div>
-                        <h3 className="text-white font-medium">בריף מפורט</h3>
-                        <p className="text-[#cbc190] text-sm">קובץ מצורף לקמפיין</p>
+                        <h3 className="text-[#212529] font-medium">בריף מפורט</h3>
+                        <p className="text-[#6c757d] text-sm">קובץ מצורף לקמפיין</p>
                       </div>
                     </div>
                     <a
@@ -386,8 +386,8 @@ export default function CampaignDetailPage() {
 
               {/* Deliverables Display */}
               {campaign.deliverables && Object.keys(campaign.deliverables).length > 0 && (
-                <div className="bg-[#1E1E1E] p-4 rounded-lg border border-[#494222]">
-                  <h3 className="text-sm font-medium text-white mb-3">תמהיל תוצרים</h3>
+                <div className="bg-white p-4 rounded-lg border border-[#dee2e6]">
+                  <h3 className="text-sm font-medium text-[#212529] mb-3">תמהיל תוצרים</h3>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(campaign.deliverables).map(([key, value]) => {
                       if (!value || (value as number) === 0) return null;
@@ -400,7 +400,7 @@ export default function CampaignDetailPage() {
                         photo: 'Photo',
                       };
                       return (
-                        <span key={key} className="px-3 py-1 bg-[#2e2a1b] border border-[#494222] rounded-full text-white text-sm">
+                        <span key={key} className="px-3 py-1 bg-[#f8f9fa] border border-[#dee2e6] rounded-full text-[#212529] text-sm">
                           {value as number} x {labels[key] || key}
                         </span>
                       );
@@ -414,7 +414,7 @@ export default function CampaignDetailPage() {
           {/* Products Section */}
           <Card id="section-products">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white">מוצרים לקמפיין</h2>
+              <h2 className="text-xl font-bold text-[#212529]">מוצרים לקמפיין</h2>
               <Button
                 onClick={() => setShowProductForm(!showProductForm)}
                 className="bg-[#f2cc0d] text-[#121212] hover:bg-[#d4b00b]"
@@ -425,8 +425,8 @@ export default function CampaignDetailPage() {
 
             {/* Add Product Form */}
             {showProductForm && (
-              <div className="bg-[#2e2a1b] rounded-lg p-4 mb-4 border border-[#494222]">
-                <h3 className="text-white font-medium mb-3">מוצר חדש</h3>
+              <div className="bg-[#f8f9fa] rounded-lg p-4 mb-4 border border-[#dee2e6]">
+                <h3 className="text-[#212529] font-medium mb-3">מוצר חדש</h3>
                 <div className="space-y-3">
                   <Input
                     label="שם המוצר *"
@@ -480,7 +480,7 @@ export default function CampaignDetailPage() {
 
             {/* Products List */}
             {products.length === 0 ? (
-              <div className="text-[#cbc190] text-center py-8">
+              <div className="text-[#6c757d] text-center py-8">
                 לא הוגדרו מוצרים לקמפיין זה. לחץ "הוסף מוצר" כדי להתחיל.
               </div>
             ) : (
@@ -488,7 +488,7 @@ export default function CampaignDetailPage() {
                 {products.map((product) => (
                   <div
                     key={product.id}
-                    className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222] hover:border-[#f2cc0d] transition-colors"
+                    className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6] hover:border-[#f2cc0d] transition-colors"
                   >
                     <div className="flex gap-4">
                       {/* Product Image */}
@@ -499,19 +499,19 @@ export default function CampaignDetailPage() {
                           className="w-20 h-20 object-cover rounded-lg"
                         />
                       ) : (
-                        <div className="w-20 h-20 bg-[#1E1E1E] rounded-lg flex items-center justify-center">
+                        <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center">
                           <span className="text-3xl">📦</span>
                         </div>
                       )}
 
                       {/* Product Info */}
                       <div className="flex-1">
-                        <h3 className="text-white font-medium text-lg">{product.name}</h3>
+                        <h3 className="text-[#212529] font-medium text-lg">{product.name}</h3>
                         {product.sku && (
-                          <p className="text-[#cbc190] text-sm">SKU: {product.sku}</p>
+                          <p className="text-[#6c757d] text-sm">SKU: {product.sku}</p>
                         )}
                         {product.quantity && (
-                          <p className="text-[#cbc190] text-sm">כמות: {product.quantity}</p>
+                          <p className="text-[#6c757d] text-sm">כמות: {product.quantity}</p>
                         )}
                       </div>
 

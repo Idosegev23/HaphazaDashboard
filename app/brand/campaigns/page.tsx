@@ -130,7 +130,7 @@ export default function BrandCampaignsPage() {
   if (loading || userLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -140,7 +140,7 @@ export default function BrandCampaignsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">הקמפיינים שלי</h1>
+            <h1 className="text-3xl font-bold text-[#212529] mb-2">הקמפיינים שלי</h1>
             <p className="text-muted">ניהול וניטור קמפיינים</p>
           </div>
           <Link href="/brand/campaigns/new">
@@ -157,7 +157,7 @@ export default function BrandCampaignsPage() {
                     <div className="space-y-4">
                       <div>
                         <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-xl font-bold text-white">{campaign.title}</h3>
+                          <h3 className="text-xl font-bold text-[#212529]">{campaign.title}</h3>
                           <span className={`text-sm ${statusColors[campaign.status || 'draft']}`}>
                             {statusLabels[campaign.status || 'draft']}
                           </span>
@@ -182,10 +182,10 @@ export default function BrandCampaignsPage() {
                 <button
                   onClick={(e) => handleDuplicate(campaign, e)}
                   disabled={duplicating === campaign.id}
-                  className="absolute top-4 left-4 px-3 py-1.5 bg-surface border border-subtle text-white rounded-lg hover:bg-white/10 hover:border-gold transition-colors text-sm disabled:opacity-50"
+                  className="absolute top-4 left-4 px-3 py-1.5 bg-surface border border-subtle text-[#212529] rounded-lg hover:bg-white/10 hover:border-gold transition-colors text-sm disabled:opacity-50"
                   title="שכפל קמפיין"
                 >
-                  {duplicating === campaign.id ? '⏳' : '📋'}
+                  {duplicating === campaign.id ? '⏳' : ''}
                 </button>
               </div>
             ))}

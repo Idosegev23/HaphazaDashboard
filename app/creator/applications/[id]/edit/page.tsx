@@ -123,7 +123,7 @@ export default function EditApplicationPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -131,7 +131,7 @@ export default function EditApplicationPage() {
   if (!application) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">בקשה לא נמצאה</div>
+        <div className="text-[#212529] text-xl">בקשה לא נמצאה</div>
       </div>
     );
   }
@@ -145,10 +145,10 @@ export default function EditApplicationPage() {
 
         <Card>
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-white mb-2">עריכת מועמדות</h1>
-            <div className="flex items-center gap-2 text-[#cbc190]">
+            <h1 className="text-3xl font-bold text-[#212529] mb-2">עריכת מועמדות</h1>
+            <div className="flex items-center gap-2 text-[#6c757d]">
               <span>קמפיין:</span>
-              <span className="font-medium text-white">{application.campaigns?.title}</span>
+              <span className="font-medium text-[#212529]">{application.campaigns?.title}</span>
               <span>•</span>
               <span>{application.campaigns?.brands?.name}</span>
             </div>
@@ -158,7 +158,7 @@ export default function EditApplicationPage() {
             <div className="flex items-start gap-3">
               <span className="text-2xl">💡</span>
               <div>
-                <h3 className="text-white font-bold mb-1">טיפ לעריכה</h3>
+                <h3 className="text-[#212529] font-bold mb-1">טיפ לעריכה</h3>
                 <p className="text-blue-200 text-sm">
                   ניתן לערוך את הבקשה רק כל עוד היא במצב "ממתין לאישור". 
                   לאחר אישור או דחייה, לא ניתן יהיה לערוך את הבקשה.
@@ -169,23 +169,23 @@ export default function EditApplicationPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-white font-medium mb-2">
+              <label className="block text-[#212529] font-medium mb-2">
                 הודעה למותג *
               </label>
               <textarea
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 placeholder="ספר/י למה את/ה מתאים/ה לקמפיין הזה..."
-                className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white placeholder:text-[#6b6542] focus:outline-none focus:border-[#f2cc0d] transition-colors min-h-[120px] resize-y"
+                className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] placeholder:text-[#6b6542] focus:outline-none focus:border-gold transition-colors min-h-[120px] resize-y"
                 required
               />
-              <p className="text-[#cbc190] text-sm mt-1">
+              <p className="text-[#6c757d] text-sm mt-1">
                 תאר/י את הניסיון שלך, למה את/ה מתאים/ה, ומה ייחודי בתוכן שלך
               </p>
             </div>
 
             <div>
-              <label className="block text-white font-medium mb-2">
+              <label className="block text-[#212529] font-medium mb-2">
                 זמינות
               </label>
               <Input
@@ -194,22 +194,22 @@ export default function EditApplicationPage() {
                 onChange={(e) => setFormData({ ...formData, availability: e.target.value })}
                 placeholder='למשל: "זמין/ה החל מ-15.2" או "זמין/ה מיידית"'
               />
-              <p className="text-[#cbc190] text-sm mt-1">
+              <p className="text-[#6c757d] text-sm mt-1">
                 מתי תוכל/י להתחיל לעבוד על הקמפיין?
               </p>
             </div>
 
             <div>
-              <label className="block text-white font-medium mb-2">
+              <label className="block text-[#212529] font-medium mb-2">
                 קישורים לתיק עבודות
               </label>
               <textarea
                 value={formData.portfolio_links}
                 onChange={(e) => setFormData({ ...formData, portfolio_links: e.target.value })}
                 placeholder="הוסף/י קישורים לעבודות קודמות (אחד בכל שורה)"
-                className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white placeholder:text-[#6b6542] focus:outline-none focus:border-[#f2cc0d] transition-colors min-h-[100px] resize-y"
+                className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] placeholder:text-[#6b6542] focus:outline-none focus:border-gold transition-colors min-h-[100px] resize-y"
               />
-              <p className="text-[#cbc190] text-sm mt-1">
+              <p className="text-[#6c757d] text-sm mt-1">
                 קישורים לתכנים שיצרת בעבר (Instagram, TikTok, וכו')
               </p>
             </div>

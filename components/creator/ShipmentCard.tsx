@@ -78,7 +78,7 @@ export function ShipmentCard({
         style={{ backgroundImage: `url(${productImage})` }}
       >
         {status === "action_required" && (
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+          <div className="absolute inset-0 bg-white/20 group-hover:bg-transparent transition-colors"></div>
         )}
       </div>
 
@@ -104,7 +104,7 @@ export function ShipmentCard({
             {brandName}
           </span>
         </div>
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+        <h3 className="text-lg font-bold text-slate-900 dark:text-[#212529]">
           {campaignTitle}
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1">
@@ -131,7 +131,7 @@ export function ShipmentCard({
           className={cn(
             "flex items-center justify-center gap-2 h-10 px-5 rounded-lg text-sm font-bold transition-all w-full md:w-auto",
             status === "action_required" &&
-              "bg-primary hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20",
+              "bg-primary hover:bg-blue-600 text-[#212529] shadow-lg shadow-blue-500/20",
             status === "processing" &&
               "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 cursor-not-allowed",
             (status === "shipped" || status === "delivered") &&

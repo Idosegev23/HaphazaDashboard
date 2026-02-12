@@ -50,6 +50,8 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => 
 
   // Handle "don't show again"
   const handleDismiss = async () => {
+    setIsOpen(false);
+    
     if (dontShowAgain) {
       const supabase = createClient();
       const {
@@ -57,14 +59,17 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => 
       } = await supabase.auth.getUser();
 
       if (user) {
-        await (supabase as any).from('tutorial_dismissed').insert({
+        const { error } = await (supabase as any).from('tutorial_dismissed').insert({
           user_id: user.id,
           tutorial_key: tutorialKey,
         });
+        
+        if (!error) {
+          setIsDismissed(true); // Only set if successfully saved
+        }
       }
-      setIsDismissed(true);
     }
-    setIsOpen(false);
+    
     // Pause player
     if (playerRef.current) {
       playerRef.current.pause();
@@ -94,15 +99,14 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => 
         <button
           onClick={handleOpen}
           className="fixed bottom-6 left-6 z-40 flex items-center gap-2 
-            bg-[#1E1E1E] border-2 border-[#f2cc0d] text-[#f2cc0d] 
-            rounded-full px-4 py-3 shadow-lg shadow-black/30
-            hover:bg-[#f2cc0d] hover:text-[#1A1A1A] 
+            bg-white border-2 border-[#f2cc0d] text-[#f2cc0d] 
+            rounded-full px-4 py-3 shadow-lg
+            hover:bg-[#f2cc0d] hover:text-[#121212] 
             transition-all duration-300 hover:scale-105
             group"
           title="צפה במדריך"
         >
-          <span className="text-xl">🎬</span>
-          <span className="text-sm font-bold hidden sm:inline">מדריך</span>
+          <span className="text-sm font-bold">מדריך</span>
         </button>
       )}
 
@@ -110,7 +114,7 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => 
       {isOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8"
-          style={{ background: 'rgba(0, 0, 0, 0.85)' }}
+          style={{ background: 'rgba(0, 0, 0, 0.5)' }}
         >
           {/* Backdrop click to close */}
           <div
@@ -120,20 +124,19 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => 
 
           {/* Modal content */}
           <div
-            className="relative z-10 w-full max-w-4xl bg-[#1A1A1A] rounded-2xl overflow-hidden 
-              border border-[#333] shadow-2xl shadow-black/50"
+            className="relative z-10 w-full max-w-4xl bg-white rounded-2xl overflow-hidden 
+              border border-[#dee2e6] shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#333]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#dee2e6] bg-[#f8f9fa]">
               <div className="flex items-center gap-3" dir="rtl">
-                <span className="text-xl">🎬</span>
-                <h3 className="text-white font-bold text-lg">{meta.title}</h3>
+                <h3 className="text-[#212529] font-bold text-lg">{meta.title}</h3>
               </div>
               <button
                 onClick={handleDismiss}
-                className="text-[#888] hover:text-white transition-colors p-1 rounded-lg 
-                  hover:bg-white/10"
+                className="text-[#6c757d] hover:text-[#212529] transition-colors p-1 rounded-lg 
+                  hover:bg-[#dee2e6]/50"
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M18 6L6 18M6 6l12 12" />
@@ -142,7 +145,7 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => 
             </div>
 
             {/* Player */}
-            <div className="bg-black">
+            <div className="bg-white">
               <Player
                 ref={playerRef}
                 lazyComponent={lazyComponent}
@@ -164,7 +167,7 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => 
 
             {/* Footer */}
             <div
-              className="flex items-center justify-between px-6 py-4 border-t border-[#333]"
+              className="flex items-center justify-between px-6 py-4 border-t border-[#dee2e6] bg-[#f8f9fa]"
               dir="rtl"
             >
               <label className="flex items-center gap-3 cursor-pointer group">
@@ -172,18 +175,18 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => 
                   type="checkbox"
                   checked={dontShowAgain}
                   onChange={(e) => setDontShowAgain(e.target.checked)}
-                  className="w-5 h-5 rounded border-[#555] bg-[#2A2A2A] accent-[#f2cc0d] 
+                  className="w-5 h-5 rounded border-[#dee2e6] bg-white accent-[#f2cc0d] 
                     cursor-pointer"
                 />
-                <span className="text-[#888] text-sm group-hover:text-[#cbc190] transition-colors">
+                <span className="text-[#6c757d] text-sm group-hover:text-[#212529] transition-colors">
                   אל תציג מדריך זה שוב
                 </span>
               </label>
 
               <button
                 onClick={handleDismiss}
-                className="px-5 py-2 bg-[#f2cc0d] text-[#1A1A1A] font-bold rounded-lg 
-                  hover:bg-[#d4a30a] transition-colors text-sm"
+                className="px-5 py-2 bg-[#f2cc0d] text-[#121212] font-bold rounded-lg 
+                  hover:bg-[#dcb900] transition-colors text-sm"
               >
                 סגור
               </button>

@@ -15,9 +15,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed',
           {
             'bg-gold text-[#121212] hover:bg-[#dcb900]': variant === 'primary',
-            'bg-surface border border-subtle text-white hover:bg-white/10': variant === 'secondary',
-            'bg-transparent text-muted hover:text-white': variant === 'ghost',
-            'bg-red-500 text-white hover:bg-red-600': variant === 'danger',
+            'bg-white border border-[#dee2e6] text-[#212529] hover:bg-[#f8f9fa]': variant === 'secondary',
+            'bg-transparent text-[#6c757d] hover:text-[#212529]': variant === 'ghost',
+            'bg-red-500 text-[#212529] hover:bg-red-600': variant === 'danger',
           },
           {
             'px-3 py-1.5 text-sm': size === 'sm',

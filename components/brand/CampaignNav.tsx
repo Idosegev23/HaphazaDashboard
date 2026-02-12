@@ -38,8 +38,8 @@ export function CampaignNav({ campaignId, activeSection = 'details' }: CampaignN
   };
 
   return (
-    <nav className="bg-[#1E1E1E] border border-[#494222] rounded-lg p-4 sticky top-24">
-      <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+    <nav className="bg-white border border-[#dee2e6] rounded-lg p-4 sticky top-24">
+      <h3 className="text-[#212529] font-bold mb-4 flex items-center gap-2">
         <span className="material-symbols-outlined">menu</span>
         ניווט
       </h3>
@@ -58,7 +58,7 @@ export function CampaignNav({ campaignId, activeSection = 'details' }: CampaignN
                   'w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all text-right',
                   isActive
                     ? 'bg-[#f2cc0d] text-black font-medium'
-                    : 'text-[#cbc190] hover:bg-[#2e2a1b] hover:text-white'
+                    : 'text-[#6c757d] hover:bg-[#f8f9fa] hover:text-[#212529]'
                 )}
               >
                 <span className="material-symbols-outlined text-xl">
@@ -77,7 +77,7 @@ export function CampaignNav({ campaignId, activeSection = 'details' }: CampaignN
                 'flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all',
                 isActive
                   ? 'bg-[#f2cc0d] text-black font-medium'
-                  : 'text-[#cbc190] hover:bg-[#2e2a1b] hover:text-white'
+                  : 'text-[#6c757d] hover:bg-[#f8f9fa] hover:text-[#212529]'
               )}
             >
               <span className="material-symbols-outlined text-xl">

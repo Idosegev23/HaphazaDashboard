@@ -17,7 +17,7 @@ export const BrandCampaignDetailTutorial: React.FC = () => {
       {/* Section 1: Tabs Overview */}
       <Sequence from={0} durationInFrames={10 * fps}>
         <TextReveal
-          text="📑 הטאבים שלכם"
+          text=" הטאבים שלכם"
           fontSize={26}
           color="#f2cc0d"
           fontWeight={700}
@@ -25,12 +25,12 @@ export const BrandCampaignDetailTutorial: React.FC = () => {
         />
         <div style={{ display: 'flex', gap: 12, marginTop: 20, flexWrap: 'wrap' }}>
           {[
-            { icon: '📋', name: 'סקירה', desc: 'מבט-על על הקמפיין' },
-            { icon: '✏️', name: 'פרטים', desc: 'עריכת הגדרות ומוצרים' },
-            { icon: '👥', name: 'משפיענים', desc: 'סקירה ואישור בקשות' },
-            { icon: '📦', name: 'משלוחים', desc: 'מעקב משלוח מוצרים' },
-            { icon: '🎬', name: 'תכנים', desc: 'צפייה ואישור תכנים' },
-            { icon: '💰', name: 'תשלומים', desc: 'מעקב וניהול תשלומים' },
+            { icon: '', name: 'סקירה', desc: 'מבט-על על הקמפיין' },
+            { icon: '️', name: 'פרטים', desc: 'עריכת הגדרות ומוצרים' },
+            { icon: '', name: 'משפיענים', desc: 'סקירה ואישור בקשות' },
+            { icon: '', name: 'משלוחים', desc: 'מעקב משלוח מוצרים' },
+            { icon: '', name: 'תכנים', desc: 'צפייה ואישור תכנים' },
+            { icon: '', name: 'תשלומים', desc: 'מעקב וניהול תשלומים' },
           ].map((tab, i) => (
             <div
               key={i}
@@ -44,10 +44,10 @@ export const BrandCampaignDetailTutorial: React.FC = () => {
               }}
             >
               <div style={{ fontSize: 20 }}>{tab.icon}</div>
-              <div style={{ color: '#fff', fontSize: 15, fontWeight: 700, marginTop: 4 }}>
+              <div style={{ color: '#212529', fontSize: 15, fontWeight: 700, marginTop: 4 }}>
                 {tab.name}
               </div>
-              <div style={{ color: '#888', fontSize: 12, marginTop: 2 }}>{tab.desc}</div>
+              <div style={{ color: '#6c757d', fontSize: 12, marginTop: 2 }}>{tab.desc}</div>
             </div>
           ))}
         </div>
@@ -56,7 +56,7 @@ export const BrandCampaignDetailTutorial: React.FC = () => {
       {/* Section 2: Details Tab */}
       <Sequence from={10 * fps} durationInFrames={8 * fps}>
         <TextReveal
-          text="✏️ טאב פרטים - עריכת הקמפיין"
+          text="️ טאב פרטים - עריכת הקמפיין"
           fontSize={26}
           color="#f2cc0d"
           fontWeight={700}
@@ -65,7 +65,7 @@ export const BrandCampaignDetailTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="📝"
+            icon=""
             title="עריכת פרטי הקמפיין"
             description="עדכנו שם, מטרה, תיאור ותקציב. שמרו שינויים בלחיצה"
             delay={15}
@@ -73,14 +73,14 @@ export const BrandCampaignDetailTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="📦"
+            icon=""
             title="ניהול מוצרים"
             description="הוסיפו ומחקו מוצרים שנשלחים למשפיענים"
             delay={35}
           />
           <StepCard
             stepNumber={3}
-            icon="🚀"
+            icon=""
             title="פרסום הקמפיין"
             description="קמפיין בסטטוס טיוטה? פרסמו אותו כדי שמשפיענים יוכלו להגיש בקשות"
             delay={50}
@@ -91,7 +91,7 @@ export const BrandCampaignDetailTutorial: React.FC = () => {
       {/* Section 3: Influencers & Content */}
       <Sequence from={18 * fps} durationInFrames={10 * fps}>
         <TextReveal
-          text="👥 משפיענים ותכנים"
+          text=" משפיענים ותכנים"
           fontSize={26}
           color="#f2cc0d"
           fontWeight={700}
@@ -101,7 +101,7 @@ export const BrandCampaignDetailTutorial: React.FC = () => {
           <div style={{ flex: 1 }}>
             <StepCard
               stepNumber={1}
-              icon="✅"
+              icon=""
               title="אישור/דחייה"
               description="בדקו כל בקשה, הגדירו מחיר מותאם אישית ואשרו או דחו"
               delay={15}
@@ -111,7 +111,7 @@ export const BrandCampaignDetailTutorial: React.FC = () => {
           <div style={{ flex: 1 }}>
             <StepCard
               stepNumber={2}
-              icon="🎬"
+              icon=""
               title="צפייה בתכנים"
               description="צפו בתמונות וסרטונים שהועלו ואשרו אותם"
               delay={30}
@@ -123,7 +123,7 @@ export const BrandCampaignDetailTutorial: React.FC = () => {
       {/* Section 4: Shipping & Payments */}
       <Sequence from={28 * fps} durationInFrames={12 * fps}>
         <TextReveal
-          text="📦💰 משלוחים ותשלומים"
+          text=" משלוחים ותשלומים"
           fontSize={26}
           color="#f2cc0d"
           fontWeight={700}
@@ -132,14 +132,14 @@ export const BrandCampaignDetailTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="📦"
+            icon=""
             title="מעקב משלוחים"
             description="ראו סטטוס כל משלוח - ממתין, נשלח, התקבל. הזינו מספרי מעקב"
             delay={15}
           />
           <StepCard
             stepNumber={2}
-            icon="💰"
+            icon=""
             title="ניהול תשלומים"
             description="צפו במסמכים, העלו אסמכתאות תשלום ועקבו אחרי סטטוס כל תשלום"
             delay={35}
@@ -147,7 +147,7 @@ export const BrandCampaignDetailTutorial: React.FC = () => {
           />
         </div>
         <TextReveal
-          text="💡 טיפ: ניתן להעלות אסמכתת תשלום ישירות מהטאב כדי לעדכן סטטוס"
+          text=" טיפ: ניתן להעלות אסמכתת תשלום ישירות מהטאב כדי לעדכן סטטוס"
           fontSize={16}
           color="#cbc190"
           delay={55}

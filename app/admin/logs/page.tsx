@@ -78,17 +78,17 @@ export default function AdminLogsPage() {
   if (loading || userLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
         <div className="mb-4">
-          <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Audit Logs</h1>
-          <p className="text-[#cbc190]">System activity trail ({filteredLogs.length} logs)</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">Audit Logs</h1>
+          <p className="text-[#6c757d]">System activity trail ({filteredLogs.length} logs)</p>
         </div>
 
         {/* Filters */}
@@ -98,13 +98,13 @@ export default function AdminLogsPage() {
             placeholder="חיפוש חופשי..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+            className="px-4 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
           />
           
           <select
             value={entityFilter}
             onChange={(e) => setEntityFilter(e.target.value)}
-            className="px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+            className="px-4 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
           >
             <option value="all">כל הישויות</option>
             {uniqueEntities.map((e) => (
@@ -115,7 +115,7 @@ export default function AdminLogsPage() {
           <select
             value={actionFilter}
             onChange={(e) => setActionFilter(e.target.value)}
-            className="px-4 py-2 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d]"
+            className="px-4 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
           >
             <option value="all">כל הפעולות</option>
             {uniqueActions.map((a) => (
@@ -131,7 +131,7 @@ export default function AdminLogsPage() {
             {filteredLogs.length > 0 ? (
               <div className="space-y-2">
                 {filteredLogs.map((log) => (
-                  <div key={log.id} className="p-4 bg-[#2e2a1b] rounded-lg border border-[#494222] hover:border-[#f2cc0d] transition-colors">
+                  <div key={log.id} className="p-4 bg-[#f8f9fa] rounded-lg border border-[#dee2e6] hover:border-[#f2cc0d] transition-colors">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{getActionIcon(log.action)}</span>
@@ -139,7 +139,7 @@ export default function AdminLogsPage() {
                           <span className={`font-medium ${getActionColor(log.action)}`}>
                             {log.action}
                           </span>
-                          <div className="text-[#cbc190] text-sm mt-1">
+                          <div className="text-[#6c757d] text-sm mt-1">
                             <span className="font-medium">{log.entity}</span>
                             {log.entity_id && (
                               <span className="ml-2 font-mono text-xs bg-[#1a1a1a] px-2 py-0.5 rounded">
@@ -149,7 +149,7 @@ export default function AdminLogsPage() {
                           </div>
                         </div>
                       </div>
-                      <span className="text-[#cbc190] text-xs whitespace-nowrap">
+                      <span className="text-[#6c757d] text-xs whitespace-nowrap">
                         {new Date(log.created_at || '').toLocaleString('he-IL', {
                           dateStyle: 'short',
                           timeStyle: 'short',
@@ -158,7 +158,7 @@ export default function AdminLogsPage() {
                     </div>
                     
                     {log.actor_id && (
-                      <div className="text-xs text-[#cbc190] mt-2 flex items-center gap-2">
+                      <div className="text-xs text-[#6c757d] mt-2 flex items-center gap-2">
                         <span>👤 User:</span>
                         <span className="font-mono bg-[#1a1a1a] px-2 py-0.5 rounded">
                           {log.actor_id.slice(0, 12)}...
@@ -171,7 +171,7 @@ export default function AdminLogsPage() {
                         <summary className="text-xs text-[#f2cc0d] cursor-pointer hover:underline">
                           📋 View Metadata
                         </summary>
-                        <pre className="mt-2 p-2 bg-[#1a1a1a] rounded text-xs text-[#cbc190] overflow-x-auto">
+                        <pre className="mt-2 p-2 bg-[#1a1a1a] rounded text-xs text-[#6c757d] overflow-x-auto">
                           {JSON.stringify(log.meta, null, 2)}
                         </pre>
                       </details>
@@ -180,7 +180,7 @@ export default function AdminLogsPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-[#cbc190] text-center py-12">
+              <p className="text-[#6c757d] text-center py-12">
                 {logs.length === 0 ? 'אין לוגים עדיין' : 'לא נמצאו תוצאות לפי הסינון'}
               </p>
             )}

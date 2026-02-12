@@ -20,7 +20,7 @@ export const CreatorShippingTutorial: React.FC = () => {
           <div style={{ flex: 1 }}>
             <StepCard
               stepNumber={1}
-              icon="📍"
+              icon=""
               title="הזנת כתובת"
               description="כשאושרתם לקמפיין שדורש משלוח - מלאו את הכתובת המלאה: רחוב, מספר בית, עיר ומיקוד"
               delay={10}
@@ -28,7 +28,7 @@ export const CreatorShippingTutorial: React.FC = () => {
             />
             <StepCard
               stepNumber={2}
-              icon="📱"
+              icon=""
               title="פרטי קשר"
               description="ודאו שמספר הטלפון נכון - חברת המשלוח תשתמש בו"
               delay={35}
@@ -49,17 +49,17 @@ export const CreatorShippingTutorial: React.FC = () => {
                   <div style={{ color: '#f2cc0d', fontSize: 12, fontWeight: 700 }}>
                     ⏳ ממתין לכתובת
                   </div>
-                  <div style={{ color: '#fff', fontSize: 11, marginTop: 4 }}>
+                  <div style={{ color: '#212529', fontSize: 11, marginTop: 4 }}>
                     קמפיין שמפו טבעי
                   </div>
                 </div>
                 <div
                   style={{
-                    background: '#2A2A2A',
+                    background: '#f8f9fa',
                     borderRadius: 8,
                     padding: 10,
                     fontSize: 11,
-                    color: '#888',
+                    color: '#6c757d',
                   }}
                 >
                   <div>שם מלא: ________</div>
@@ -75,7 +75,7 @@ export const CreatorShippingTutorial: React.FC = () => {
       {/* Section 2: Tracking */}
       <Sequence from={10 * fps} durationInFrames={10 * fps}>
         <TextReveal
-          text="📦 מעקב משלוח"
+          text=" מעקב משלוח"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -84,14 +84,14 @@ export const CreatorShippingTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="📬"
+            icon=""
             title="הכתובת נשלחה"
             description="אחרי ששלחתם כתובת, הסטטוס משתנה ל'ממתין למשלוח'"
             delay={15}
           />
           <StepCard
             stepNumber={2}
-            icon="🚚"
+            icon=""
             title="נשלח!"
             description="כשהמותג שולח את המוצר, תקבלו מספר מעקב (אם זמין)"
             delay={35}
@@ -99,7 +99,7 @@ export const CreatorShippingTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={3}
-            icon="📱"
+            icon=""
             title="עקבו אחרי המשלוח"
             description="אם יש מספר מעקב - הוא יוצג כאן עם קישור לחברת המשלוחים"
             delay={50}
@@ -110,7 +110,7 @@ export const CreatorShippingTutorial: React.FC = () => {
       {/* Section 3: Confirm Delivery */}
       <Sequence from={20 * fps} durationInFrames={10 * fps}>
         <TextReveal
-          text="✅ אישור קבלה"
+          text=" אישור קבלה"
           fontSize={28}
           color="#f2cc0d"
           fontWeight={700}
@@ -119,7 +119,7 @@ export const CreatorShippingTutorial: React.FC = () => {
         <div style={{ marginTop: 20 }}>
           <StepCard
             stepNumber={1}
-            icon="📦"
+            icon=""
             title="קיבלתם את החבילה?"
             description="לחצו 'אישור קבלת משלוח' כדי לעדכן את המותג"
             delay={15}
@@ -127,14 +127,14 @@ export const CreatorShippingTutorial: React.FC = () => {
           />
           <StepCard
             stepNumber={2}
-            icon="🔓"
+            icon=""
             title="המשימה נפתחת!"
             description="ברגע שתאשרו קבלה - המשימה נפתחת לעבודה ותוכלו להתחיל ליצור תוכן"
             delay={35}
           />
         </div>
         <TextReveal
-          text="💡 חשוב: אשרו קבלה רק כשהמוצר באמת הגיע אליכם"
+          text=" חשוב: אשרו קבלה רק כשהמוצר באמת הגיע אליכם"
           fontSize={16}
           color="#cbc190"
           delay={55}

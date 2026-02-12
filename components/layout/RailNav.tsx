@@ -33,30 +33,30 @@ export function RailNav({ user }: RailNavProps) {
 
     if (user.role === 'creator') {
       return [
-        { href: '/creator/dashboard', label: 'לוח בקרה', icon: '📊' },
-        { href: '/creator/campaigns', label: 'קמפיינים', icon: '🎯' },
-        { href: '/creator/tasks', label: 'משימות', icon: '📋' },
-        { href: '/creator/shipping', label: 'משלוחים', icon: '📦' },
-        { href: '/creator/payments', label: 'תשלומים', icon: '💰' },
-        { href: '/creator/settings', label: 'הגדרות', icon: '⚙️' },
+        { href: '/creator/dashboard', label: 'לוח בקרה', icon: '▪' },
+        { href: '/creator/campaigns', label: 'קמפיינים', icon: '▪' },
+        { href: '/creator/tasks', label: 'משימות', icon: '▪' },
+        { href: '/creator/shipping', label: 'משלוחים', icon: '▪' },
+        { href: '/creator/payments', label: 'תשלומים', icon: '▪' },
+        { href: '/creator/settings', label: 'הגדרות', icon: '▪' },
       ];
     }
 
     if (['brand_manager', 'brand_user'].includes(user.role)) {
       return [
-        { href: '/brand/dashboard', label: 'לוח בקרה', icon: '📊' },
-        { href: '/brand/campaigns', label: 'קמפיינים', icon: '🎯' },
+        { href: '/brand/dashboard', label: 'לוח בקרה', icon: '▪' },
+        { href: '/brand/campaigns', label: 'קמפיינים', icon: '▪' },
       ];
     }
 
     if (['admin', 'finance', 'support', 'content_ops'].includes(user.role)) {
       return [
-        { href: '/admin/dashboard', label: 'Dashboard', icon: '⚙️' },
-        { href: '/admin/users', label: 'Users', icon: '👥' },
-        { href: '/admin/campaigns', label: 'Campaigns', icon: '🎯' },
-        { href: '/admin/payments', label: 'Payments', icon: '💰' },
-        { href: '/admin/templates', label: 'Templates', icon: '📄' },
-        { href: '/admin/logs', label: 'Logs', icon: '📋' },
+        { href: '/admin/dashboard', label: 'Dashboard', icon: '▪' },
+        { href: '/admin/users', label: 'Users', icon: '▪' },
+        { href: '/admin/campaigns', label: 'Campaigns', icon: '▪' },
+        { href: '/admin/payments', label: 'Payments', icon: '▪' },
+        { href: '/admin/templates', label: 'Templates', icon: '▪' },
+        { href: '/admin/logs', label: 'Logs', icon: '▪' },
       ];
     }
 
@@ -66,7 +66,7 @@ export function RailNav({ user }: RailNavProps) {
   const navItems = getNavItems();
 
   return (
-    <nav className="w-20 bg-[#1E1E1E] border-r border-[#494222] flex flex-col items-center py-6 gap-6">
+    <nav className="w-20 bg-white border-r border-[#dee2e6] flex flex-col items-center py-6 gap-6 shadow-sm">
       {/* Logo */}
       <Link href="/" className="text-2xl font-bold text-[#f2cc0d] mb-4">
         L
@@ -79,29 +79,29 @@ export function RailNav({ user }: RailNavProps) {
             key={item.href}
             href={item.href}
             className={cn(
-              'w-12 h-12 rounded-lg flex items-center justify-center transition-all',
+              'w-12 h-12 rounded-lg flex items-center justify-center transition-all text-sm font-bold',
               pathname === item.href
                 ? 'bg-[#f2cc0d] text-[#121212]'
-                : 'text-[#cbc190] hover:bg-[#2e2a1b]'
+                : 'text-[#6c757d] hover:bg-[#f8f9fa]'
             )}
             title={item.label}
           >
-            <span className="text-xl">{item.icon}</span>
+            <span>{item.icon}</span>
           </Link>
         ))}
       </div>
 
       {/* User menu */}
       <div className="flex flex-col gap-4 items-center">
-        <div className="w-10 h-10 rounded-full bg-[#2e2a1b] flex items-center justify-center text-[#f2cc0d] text-sm font-bold">
+        <div className="w-10 h-10 rounded-full bg-[#f8f9fa] border border-[#f2cc0d] flex items-center justify-center text-[#f2cc0d] text-sm font-bold">
           {user?.profile?.display_name?.charAt(0).toUpperCase() || 'U'}
         </div>
         <button
           onClick={handleLogout}
-          className="text-[#cbc190] hover:text-white transition-colors text-xl"
+          className="text-[#6c757d] hover:text-[#212529] transition-colors text-sm font-medium"
           title="יציאה"
         >
-          🚪
+          יציאה
         </button>
       </div>
     </nav>

@@ -39,7 +39,7 @@ export function EligibilityGateBanner({
               <span className="material-symbols-outlined">lock_clock</span>
             </div>
             <div className="flex flex-col gap-2 max-w-2xl">
-              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+              <h1 className="text-2xl md:text-3xl font-bold text-[#212529] tracking-tight">
                 המשימות נעולות כרגע
               </h1>
               <p className="text-text-muted leading-relaxed">
@@ -61,10 +61,10 @@ export function EligibilityGateBanner({
               <div className="flex flex-col gap-1">
                 <p className="text-text-muted text-xs">מספר מעקב</p>
                 <div className="flex items-center justify-between">
-                  <p className="text-white font-mono text-sm">{trackingNumber}</p>
+                  <p className="text-[#212529] font-mono text-sm">{trackingNumber}</p>
                   <button
                     onClick={() => navigator.clipboard.writeText(trackingNumber)}
-                    className="text-primary hover:text-white transition-colors"
+                    className="text-primary hover:text-[#212529] transition-colors"
                   >
                     <span className="material-symbols-outlined text-sm">
                       content_copy

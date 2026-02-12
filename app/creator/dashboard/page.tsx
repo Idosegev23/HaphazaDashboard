@@ -180,7 +180,7 @@ export default function CreatorDashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -189,7 +189,7 @@ export default function CreatorDashboardPage() {
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-[#212529] mb-2">
             שלום, {user?.profile?.display_name}
           </h1>
           <p className="text-muted">לוח הבקרה שלך</p>
@@ -207,15 +207,15 @@ export default function CreatorDashboardPage() {
                     className="scale-125"
                   />
                   <div>
-                    <div className="text-white font-bold text-xl">
+                    <div className="text-[#212529] font-bold text-xl">
                       הדרגה שלך: {
-                        creatorInfo.tier === 'elite' ? '👑 Elite' :
+                        creatorInfo.tier === 'elite' ? ' Elite' :
                         creatorInfo.tier === 'pro' ? '⭐ Pro' :
-                        creatorInfo.tier === 'verified' ? '✅ Verified' :
-                        '🌱 Starter'
+                        creatorInfo.tier === 'verified' ? ' Verified' :
+                        ' Starter'
                       }
                     </div>
-                    <div className="text-[#cbc190] text-sm">
+                    <div className="text-[#6c757d] text-sm">
                       {metrics?.approved_tasks || 0} עבודות מאושרות
                     </div>
                   </div>
@@ -224,7 +224,7 @@ export default function CreatorDashboardPage() {
                   onClick={() => setShowTierGuide(!showTierGuide)}
                   className="px-4 py-2 bg-[#f2cc0d] text-black font-bold rounded-lg hover:bg-[#d4b00b] transition-colors"
                 >
-                  {showTierGuide ? 'סגור מדריך' : '🏆 מדריך דרגות'}
+                  {showTierGuide ? 'סגור מדריך' : ' מדריך דרגות'}
                 </button>
               </div>
             </Card>
@@ -265,11 +265,11 @@ export default function CreatorDashboardPage() {
         {/* Performance Metrics */}
         {metrics && (
           <Card className="mb-8">
-            <h2 className="text-xl font-bold text-white mb-4">מדדי ביצוע</h2>
+            <h2 className="text-xl font-bold text-[#212529] mb-4">מדדי ביצוע</h2>
             <div className="grid md:grid-cols-3 gap-6">
               <div>
                 <div className="text-muted text-sm mb-2">סך משימות</div>
-                <div className="text-2xl font-bold text-white">{metrics.total_tasks || 0}</div>
+                <div className="text-2xl font-bold text-[#212529]">{metrics.total_tasks || 0}</div>
               </div>
               <div>
                 <div className="text-muted text-sm mb-2">משימות מאושרות</div>
@@ -291,10 +291,10 @@ export default function CreatorDashboardPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                  <span className="text-3xl">✏️</span>
+                  <span className="text-3xl">️</span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-1">
+                  <h3 className="text-xl font-bold text-[#212529] mb-1">
                     יש לך {revisionsCount} {revisionsCount === 1 ? 'בקשת תיקון' : 'בקשות תיקון'}!
                   </h3>
                   <p className="text-orange-100">המותג ביקש תיקונים בעבודות שלך</p>
@@ -324,10 +324,10 @@ export default function CreatorDashboardPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                  <span className="text-3xl">🎉</span>
+                  
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-1">
+                  <h3 className="text-xl font-bold text-[#212529] mb-1">
                     יש לך {approvedAppsCount} {approvedAppsCount === 1 ? 'בקשה מאושרת' : 'בקשות מאושרות'}!
                   </h3>
                   <p className="text-green-100">לחץ כדי לראות את המשימות החדשות שלך</p>
@@ -346,7 +346,7 @@ export default function CreatorDashboardPage() {
         {recentApplications && recentApplications.length > 0 && (
           <Card className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white">בקשות אחרונות</h2>
+              <h2 className="text-xl font-bold text-[#212529]">בקשות אחרונות</h2>
               <Link href="/creator/applications" className="text-[#f2cc0d] hover:text-[#d4b00b] text-sm font-medium">
                 כל הבקשות →
               </Link>
@@ -355,7 +355,7 @@ export default function CreatorDashboardPage() {
               {recentApplications.map((app) => {
                 const statusLabels: Record<string, string> = {
                   submitted: 'ממתין',
-                  approved: 'אושר! 🎉',
+                  approved: 'אושר! ',
                   rejected: 'נדחה',
                 };
                 const statusColors: Record<string, string> = {
@@ -370,14 +370,14 @@ export default function CreatorDashboardPage() {
                     className="flex items-center justify-between p-4 bg-surface border border-subtle rounded-lg"
                   >
                     <div className="flex-1">
-                      <div className="text-white font-medium mb-1">
+                      <div className="text-[#212529] font-medium mb-1">
                         בקשה #{app.id.substring(0, 8)}
                       </div>
                       <div className="text-sm text-muted">
                         {new Date(app.created_at || '').toLocaleDateString('he-IL')}
                       </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[app.status || 'submitted']}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${statusColors[app.status || 'submitted']}`}>
                       {statusLabels[app.status || 'submitted']}
                     </span>
                   </div>
@@ -389,7 +389,7 @@ export default function CreatorDashboardPage() {
 
         {/* Recent Tasks */}
         <Card>
-          <h2 className="text-xl font-bold text-white mb-4">משימות אחרונות</h2>
+          <h2 className="text-xl font-bold text-[#212529] mb-4">משימות אחרונות</h2>
           {recentTasks && recentTasks.length > 0 ? (
             <div className="space-y-3">
               {recentTasks.map((task) => (
@@ -398,7 +398,7 @@ export default function CreatorDashboardPage() {
                   className="flex items-center justify-between p-4 bg-surface border border-subtle rounded-lg"
                 >
                   <div>
-                    <div className="text-white font-medium">{task.title}</div>
+                    <div className="text-[#212529] font-medium">{task.title}</div>
                     <div className="text-sm text-muted">
                       משימה #{task.id.substring(0, 8)}
                     </div>

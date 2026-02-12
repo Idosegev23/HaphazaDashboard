@@ -82,7 +82,7 @@ export default function CreatorPaymentsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -111,9 +111,9 @@ export default function CreatorPaymentsPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
-        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">תשלומים</h1>
-        <p className="text-[#cbc190]">מעקב אחר רווחים והכנסות</p>
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
+        <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">תשלומים</h1>
+        <p className="text-[#6c757d]">מעקב אחר רווחים והכנסות</p>
       </div>
 
       {/* Content */}
@@ -122,16 +122,16 @@ export default function CreatorPaymentsPage() {
           {/* Stats */}
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
-              <div className="text-[#cbc190] text-sm mb-2">סה"כ הרווחים</div>
+              <div className="text-[#6c757d] text-sm mb-2">סה"כ הרווחים</div>
               <div className="text-4xl font-bold text-[#f2cc0d]">₪{totalEarned.toLocaleString()}</div>
-              <div className="text-xs text-[#cbc190] mt-2">
+              <div className="text-xs text-[#6c757d] mt-2">
                 {payments.filter(p => p.status === 'paid').length} תשלומים שולמו
               </div>
             </Card>
             <Card>
-              <div className="text-[#cbc190] text-sm mb-2">ממתין לתשלום</div>
+              <div className="text-[#6c757d] text-sm mb-2">ממתין לתשלום</div>
               <div className="text-4xl font-bold text-yellow-400">₪{totalPending.toLocaleString()}</div>
-              <div className="text-xs text-[#cbc190] mt-2">
+              <div className="text-xs text-[#6c757d] mt-2">
                 {payments.filter(p => p.status === 'pending').length} תשלומים ממתינים
               </div>
             </Card>
@@ -139,22 +139,22 @@ export default function CreatorPaymentsPage() {
 
           {/* Payments List */}
           <Card>
-            <h2 className="text-xl font-bold text-white mb-4">היסטוריית תשלומים</h2>
+            <h2 className="text-xl font-bold text-[#212529] mb-4">היסטוריית תשלומים</h2>
             {payments.length > 0 ? (
               <div className="space-y-3">
                 {payments.map((payment) => (
                   <div
                     key={payment.id}
-                    className="flex items-center justify-between p-4 bg-[#2e2a1b] rounded-lg border border-[#494222] hover:border-[#f2cc0d] transition-colors"
+                    className="flex items-center justify-between p-4 bg-[#f8f9fa] rounded-lg border border-[#dee2e6] hover:border-[#f2cc0d] transition-colors"
                   >
                     <div className="flex-1">
-                      <div className="text-white font-medium mb-1">
+                      <div className="text-[#212529] font-medium mb-1">
                         {payment.tasks?.title || 'משימה ללא שם'}
                       </div>
-                      <div className="text-sm text-[#cbc190] mb-2">
+                      <div className="text-sm text-[#6c757d] mb-2">
                         {payment.tasks?.campaigns?.title} • {payment.tasks?.campaigns?.brands?.name}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-[#cbc190]">
+                      <div className="flex items-center gap-3 text-xs text-[#6c757d]">
                         <span>נוצר: {new Date(payment.created_at).toLocaleDateString('he-IL')}</span>
                         {payment.paid_at && (
                           <span className="text-green-400">
@@ -167,7 +167,7 @@ export default function CreatorPaymentsPage() {
                       <div className="text-2xl font-bold text-[#f2cc0d] mb-2">
                         ₪{Number(payment.amount).toLocaleString()}
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[payment.status]}`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${statusColors[payment.status]}`}>
                         {statusLabels[payment.status]}
                       </span>
                       
@@ -213,7 +213,7 @@ export default function CreatorPaymentsPage() {
                             />
                             <Button
                               onClick={() => document.getElementById(`invoice-${payment.id}`)?.click()}
-                              className="w-full text-xs bg-[#2e2a1b] border border-[#494222] hover:bg-[#3a3525]"
+                              className="w-full text-xs bg-[#f8f9fa] border border-[#dee2e6] hover:bg-[#e9ecef]"
                             >
                               📄 העלה חשבונית/קבלה
                             </Button>
@@ -249,8 +249,8 @@ export default function CreatorPaymentsPage() {
             ) : (
               <div className="text-center py-12">
                 <div className="text-4xl mb-3">💰</div>
-                <p className="text-[#cbc190] text-lg mb-2">אין תשלומים עדיין</p>
-                <p className="text-[#cbc190] text-sm opacity-70">
+                <p className="text-[#6c757d] text-lg mb-2">אין תשלומים עדיין</p>
+                <p className="text-[#6c757d] text-sm opacity-70">
                   תשלומים יופיעו כאן לאחר שהמותג יאשר את התוכן שלך
                 </p>
               </div>

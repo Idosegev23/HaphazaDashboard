@@ -157,18 +157,18 @@ export default function CreatorPortfolioPage() {
   if (loading || userLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">תיק עבודות</h1>
-            <p className="text-[#cbc190]">הצג את העבודות הטובות ביותר שלך</p>
+            <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">תיק עבודות</h1>
+            <p className="text-[#6c757d]">הצג את העבודות הטובות ביותר שלך</p>
           </div>
           <Button onClick={() => setShowForm(!showForm)}>
             {showForm ? '❌ ביטול' : '➕ הוסף פריט'}
@@ -179,7 +179,7 @@ export default function CreatorPortfolioPage() {
         {showForm && (
           <Card className="mt-6">
             <form onSubmit={handleSubmit} className="space-y-4">
-              <h3 className="text-lg font-bold text-white mb-4">הוסף פריט לתיק</h3>
+              <h3 className="text-lg font-bold text-[#212529] mb-4">הוסף פריט לתיק</h3>
               
               <Input
                 label="כותרת"
@@ -191,7 +191,7 @@ export default function CreatorPortfolioPage() {
               />
 
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
+                <label className="block text-sm font-medium text-[#212529] mb-2">
                   תיאור (אופציונלי)
                 </label>
                 <textarea
@@ -199,7 +199,7 @@ export default function CreatorPortfolioPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="תאר את הפרויקט"
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                  className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                 />
               </div>
 
@@ -222,16 +222,16 @@ export default function CreatorPortfolioPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
+                <label className="block text-sm font-medium text-[#212529] mb-2">
                   העלה קובץ (תמונה או וידאו)
                 </label>
                 {selectedFile ? (
-                  <div className="flex items-center justify-between bg-[#1E1E1E] p-4 rounded-lg border border-[#494222]">
+                  <div className="flex items-center justify-between bg-white p-4 rounded-lg border border-[#dee2e6]">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{selectedFile.type.startsWith('image/') ? '🖼️' : '🎥'}</span>
                       <div>
-                        <div className="text-white font-medium">{selectedFile.name}</div>
-                        <div className="text-xs text-[#cbc190]">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</div>
+                        <div className="text-[#212529] font-medium">{selectedFile.name}</div>
+                        <div className="text-xs text-[#6c757d]">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</div>
                       </div>
                     </div>
                     <button
@@ -254,7 +254,7 @@ export default function CreatorPortfolioPage() {
                     <Button
                       type="button"
                       onClick={() => document.getElementById('media-upload')?.click()}
-                      className="bg-[#2e2a1b] border border-[#494222] hover:bg-[#3a3525]"
+                      className="bg-[#f8f9fa] border border-[#dee2e6] hover:bg-[#e9ecef]"
                     >
                       📎 בחר קובץ
                     </Button>
@@ -283,7 +283,7 @@ export default function CreatorPortfolioPage() {
                 <Card key={item.id} className="overflow-hidden">
                   <div className="space-y-3">
                     {/* Media Preview */}
-                    <div className="aspect-square bg-[#2e2a1b] rounded-lg overflow-hidden">
+                    <div className="aspect-square bg-[#f8f9fa] rounded-lg overflow-hidden">
                       {item.media_type === 'image' ? (
                         <img
                           src={item.media_url}
@@ -301,11 +301,11 @@ export default function CreatorPortfolioPage() {
                     
                     {/* Details */}
                     <div>
-                      <div className="text-white font-medium mb-1">
+                      <div className="text-[#212529] font-medium mb-1">
                         {item.title}
                       </div>
                       {item.description && (
-                        <div className="text-xs text-[#cbc190] mb-2 line-clamp-2">
+                        <div className="text-xs text-[#6c757d] mb-2 line-clamp-2">
                           {item.description}
                         </div>
                       )}
@@ -323,7 +323,7 @@ export default function CreatorPortfolioPage() {
                           href={item.external_link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 text-center px-3 py-2 bg-[#2e2a1b] border border-[#494222] text-white rounded-lg hover:bg-[#3a3525] transition-colors text-sm"
+                          className="flex-1 text-center px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] text-[#212529] rounded-lg hover:bg-[#e9ecef] transition-colors text-sm"
                         >
                           🔗 לינק
                         </a>
@@ -341,7 +341,7 @@ export default function CreatorPortfolioPage() {
             </div>
           ) : (
             <Card>
-              <p className="text-[#cbc190] text-center py-12">
+              <p className="text-[#6c757d] text-center py-12">
                 תיק העבודות שלך ריק. הוסף פריטים כדי להציג את העבודות הטובות ביותר שלך למותגים.
               </p>
             </Card>

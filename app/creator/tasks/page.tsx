@@ -84,20 +84,20 @@ export default function CreatorTasksPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
-        <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">🎬 העבודות שלי</h1>
-        <p className="text-[#cbc190]">יצירת תוכן, העלאה ותיקונים</p>
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
+        <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">🎬 העבודות שלי</h1>
+        <p className="text-[#6c757d]">יצירת תוכן, העלאה ותיקונים</p>
       </div>
 
       {/* Mobile Filter - Show only on mobile */}
-      <div className="lg:hidden px-4 py-4 border-b border-[#494222] overflow-x-auto">
+      <div className="lg:hidden px-4 py-4 border-b border-[#dee2e6] overflow-x-auto">
         <div className="flex gap-2">
           <button
             onClick={() => setSelectedFilter('all')}
             className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
               selectedFilter === 'all'
                 ? 'bg-[#f2cc0d] text-[#121212]'
-                : 'bg-[#2e2a1b] text-[#cbc190] hover:bg-[#3a3525]'
+                : 'bg-[#f8f9fa] text-[#6c757d] hover:bg-[#e9ecef]'
             }`}
           >
             הכל ({tasks.length})
@@ -109,7 +109,7 @@ export default function CreatorTasksPage() {
               className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2 ${
                 selectedFilter === status
                   ? 'bg-[#f2cc0d] text-[#121212]'
-                  : 'bg-[#2e2a1b] text-[#cbc190] hover:bg-[#3a3525]'
+                  : 'bg-[#f8f9fa] text-[#6c757d] hover:bg-[#e9ecef]'
               }`}
             >
               <div className={`w-2 h-2 rounded-full ${statusColors[status]}`} />
@@ -125,11 +125,11 @@ export default function CreatorTasksPage() {
           {Object.entries(tasksByStatus).map(([status, statusTasks]) => (
             <div key={status} className="flex-shrink-0 w-80 flex flex-col">
               {/* Column Header */}
-              <div className="mb-4 pb-3 border-b border-[#494222]">
+              <div className="mb-4 pb-3 border-b border-[#dee2e6]">
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 rounded-full ${statusColors[status]}`} />
-                  <h3 className="text-white font-bold text-lg">{statusLabels[status]}</h3>
-                  <span className="text-[#cbc190] text-sm">({statusTasks.length})</span>
+                  <h3 className="text-[#212529] font-bold text-lg">{statusLabels[status]}</h3>
+                  <span className="text-[#6c757d] text-sm">({statusTasks.length})</span>
                 </div>
               </div>
 
@@ -144,11 +144,11 @@ export default function CreatorTasksPage() {
                   >
                     <div className={`absolute top-0 right-0 w-1 h-full ${statusColors[status]}`} />
                     <div className="pr-4">
-                      <h4 className="text-white font-medium mb-2">{task.title}</h4>
-                      <div className="text-sm text-[#cbc190] mb-2">
+                      <h4 className="text-[#212529] font-medium mb-2">{task.title}</h4>
+                      <div className="text-sm text-[#6c757d] mb-2">
                         {task.campaigns?.title}
                       </div>
-                      <div className="text-xs text-[#cbc190]">{task.campaigns?.brands?.name}</div>
+                      <div className="text-xs text-[#6c757d]">{task.campaigns?.brands?.name}</div>
                       {task.due_at && (
                         <div className="text-xs text-[#f2cc0d] mt-2 flex items-center gap-1">
                           <span>📅</span>
@@ -159,7 +159,7 @@ export default function CreatorTasksPage() {
                   </Card>
                 ))}
                 {statusTasks.length === 0 && (
-                  <div className="text-[#cbc190] text-sm text-center py-8 opacity-50">
+                  <div className="text-[#6c757d] text-sm text-center py-8 opacity-50">
                     אין משימות
                   </div>
                 )}
@@ -174,8 +174,8 @@ export default function CreatorTasksPage() {
         <div className="space-y-3">
           {filteredTasks.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-[#cbc190] text-lg mb-2">אין משימות</div>
-              <div className="text-[#cbc190] text-sm opacity-70">
+              <div className="text-[#6c757d] text-lg mb-2">אין משימות</div>
+              <div className="text-[#6c757d] text-sm opacity-70">
                 {selectedFilter === 'all' ? 'אין לך משימות כרגע' : `אין משימות בסטטוס "${statusLabels[selectedFilter]}"`}
               </div>
             </div>
@@ -192,16 +192,16 @@ export default function CreatorTasksPage() {
                   {/* Status Badge */}
                   <div className="flex items-center gap-2 mb-3">
                     <div className={`w-2 h-2 rounded-full ${statusColors[task.status]}`} />
-                    <span className="text-xs text-[#cbc190] font-medium">
+                    <span className="text-xs text-[#6c757d] font-medium">
                       {statusLabels[task.status]}
                     </span>
                   </div>
                   
-                  <h4 className="text-white font-medium mb-2 text-lg">{task.title}</h4>
-                  <div className="text-sm text-[#cbc190] mb-2">
+                  <h4 className="text-[#212529] font-medium mb-2 text-lg">{task.title}</h4>
+                  <div className="text-sm text-[#6c757d] mb-2">
                     {task.campaigns?.title}
                   </div>
-                  <div className="text-xs text-[#cbc190]">{task.campaigns?.brands?.name}</div>
+                  <div className="text-xs text-[#6c757d]">{task.campaigns?.brands?.name}</div>
                   {task.due_at && (
                     <div className="text-xs text-[#f2cc0d] mt-3 flex items-center gap-1">
                       <span>📅</span>

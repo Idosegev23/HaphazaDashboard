@@ -32,7 +32,7 @@ export function DrawerPanel({ isOpen, onClose, title, children, side = 'right' }
       {/* Backdrop */}
       <div
         className={cn(
-          'fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity',
+          'fixed inset-0 bg-white/50 backdrop-blur-sm z-40 transition-opacity',
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         )}
         onClick={onClose}
@@ -41,7 +41,7 @@ export function DrawerPanel({ isOpen, onClose, title, children, side = 'right' }
       {/* Drawer */}
       <div
         className={cn(
-          'fixed top-0 bottom-0 w-full max-w-2xl bg-[#1E1E1E] border-l border-[#494222] z-50 transition-transform duration-300 ease-out overflow-y-auto',
+          'fixed top-0 bottom-0 w-full max-w-2xl bg-white border-l border-[#dee2e6] z-50 transition-transform duration-300 ease-out overflow-y-auto',
           side === 'right' ? 'right-0' : 'left-0',
           isOpen
             ? 'translate-x-0'
@@ -52,11 +52,11 @@ export function DrawerPanel({ isOpen, onClose, title, children, side = 'right' }
       >
         {/* Header */}
         {title && (
-          <div className="sticky top-0 bg-[#1E1E1E] border-b border-[#494222] px-6 py-4 flex items-center justify-between z-10">
-            <h2 className="text-xl font-bold text-white">{title}</h2>
+          <div className="sticky top-0 bg-white border-b border-[#dee2e6] px-6 py-4 flex items-center justify-between z-10">
+            <h2 className="text-xl font-bold text-[#212529]">{title}</h2>
             <button
               onClick={onClose}
-              className="text-[#cbc190] hover:text-white transition-colors"
+              className="text-[#6c757d] hover:text-[#212529] transition-colors"
             >
               ✕
             </button>

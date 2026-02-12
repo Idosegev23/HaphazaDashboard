@@ -88,7 +88,7 @@ export default function CreatorCampaignsPage() {
 
   const statusLabels: Record<string, string> = {
     submitted: 'ממתין לאישור',
-    approved: 'אושר! 🎉',
+    approved: 'אושר! ',
     rejected: 'נדחה',
   };
 
@@ -101,7 +101,7 @@ export default function CreatorCampaignsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -112,11 +112,11 @@ export default function CreatorCampaignsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">קמפיינים פתוחים</h1>
-              <p className="text-[#cbc190]">בחרו קמפיינים להגיש בקשה</p>
+              <h1 className="text-3xl font-bold text-[#212529] mb-2">קמפיינים פתוחים</h1>
+              <p className="text-[#6c757d]">בחרו קמפיינים להגיש בקשה</p>
             </div>
             <Link href="/creator/applications">
-              <button className="px-6 py-3 bg-[#2e2a1b] text-white font-bold rounded-lg hover:bg-[#3a3525] transition-colors border border-[#494222]">
+              <button className="px-6 py-3 bg-[#f8f9fa] text-[#212529] font-bold rounded-lg hover:bg-[#e9ecef] transition-colors border border-[#dee2e6]">
                 הבקשות שלי →
               </button>
             </Link>
@@ -133,15 +133,15 @@ export default function CreatorCampaignsPage() {
                   <Card hover className="h-full">
                     <div className="space-y-4">
                       <div>
-                        <h3 className="text-xl font-bold text-white mb-2">{campaign.title}</h3>
-                        <p className="text-sm text-[#cbc190]">{campaign.brands?.name}</p>
+                        <h3 className="text-xl font-bold text-[#212529] mb-2">{campaign.title}</h3>
+                        <p className="text-sm text-[#6c757d]">{campaign.brands?.name}</p>
                       </div>
 
                       {campaign.concept && (
-                        <p className="text-[#cbc190] text-sm line-clamp-3">{campaign.concept}</p>
+                        <p className="text-[#6c757d] text-sm line-clamp-3">{campaign.concept}</p>
                       )}
 
-                      <div className="flex items-center justify-between pt-4 border-t border-[#494222]">
+                      <div className="flex items-center justify-between pt-4 border-t border-[#dee2e6]">
                         <div className="text-[#f2cc0d] font-bold">
                           {campaign.fixed_price
                             ? `₪${campaign.fixed_price.toLocaleString()}`
@@ -150,7 +150,7 @@ export default function CreatorCampaignsPage() {
                       </div>
                       {appStatus && (
                         <div className="mt-3">
-                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[appStatus]}`}>
+                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${statusColors[appStatus]}`}>
                             {statusLabels[appStatus]}
                           </span>
                         </div>
@@ -163,7 +163,7 @@ export default function CreatorCampaignsPage() {
           </div>
         ) : (
           <Card>
-            <p className="text-[#cbc190] text-center py-8">אין קמפיינים פתוחים כרגע</p>
+            <p className="text-[#6c757d] text-center py-8">אין קמפיינים פתוחים כרגע</p>
           </Card>
         )}
       </div>

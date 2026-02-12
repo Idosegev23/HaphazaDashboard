@@ -40,12 +40,12 @@ type Product = {
 };
 
 const TABS = [
-  { id: 'details', label: '⚙️ פרטים', icon: '⚙️' },
-  { id: 'overview', label: '📋 סקירה', icon: '📋' },
-  { id: 'applications', label: '👥 משפיענים', icon: '👥' },
-  { id: 'shipments', label: '📦 משלוחים', icon: '📦' },
-  { id: 'content', label: '📤 תכנים', icon: '📤' },
-  { id: 'payments', label: '💰 תשלומים', icon: '💰' },
+  { id: 'details', label: '️ פרטים', icon: '️' },
+  { id: 'overview', label: ' סקירה', icon: '' },
+  { id: 'applications', label: ' משפיענים', icon: '' },
+  { id: 'shipments', label: ' משלוחים', icon: '' },
+  { id: 'content', label: ' תכנים', icon: '' },
+  { id: 'payments', label: ' תשלומים', icon: '' },
 ];
 
 export default function CampaignPage() {
@@ -152,7 +152,7 @@ export default function CampaignPage() {
 
       if (error) throw error;
 
-      alert('✅ הקמפיין עודכן בהצלחה');
+      alert(' הקמפיין עודכן בהצלחה');
       loadCampaign();
     } catch (error: any) {
       alert('שגיאה בשמירה: ' + error.message);
@@ -177,7 +177,7 @@ export default function CampaignPage() {
 
       if (error) throw error;
 
-      alert('✅ הקמפיין פורסם בהצלחה!\n\nהקמפיין כעת פתוח ומקבל מועמדויות ממשפיענים.\nתוכל/י לעקוב אחר הבקשות בטאב "משפיענים".');
+      alert(' הקמפיין פורסם בהצלחה!\n\nהקמפיין כעת פתוח ומקבל מועמדויות ממשפיענים.\nתוכל/י לעקוב אחר הבקשות בטאב "משפיענים".');
       
       loadCampaign();
       setActiveTab('overview');
@@ -217,7 +217,7 @@ export default function CampaignPage() {
       });
       setShowProductForm(false);
       loadProducts();
-      alert('✅ המוצר נוסף בהצלחה');
+      alert(' המוצר נוסף בהצלחה');
     } catch (error: any) {
       alert('שגיאה בהוספת מוצר: ' + error.message);
     }
@@ -233,14 +233,14 @@ export default function CampaignPage() {
       alert('שגיאה במחיקת מוצר: ' + error.message);
     } else {
       loadProducts();
-      alert('✅ המוצר נמחק');
+      alert(' המוצר נמחק');
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -248,7 +248,7 @@ export default function CampaignPage() {
   if (!campaign) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">קמפיין לא נמצא</div>
+        <div className="text-[#212529] text-xl">קמפיין לא נמצא</div>
       </div>
     );
   }
@@ -268,31 +268,31 @@ export default function CampaignPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A]">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-[#1E1E1E] border-b border-[#494222] sticky top-0 z-10">
+      <div className="bg-white border-b border-[#dee2e6] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/brand/campaigns')}
-                className="text-[#cbc190] hover:text-[#f2cc0d]"
+                className="text-[#6c757d] hover:text-[#f2cc0d]"
               >
                 ← חזרה לקמפיינים
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-white">{campaign.title}</h1>
+                <h1 className="text-2xl font-bold text-[#212529]">{campaign.title}</h1>
                 <div className="flex items-center gap-3 mt-1">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-bold text-white ${
+                    className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${
                       statusColors[campaign.status || 'draft']
                     }`}
                   >
                     {statusLabels[campaign.status || 'draft']}
                   </span>
                   {campaign.brands && (
-                    <span className="text-[#cbc190] text-sm">{campaign.brands.name}</span>
+                    <span className="text-[#6c757d] text-sm">{campaign.brands.name}</span>
                   )}
                 </div>
               </div>
@@ -308,7 +308,7 @@ export default function CampaignPage() {
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${
                   activeTab === tab.id
                     ? 'bg-[#f2cc0d] text-black'
-                    : 'bg-[#2e2a1b] text-white hover:bg-[#3a3525]'
+                    : 'bg-[#f8f9fa] text-[#212529] hover:bg-[#e9ecef]'
                 }`}
               >
                 <span className="text-lg">{tab.icon}</span>
@@ -325,7 +325,7 @@ export default function CampaignPage() {
         {activeTab === 'details' && (
           <div className="space-y-6">
             <Card>
-              <h2 className="text-xl font-bold text-white mb-6">פרטי הקמפיין</h2>
+              <h2 className="text-xl font-bold text-[#212529] mb-6">פרטי הקמפיין</h2>
 
               <div className="space-y-4">
                 <Input
@@ -338,22 +338,22 @@ export default function CampaignPage() {
                 />
 
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">יעד הקמפיין</label>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">יעד הקמפיין</label>
                   <textarea
                     value={formData.objective}
                     onChange={(e) => setFormData({ ...formData, objective: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                     rows={3}
                     placeholder="מה אתם מנסים להשיג עם הקמפיין?"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white mb-2">קונספט</label>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">קונספט</label>
                   <textarea
                     value={formData.concept}
                     onChange={(e) => setFormData({ ...formData, concept: e.target.value })}
-                    className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                    className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                     rows={4}
                     placeholder="תארו את הקונספט של הקמפיין..."
                     required
@@ -368,8 +368,8 @@ export default function CampaignPage() {
                     onChange={(e) => setFormData({ ...formData, fixedPrice: e.target.value })}
                     placeholder="השאר ריק אם תרצה להחליט בנפרד לכל משפיען"
                   />
-                  <p className="text-[#cbc190] text-sm mt-1">
-                    💡 אם תשאיר ריק, תוכל להגדיר מחיר מותאם אישית לכל משפיען בעת אישור המועמדות
+                  <p className="text-[#6c757d] text-sm mt-1">
+                     אם תשאיר ריק, תוכל להגדיר מחיר מותאם אישית לכל משפיען בעת אישור המועמדות
                   </p>
                 </div>
 
@@ -382,7 +382,7 @@ export default function CampaignPage() {
 
                 <div className="flex gap-4 pt-4">
                   <Button onClick={handleSave} disabled={saving}>
-                    {saving ? 'שומר...' : '💾 שמור שינויים'}
+                    {saving ? 'שומר...' : ' שמור שינויים'}
                   </Button>
                   {campaign.status === 'draft' && (
                     <Button
@@ -390,7 +390,7 @@ export default function CampaignPage() {
                       disabled={saving}
                       className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
                     >
-                      🚀 פרסם קמפיין
+                       פרסם קמפיין
                     </Button>
                   )}
                 </div>
@@ -401,8 +401,8 @@ export default function CampaignPage() {
             <Card>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-xl font-bold text-white mb-1">מוצרים למשלוח</h2>
-                  <p className="text-[#cbc190] text-sm">
+                  <h2 className="text-xl font-bold text-[#212529] mb-1">מוצרים למשלוח</h2>
+                  <p className="text-[#6c757d] text-sm">
                     {products.length > 0
                       ? `${products.length} מוצרים מוגדרים`
                       : 'אופציונלי - אם הקמפיין דורש משלוח מוצרים'}
@@ -420,8 +420,8 @@ export default function CampaignPage() {
 
               {/* Product Form */}
               {showProductForm && (
-                <div className="bg-[#1E1E1E] rounded-lg p-4 border-2 border-[#f2cc0d] space-y-4 mb-4">
-                  <h4 className="text-white font-bold">מוצר חדש</h4>
+                <div className="bg-white rounded-lg p-4 border-2 border-[#f2cc0d] space-y-4 mb-4">
+                  <h4 className="text-[#212529] font-bold">מוצר חדש</h4>
 
                   <Input
                     label="שם המוצר *"
@@ -457,24 +457,24 @@ export default function CampaignPage() {
                   />
 
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">תיאור</label>
+                    <label className="block text-sm font-medium text-[#212529] mb-2">תיאור</label>
                     <textarea
                       value={productForm.description}
                       onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#2e2a1b] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                      className="w-full px-4 py-3 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                       rows={2}
                       placeholder="תיאור קצר של המוצר..."
                     />
                   </div>
 
                   <div className="flex gap-3">
-                    <Button onClick={handleAddProduct}>✅ הוסף מוצר</Button>
+                    <Button onClick={handleAddProduct}> הוסף מוצר</Button>
                     <Button
                       onClick={() => {
                         setShowProductForm(false);
                         setProductForm({ name: '', sku: '', image_url: '', quantity: '1', description: '' });
                       }}
-                      className="bg-[#2e2a1b] hover:bg-[#3a3525]"
+                      className="bg-[#f8f9fa] hover:bg-[#e9ecef]"
                     >
                       ביטול
                     </Button>
@@ -488,7 +488,7 @@ export default function CampaignPage() {
                   {products.map((product) => (
                     <div
                       key={product.id}
-                      className="bg-[#1E1E1E] rounded-lg p-4 border border-[#494222] hover:border-[#f2cc0d] transition-colors"
+                      className="bg-white rounded-lg p-4 border border-[#dee2e6] hover:border-[#f2cc0d] transition-colors"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3 flex-1">
@@ -499,17 +499,17 @@ export default function CampaignPage() {
                               className="w-16 h-16 object-cover rounded"
                             />
                           ) : (
-                            <div className="w-16 h-16 bg-[#2e2a1b] rounded flex items-center justify-center text-2xl">
-                              📦
+                            <div className="w-16 h-16 bg-[#f8f9fa] rounded flex items-center justify-center text-2xl">
+                              
                             </div>
                           )}
                           <div className="flex-1">
-                            <h4 className="text-white font-medium">{product.name}</h4>
+                            <h4 className="text-[#212529] font-medium">{product.name}</h4>
                             {product.sku && (
-                              <p className="text-[#cbc190] text-xs">SKU: {product.sku}</p>
+                              <p className="text-[#6c757d] text-xs">SKU: {product.sku}</p>
                             )}
                             {product.description && (
-                              <p className="text-[#cbc190] text-sm mt-1">{product.description}</p>
+                              <p className="text-[#6c757d] text-sm mt-1">{product.description}</p>
                             )}
                             <p className="text-[#f2cc0d] text-sm mt-1">כמות: {product.quantity}</p>
                           </div>
@@ -518,7 +518,7 @@ export default function CampaignPage() {
                           onClick={() => handleRemoveProduct(product.id)}
                           className="text-red-500 hover:text-red-400 transition-colors"
                         >
-                          🗑️
+                          ️
                         </button>
                       </div>
                     </div>
@@ -527,7 +527,7 @@ export default function CampaignPage() {
               )}
 
               {products.length === 0 && !showProductForm && (
-                <p className="text-[#cbc190] text-sm text-center py-4">
+                <p className="text-[#6c757d] text-sm text-center py-4">
                   לא נוספו מוצרים. אם הקמפיין לא דורש משלוח מוצרים - זה בסדר גמור!
                 </p>
               )}

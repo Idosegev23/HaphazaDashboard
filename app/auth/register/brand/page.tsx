@@ -154,12 +154,12 @@ export default function BrandRegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#232010] p-4">
       <div className="w-full max-w-md">
-        <div className="bg-[#2e2a1b] border border-[#494222] rounded-xl p-8">
+        <div className="bg-[#f8f9fa] border border-[#dee2e6] rounded-xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-3xl font-bold text-[#212529] mb-2">
               הרשמה למותגים
             </h1>
-            <p className="text-[#cbc190]">
+            <p className="text-[#6c757d]">
               צרו חשבון מותג וצאו לקמפיינים
             </p>
           </div>
@@ -212,7 +212,7 @@ export default function BrandRegisterPage() {
             />
 
             <div>
-              <label className="block text-sm font-medium text-white mb-2">
+              <label className="block text-sm font-medium text-[#212529] mb-2">
                 תעשייה *
               </label>
               <select
@@ -221,7 +221,7 @@ export default function BrandRegisterPage() {
                   setFormData({ ...formData, industry: e.target.value })
                 }
                 required
-                className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
               >
                 <option value="" disabled>בחר תעשייה...</option>
                 {INDUSTRIES.map((industry) => (
@@ -252,13 +252,13 @@ export default function BrandRegisterPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-[#cbc190] text-sm">
+            <p className="text-[#6c757d] text-sm">
               כבר יש לך חשבון?{" "}
               <a href="/auth/login" className="text-[#f2cc0d] hover:underline">
                 התחבר
               </a>
             </p>
-            <p className="text-[#cbc190] text-sm mt-2">
+            <p className="text-[#6c757d] text-sm mt-2">
               משפיען?{" "}
               <a
                 href="/auth/register/creator"

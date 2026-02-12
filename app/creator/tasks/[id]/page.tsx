@@ -356,9 +356,9 @@ export default function CreatorTaskDetailPage() {
       // Show appropriate message
       if (successCount > 0) {
         if (wasNeedingEdits) {
-          alert(`✅ ${successCount} קבצים הועלו בהצלחה!\n\nהמשימה חזרה לסטטוס "הועלה" והמותג יקבל התראה לבדוק מחדש.${errorCount > 0 ? `\n\n⚠️ ${errorCount} קבצים נכשלו.` : ''}\n\nמה הלאה?\n• המותג יסקור את התוכן המעודכן\n• תקבל/י התראה כשהתוכן יאושר או יידרש תיקון נוסף\n• ניתן לראות את סטטוס המשימה בלוח המשימות`);
+          alert(` ${successCount} קבצים הועלו בהצלחה!\n\nהמשימה חזרה לסטטוס "הועלה" והמותג יקבל התראה לבדוק מחדש.${errorCount > 0 ? `\n\n️ ${errorCount} קבצים נכשלו.` : ''}\n\nמה הלאה?\n• המותג יסקור את התוכן המעודכן\n• תקבל/י התראה כשהתוכן יאושר או יידרש תיקון נוסף\n• ניתן לראות את סטטוס המשימה בלוח המשימות`);
         } else {
-          alert(`✅ ${successCount} קבצים הועלו בהצלחה!${errorCount > 0 ? `\n\n⚠️ ${errorCount} קבצים נכשלו.` : ''}\n\nמה הלאה?\n• המותג יסקור את התוכן שלך\n• תקבל/י התראה כשהתוכן יאושר או יידרש תיקון\n• ניתן לראות את סטטוס המשימה בלוח המשימות`);
+          alert(` ${successCount} קבצים הועלו בהצלחה!${errorCount > 0 ? `\n\n️ ${errorCount} קבצים נכשלו.` : ''}\n\nמה הלאה?\n• המותג יסקור את התוכן שלך\n• תקבל/י התראה כשהתוכן יאושר או יידרש תיקון\n• ניתן לראות את סטטוס המשימה בלוח המשימות`);
         }
         
         // Offer to return to tasks page
@@ -367,7 +367,7 @@ export default function CreatorTaskDetailPage() {
           return;
         }
       } else {
-        alert('❌ לא הצלחנו להעלות אף קובץ. בדוק את הגודל והסוג.');
+        alert(' לא הצלחנו להעלות אף קובץ. בדוק את הגודל והסוג.');
       }
       
       loadTaskData();
@@ -387,7 +387,7 @@ export default function CreatorTaskDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -395,7 +395,7 @@ export default function CreatorTaskDetailPage() {
   if (!task) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">משימה לא נמצאה</div>
+        <div className="text-[#212529] text-xl">משימה לא נמצאה</div>
       </div>
     );
   }
@@ -447,24 +447,24 @@ export default function CreatorTaskDetailPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
-      <div className="px-4 py-6 lg:px-8 border-b border-[#494222]">
+      <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <button
                 onClick={() => router.push('/creator/tasks')}
-                className="text-[#cbc190] hover:text-[#f2cc0d] transition-colors"
+                className="text-[#6c757d] hover:text-[#f2cc0d] transition-colors"
               >
                 ← חזרה למשימות
               </button>
-              <h1 className="text-2xl lg:text-3xl font-bold text-white">{task.title}</h1>
+              <h1 className="text-2xl lg:text-3xl font-bold text-[#212529]">{task.title}</h1>
             </div>
             <div className="flex items-center gap-3">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[task.status]}`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${statusColors[task.status]}`}>
                 {statusLabels[task.status]}
               </span>
               {task.campaigns && (
-                <span className="text-[#cbc190] text-sm">
+                <span className="text-[#6c757d] text-sm">
                   {task.campaigns.title} • {task.campaigns.brands?.name}
                 </span>
               )}
@@ -489,15 +489,15 @@ export default function CreatorTaskDetailPage() {
           {isBlocked && (
             <Card className="border-2 border-orange-500 bg-orange-500/10">
               <div className="flex items-start gap-4">
-                <div className="text-4xl">📦</div>
+                
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white mb-2">⏳ ממתין לקבלת מוצר</h3>
-                  <p className="text-[#cbc190] mb-2">
+                  <h3 className="text-xl font-bold text-[#212529] mb-2">⏳ ממתין לקבלת מוצר</h3>
+                  <p className="text-[#6c757d] mb-2">
                     משימה זו דורשת קבלת מוצר פיזי מהמותג לפני שתוכל להתחיל לעבוד.
                   </p>
-                  <div className="bg-[#2e2a1b] rounded-lg p-3 mb-3 border border-[#494222]">
-                    <div className="text-sm text-[#cbc190]">סטטוס משלוח:</div>
-                    <div className="text-white font-medium">{getShipmentStatusMessage()}</div>
+                  <div className="bg-[#f8f9fa] rounded-lg p-3 mb-3 border border-[#dee2e6]">
+                    <div className="text-sm text-[#6c757d]">סטטוס משלוח:</div>
+                    <div className="text-[#212529] font-medium">{getShipmentStatusMessage()}</div>
                   </div>
                   <Button
                     onClick={() => router.push('/creator/shipping')}
@@ -513,22 +513,22 @@ export default function CreatorTaskDetailPage() {
           {/* Campaign Brief */}
           {(task.campaigns?.brief || task.campaigns?.description) && (
             <Card className="bg-gradient-to-br from-[#2e2a1b] to-[#1E1E1E] border-2 border-[#f2cc0d]">
-              <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-                📋 בריף הקמפיין
+              <h2 className="text-xl font-bold text-[#212529] mb-3 flex items-center gap-2">
+                 בריף הקמפיין
               </h2>
               <div className="prose prose-invert max-w-none">
                 {task.campaigns.brief ? (
-                  <p className="text-white text-base leading-relaxed whitespace-pre-wrap">
+                  <p className="text-[#212529] text-base leading-relaxed whitespace-pre-wrap">
                     {task.campaigns.brief}
                   </p>
                 ) : (
-                  <p className="text-white text-base leading-relaxed whitespace-pre-wrap">
+                  <p className="text-[#212529] text-base leading-relaxed whitespace-pre-wrap">
                     {task.campaigns.description}
                   </p>
                 )}
               </div>
               {task.campaigns.brief_url && (
-                <div className="mt-4 pt-4 border-t border-[#494222]">
+                <div className="mt-4 pt-4 border-t border-[#dee2e6]">
                   <a 
                     href={task.campaigns.brief_url}
                     target="_blank"
@@ -546,28 +546,28 @@ export default function CreatorTaskDetailPage() {
           {/* Product Requirements */}
           {task.requires_product && (
             <Card className="border-2 border-orange-500 bg-orange-500/5">
-              <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-                📦 דרישות מוצר
+              <h2 className="text-xl font-bold text-[#212529] mb-3 flex items-center gap-2">
+                 דרישות מוצר
               </h2>
               <div className="space-y-3">
-                <div className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+                <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
                   <div className="flex items-start gap-3">
-                    <div className="text-3xl">✅</div>
+                    
                     <div className="flex-1">
-                      <h3 className="text-white font-bold mb-1">מוצר פיזי נדרש</h3>
-                      <p className="text-[#cbc190] text-sm mb-2">
+                      <h3 className="text-[#212529] font-bold mb-1">מוצר פיזי נדרש</h3>
+                      <p className="text-[#6c757d] text-sm mb-2">
                         משימה זו דורשת קבלת מוצר פיזי מהמותג לפני התחלת העבודה
                       </p>
                       {task.product_requirements && (
-                        <div className="bg-[#1E1E1E] rounded-lg p-3 mt-2 border border-[#494222]">
-                          <p className="text-white text-sm whitespace-pre-wrap">
+                        <div className="bg-white rounded-lg p-3 mt-2 border border-[#dee2e6]">
+                          <p className="text-[#212529] text-sm whitespace-pre-wrap">
                             {task.product_requirements}
                           </p>
                         </div>
                       )}
                       {shipmentStatus && (
                         <div className="mt-3 text-sm">
-                          <span className="text-[#cbc190]">סטטוס משלוח: </span>
+                          <span className="text-[#6c757d]">סטטוס משלוח: </span>
                           <span className={`font-medium ${
                             shipmentStatus === 'delivered' ? 'text-green-400' :
                             shipmentStatus === 'shipped' ? 'text-blue-400' :
@@ -587,22 +587,22 @@ export default function CreatorTaskDetailPage() {
 
           {/* Task Details */}
           <Card>
-            <h2 className="text-xl font-bold text-white mb-4">פרטי המשימה</h2>
+            <h2 className="text-xl font-bold text-[#212529] mb-4">פרטי המשימה</h2>
             <div className="space-y-3">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <span className="text-[#cbc190] text-sm">קמפיין</span>
-                  <div className="text-white font-medium">{task.campaigns?.title}</div>
+                  <span className="text-[#6c757d] text-sm">קמפיין</span>
+                  <div className="text-[#212529] font-medium">{task.campaigns?.title}</div>
                 </div>
                 <div>
-                  <span className="text-[#cbc190] text-sm">מותג</span>
-                  <div className="text-white font-medium">{task.campaigns?.brands?.name}</div>
+                  <span className="text-[#6c757d] text-sm">מותג</span>
+                  <div className="text-[#212529] font-medium">{task.campaigns?.brands?.name}</div>
                 </div>
               </div>
               {task.due_at && (
                 <div>
-                  <span className="text-[#cbc190] text-sm">תאריך יעד</span>
-                  <div className="text-white font-medium">
+                  <span className="text-[#6c757d] text-sm">תאריך יעד</span>
+                  <div className="text-[#212529] font-medium">
                     {new Date(task.due_at).toLocaleDateString('he-IL')}
                   </div>
                 </div>
@@ -611,8 +611,8 @@ export default function CreatorTaskDetailPage() {
 
             {/* Deliverables Display */}
             {task.campaigns?.deliverables && Object.keys(task.campaigns.deliverables).length > 0 && (
-              <div className="mt-4 pt-4 border-t border-[#494222]">
-                <h3 className="text-sm font-medium text-[#cbc190] mb-3">תוצרים נדרשים</h3>
+              <div className="mt-4 pt-4 border-t border-[#dee2e6]">
+                <h3 className="text-sm font-medium text-[#6c757d] mb-3">תוצרים נדרשים</h3>
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(task.campaigns.deliverables).map(([key, value]) => {
                     if (!value || (value as number) === 0) return null;
@@ -625,7 +625,7 @@ export default function CreatorTaskDetailPage() {
                       photo: 'Photo (תמונה)',
                     };
                     return (
-                      <span key={key} className="px-3 py-1 bg-[#2e2a1b] border border-[#f2cc0d] rounded-full text-white text-sm">
+                      <span key={key} className="px-3 py-1 bg-[#f8f9fa] border border-[#f2cc0d] rounded-full text-[#212529] text-sm">
                         {value as number} x {labels[key] || key}
                       </span>
                     );
@@ -639,24 +639,24 @@ export default function CreatorTaskDetailPage() {
           {revisions.filter(r => r.status === 'open').length > 0 && (
             <Card className="border-2 border-orange-500 bg-orange-500/5">
               <div className="flex items-start gap-4 mb-4">
-                <div className="text-4xl">⚠️</div>
+                <div className="text-4xl">️</div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-white mb-2">❗ נדרשים תיקונים</h2>
+                  <h2 className="text-2xl font-bold text-[#212529] mb-2"> נדרשים תיקונים</h2>
                   <p className="text-orange-200 mb-4">המותג ביקש תיקונים לתוכן. העלה קובץ מתוקן בהמשך הדף ↓</p>
                 </div>
               </div>
               <div className="space-y-3">
                 {revisions.filter(r => r.status === 'open').map((revision) => (
-                  <div key={revision.id} className="bg-[#2e2a1b] rounded-lg p-4 border border-orange-500">
+                  <div key={revision.id} className="bg-[#f8f9fa] rounded-lg p-4 border border-orange-500">
                     <div className="flex flex-wrap gap-2 mb-3">
                       {revision.tags.map((tag, idx) => (
-                        <span key={idx} className="px-3 py-1 bg-orange-600 text-white text-sm rounded-full font-medium">
+                        <span key={idx} className="px-3 py-1 bg-orange-600 text-[#212529] text-sm rounded-full font-medium">
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <p className="text-white mb-2 text-lg">{revision.note}</p>
-                    <span className="text-xs text-[#cbc190]">
+                    <p className="text-[#212529] mb-2 text-lg">{revision.note}</p>
+                    <span className="text-xs text-[#6c757d]">
                       התקבל: {new Date(revision.created_at).toLocaleDateString('he-IL')} {new Date(revision.created_at).toLocaleTimeString('he-IL')}
                     </span>
                   </div>
@@ -668,25 +668,25 @@ export default function CreatorTaskDetailPage() {
           {/* Upload Section */}
           {canUpload && (
             <Card className={task.status === 'needs_edits' ? 'border-2 border-orange-500' : ''}>
-              <h2 className="text-xl font-bold text-white mb-4">
-                {task.status === 'needs_edits' ? '✏️ העלאת תיקון' : '📤 העלאת תוכן'}
+              <h2 className="text-xl font-bold text-[#212529] mb-4">
+                {task.status === 'needs_edits' ? '️ העלאת תיקון' : ' העלאת תוכן'}
               </h2>
               {task.status === 'needs_edits' && (
                 <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4 mb-4">
                   <p className="text-orange-300 font-medium">
-                    💡 העלה כאן את הקובץ המתוקן. לאחר ההעלאה, המשימה תעבור אוטומטית לסטטוס "הועלה" והמותג יוכל לבדוק שוב.
+                     העלה כאן את הקובץ המתוקן. לאחר ההעלאה, המשימה תעבור אוטומטית לסטטוס "הועלה" והמותג יוכל לבדוק שוב.
                   </p>
                 </div>
               )}
-              <div className="bg-[#2e2a1b] rounded-lg p-8 border-2 border-dashed border-[#494222]">
+              <div className="bg-[#f8f9fa] rounded-lg p-8 border-2 border-dashed border-[#dee2e6]">
                 <div className="text-center mb-4">
-                  <div className="text-4xl mb-3">📤</div>
-                  <p className="text-[#cbc190] mb-4">
+                  
+                  <p className="text-[#6c757d] mb-4">
                     {task.status === 'needs_edits' 
                       ? 'העלה את הקובץ המתוקן כאן' 
                       : 'העלה תמונות או סרטונים של התוכן שיצרת'}
                   </p>
-                  <p className="text-sm text-[#cbc190] mb-4">
+                  <p className="text-sm text-[#6c757d] mb-4">
                     קבצים נתמכים: JPG, PNG, GIF, WebP, MP4, MOV, AVI (עד 50MB)
                   </p>
                 </div>
@@ -694,13 +694,13 @@ export default function CreatorTaskDetailPage() {
                 {/* Deliverable Type Selector */}
                 {task.campaigns?.deliverables && Object.keys(task.campaigns.deliverables).length > 0 && (
                   <div className="mb-6 max-w-md mx-auto">
-                    <label className="block text-sm font-medium text-white mb-2 text-center">
+                    <label className="block text-sm font-medium text-[#212529] mb-2 text-center">
                       סוג התוכן שמועלה *
                     </label>
                     <select
                       value={selectedDeliverableType}
                       onChange={(e) => setSelectedDeliverableType(e.target.value)}
-                      className="w-full px-4 py-3 bg-[#1E1E1E] border border-[#494222] rounded-lg text-white focus:outline-none focus:border-[#f2cc0d] transition-colors"
+                      className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                     >
                       <option value="">-- בחר סוג תוכן --</option>
                       {Object.entries(task.campaigns.deliverables).map(([key, value]) => {
@@ -711,7 +711,7 @@ export default function CreatorTaskDetailPage() {
                         
                         return (
                           <option key={key} value={key}>
-                            {DELIVERABLE_LABELS[key] || key} ({uploadedCount}/{requiredCount} {isCompleted ? '✅' : ''})
+                            {DELIVERABLE_LABELS[key] || key} ({uploadedCount}/{requiredCount} {isCompleted ? '' : ''})
                           </option>
                         );
                       })}
@@ -732,20 +732,20 @@ export default function CreatorTaskDetailPage() {
                   <label htmlFor="file-upload" className="cursor-pointer">
                     <span className={cn(
                       'inline-block font-bold rounded-lg transition-all px-6 py-3 text-base',
-                      uploading ? 'bg-gray-500 text-white cursor-not-allowed' : 'bg-[#f2cc0d] text-black hover:bg-[#d4b50c]'
+                      uploading ? 'bg-gray-500 text-[#212529] cursor-not-allowed' : 'bg-[#f2cc0d] text-black hover:bg-[#d4b50c]'
                     )}>
                       {uploading ? `מעלה... ${uploadProgress}%` : 'בחר קבצים להעלאה (מרובים)'}
                     </span>
                   </label>
                 </div>
                 {!uploading && (
-                  <p className="text-center text-xs text-[#cbc190] mt-2">
-                    💡 ניתן לבחור מספר קבצים בו-זמנית
+                  <p className="text-center text-xs text-[#6c757d] mt-2">
+                     ניתן לבחור מספר קבצים בו-זמנית
                   </p>
                 )}
                 {uploading && (
                   <div className="mt-4">
-                    <div className="w-full bg-[#1E1E1E] rounded-full h-2">
+                    <div className="w-full bg-white rounded-full h-2">
                       <div
                         className="bg-[#f2cc0d] h-2 rounded-full transition-all duration-300"
                         style={{ width: `${uploadProgress}%` }}
@@ -760,26 +760,26 @@ export default function CreatorTaskDetailPage() {
           {/* Uploads History */}
           {uploads.length > 0 && (
             <Card>
-              <h2 className="text-xl font-bold text-white mb-4">היסטוריית העלאות</h2>
+              <h2 className="text-xl font-bold text-[#212529] mb-4">היסטוריית העלאות</h2>
               <div className="space-y-3">
                 {uploads.map((upload) => (
-                  <div key={upload.id} className="bg-[#2e2a1b] rounded-lg p-4 border border-[#494222]">
+                  <div key={upload.id} className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-white font-medium">{upload.meta?.filename || upload.storage_path.split('/').pop()}</div>
-                        <div className="flex items-center gap-2 text-xs text-[#cbc190]">
+                        <div className="text-[#212529] font-medium">{upload.meta?.filename || upload.storage_path.split('/').pop()}</div>
+                        <div className="flex items-center gap-2 text-xs text-[#6c757d]">
                           <span>{new Date(upload.created_at).toLocaleDateString('he-IL')} {new Date(upload.created_at).toLocaleTimeString('he-IL')}</span>
                           {upload.meta?.deliverable_type && (
-                            <span className="bg-[#1E1E1E] px-2 py-0.5 rounded border border-[#494222]">
+                            <span className="bg-white px-2 py-0.5 rounded border border-[#dee2e6]">
                               {DELIVERABLE_LABELS[upload.meta.deliverable_type] || upload.meta.deliverable_type}
                             </span>
                           )}
                         </div>
                       </div>
                       <span className={`px-2 py-1 rounded text-xs ${
-                        upload.status === 'approved' ? 'bg-green-500 text-white' :
-                        upload.status === 'rejected' ? 'bg-red-500 text-white' :
-                        'bg-gray-500 text-white'
+                        upload.status === 'approved' ? 'bg-green-500 text-[#212529]' :
+                        upload.status === 'rejected' ? 'bg-red-500 text-[#212529]' :
+                        'bg-gray-500 text-[#212529]'
                       }`}>
                         {upload.status}
                       </span>

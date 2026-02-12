@@ -92,31 +92,31 @@ export function TierBadge({ tier, showTooltip = true, showLabel = true, classNam
         onClick={() => showTooltip && setTooltipVisible(!tooltipVisible)}
       >
         <span className="text-lg">{config.icon}</span>
-        {showLabel && <span className="text-white font-bold text-sm">{config.label}</span>}
+        {showLabel && <span className="text-[#212529] font-bold text-sm">{config.label}</span>}
       </div>
 
       {/* Tooltip */}
       {showTooltip && tooltipVisible && (
         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 pointer-events-none">
-          <div className="bg-[#1E1E1E] border-2 border-[#494222] rounded-lg px-4 py-3 shadow-xl min-w-[250px]">
-            <div className="text-white font-bold mb-2 flex items-center gap-2">
+          <div className="bg-white border-2 border-[#dee2e6] rounded-lg px-4 py-3 shadow-xl min-w-[250px]">
+            <div className="text-[#212529] font-bold mb-2 flex items-center gap-2">
               <span className="text-xl">{config.icon}</span>
               <span>דרגת {config.label}</span>
             </div>
-            <div className="text-[#cbc190] text-sm mb-3">
+            <div className="text-[#6c757d] text-sm mb-3">
               {config.description}
             </div>
             
-            <div className="border-t border-[#494222] pt-2 space-y-1 text-xs">
-              <div className="flex items-center gap-2 text-[#cbc190]">
+            <div className="border-t border-[#dee2e6] pt-2 space-y-1 text-xs">
+              <div className="flex items-center gap-2 text-[#6c757d]">
                 <span>🥉</span>
                 <span>ברונזה: 0-10 משימות</span>
               </div>
-              <div className="flex items-center gap-2 text-[#cbc190]">
+              <div className="flex items-center gap-2 text-[#6c757d]">
                 <span>🥈</span>
                 <span>כסף: 11-50 משימות</span>
               </div>
-              <div className="flex items-center gap-2 text-[#cbc190]">
+              <div className="flex items-center gap-2 text-[#6c757d]">
                 <span>🥇</span>
                 <span>זהב: 50+ משימות</span>
               </div>

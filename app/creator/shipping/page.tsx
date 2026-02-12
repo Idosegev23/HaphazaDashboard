@@ -121,7 +121,7 @@ export default function CreatorShippingPage() {
 
       if (updateError) throw updateError;
 
-      alert('✅ הכתובת נשמרה בהצלחה!');
+      alert(' הכתובת נשמרה בהצלחה!');
       setEditingAddress(null);
       setAddressForm({
         full_name: '',
@@ -156,7 +156,7 @@ export default function CreatorShippingPage() {
 
       if (error) throw error;
 
-      alert('✅ תודה על האישור! המשימה נפתחה לעבודה.');
+      alert(' תודה על האישור! המשימה נפתחה לעבודה.');
       loadShipments();
     } catch (error: any) {
       console.error('Error confirming delivery:', error);
@@ -167,7 +167,7 @@ export default function CreatorShippingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white text-xl">טוען...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -191,13 +191,13 @@ export default function CreatorShippingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] p-4 lg:p-8">
+    <div className="min-h-screen bg-white p-4 lg:p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-white mb-6">📦 משלוחים</h1>
+        <h1 className="text-3xl font-bold text-[#212529] mb-6"> משלוחים</h1>
 
         {shipments.length === 0 ? (
           <Card>
-            <p className="text-[#cbc190] text-center py-8">
+            <p className="text-[#6c757d] text-center py-8">
               אין בקשות משלוח פעילות כרגע
             </p>
           </Card>
@@ -209,15 +209,15 @@ export default function CreatorShippingPage() {
                   {/* Header */}
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-white font-bold text-lg">
+                      <h3 className="text-[#212529] font-bold text-lg">
                         {shipment.campaigns?.title || 'קמפיין'}
                       </h3>
-                      <p className="text-[#cbc190] text-sm">
+                      <p className="text-[#6c757d] text-sm">
                         נוצר ב-{new Date(shipment.created_at).toLocaleDateString('he-IL')}
                       </p>
                     </div>
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold text-white ${
+                      className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${
                         statusColors[shipment.status]
                       }`}
                     >
@@ -229,9 +229,9 @@ export default function CreatorShippingPage() {
                   {shipment.status === 'waiting_address' && !editingAddress && (
                     <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
                       <div className="flex items-start gap-3">
-                        <span className="text-2xl">📍</span>
+                        
                         <div className="flex-1">
-                          <h4 className="text-white font-bold mb-1">יש להזין כתובת למשלוח</h4>
+                          <h4 className="text-[#212529] font-bold mb-1">יש להזין כתובת למשלוח</h4>
                           <p className="text-yellow-200 text-sm mb-3">
                             המותג מחכה לכתובת שלך כדי לשלוח את המוצר. לאחר שתקבל את המוצר תוכל להתחיל לעבוד על המשימה.
                           </p>
@@ -248,8 +248,8 @@ export default function CreatorShippingPage() {
 
                   {/* Address Form */}
                   {editingAddress === shipment.id && (
-                    <div className="bg-[#1E1E1E] border-2 border-[#f2cc0d] rounded-lg p-4 space-y-4">
-                      <h4 className="text-white font-bold text-lg">📍 כתובת למשלוח</h4>
+                    <div className="bg-white border-2 border-[#f2cc0d] rounded-lg p-4 space-y-4">
+                      <h4 className="text-[#212529] font-bold text-lg"> כתובת למשלוח</h4>
 
                       <Input
                         label="שם מלא *"
@@ -336,7 +336,7 @@ export default function CreatorShippingPage() {
                               phone: '',
                             });
                           }}
-                          className="bg-[#2e2a1b] hover:bg-[#3a3525]"
+                          className="bg-[#f8f9fa] hover:bg-[#e9ecef]"
                         >
                           ביטול
                         </Button>
@@ -346,9 +346,9 @@ export default function CreatorShippingPage() {
 
                   {/* Address Provided */}
                   {shipment.shipment_addresses && shipment.status !== 'waiting_address' && (
-                    <div className="bg-[#1E1E1E] rounded-lg p-4">
-                      <h4 className="text-white font-bold mb-2">📍 כתובת למשלוח</h4>
-                      <div className="text-[#cbc190] text-sm space-y-1">
+                    <div className="bg-white rounded-lg p-4">
+                      <h4 className="text-[#212529] font-bold mb-2"> כתובת למשלוח</h4>
+                      <div className="text-[#6c757d] text-sm space-y-1">
                         <p><strong>{shipment.shipment_addresses.full_name}</strong></p>
                         <p>{shipment.shipment_addresses.street} {shipment.shipment_addresses.house_number}</p>
                         {shipment.shipment_addresses.apartment && (
@@ -364,7 +364,7 @@ export default function CreatorShippingPage() {
                   {/* Tracking Info */}
                   {shipment.shipments && (
                     <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                      <h4 className="text-white font-bold mb-2">📮 מידע על המשלוח</h4>
+                      <h4 className="text-[#212529] font-bold mb-2"> מידע על המשלוח</h4>
                       <div className="text-blue-200 text-sm space-y-1">
                         <p>
                           <strong>מספר מעקב:</strong> {shipment.shipments.tracking_number}
@@ -388,15 +388,15 @@ export default function CreatorShippingPage() {
                   {shipment.status === 'shipped' && (
                     <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
                       <div className="flex items-start gap-3">
-                        <span className="text-2xl">✅</span>
+                        
                         <div className="flex-1">
-                          <h4 className="text-white font-bold mb-1">קיבלת את המשלוח?</h4>
+                          <h4 className="text-[#212529] font-bold mb-1">קיבלת את המשלוח?</h4>
                           <p className="text-green-200 text-sm mb-3">
                             לאחר שתאשר קבלת המשלוח, תוכל להתחיל לעבוד על המשימה
                           </p>
                           <Button
                             onClick={() => handleConfirmDelivery(shipment.id)}
-                            className="bg-green-600 text-white hover:bg-green-700"
+                            className="bg-green-600 text-[#212529] hover:bg-green-700"
                           >
                             אשר קבלת משלוח
                           </Button>
@@ -409,7 +409,7 @@ export default function CreatorShippingPage() {
                   {shipment.status === 'delivered' && (
                     <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl">✅</span>
+                        
                         <div>
                           <h4 className="text-green-400 font-bold">המשלוח נמסר בהצלחה!</h4>
                           <p className="text-green-200 text-sm">
