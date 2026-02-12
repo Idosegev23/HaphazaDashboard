@@ -229,6 +229,7 @@ export default function CampaignPage() {
     const supabase = createClient();
 
     try {
+      // Insert the product
       const { error } = await supabase.from('campaign_products').insert({
         campaign_id: campaignId,
         name: productForm.name,
@@ -240,6 +241,49 @@ export default function CampaignPage() {
 
       if (error) throw error;
 
+      // Check if this is the first product in campaign
+      const { count: productsCount } = await supabase
+        .from('campaign_products')
+        .select('*', { count: 'exact', head: true })
+        .eq('campaign_id', campaignId);
+
+      // If this campaign now has products, check for approved applications without shipment requests
+      if (productsCount && productsCount > 0) {
+        // Find approved applications that don't have shipment requests
+        const { data: approvedApps } = await supabase
+          .from('applications')
+          .select('id, creator_id')
+          .eq('campaign_id', campaignId)
+          .eq('status', 'approved');
+
+        if (approvedApps && approvedApps.length > 0) {
+          // For each approved application, check if shipment request exists
+          for (const app of approvedApps) {
+            const { count: shipmentCount } = await supabase
+              .from('shipment_requests')
+              .select('*', { count: 'exact', head: true })
+              .eq('campaign_id', campaignId)
+              .eq('creator_id', app.creator_id);
+
+            // If no shipment request exists, create one
+            if (!shipmentCount || shipmentCount === 0) {
+              await supabase.from('shipment_requests').insert({
+                campaign_id: campaignId,
+                creator_id: app.creator_id,
+                status: 'waiting_address',
+              });
+            }
+          }
+
+          // Update tasks to require product
+          await supabase
+            .from('tasks')
+            .update({ requires_product: true })
+            .eq('campaign_id', campaignId)
+            .eq('requires_product', false);
+        }
+      }
+
       setProductForm({
         name: '',
         image_url: '',
@@ -249,7 +293,12 @@ export default function CampaignPage() {
       setShowProductForm(false);
       setImageUploadMethod('url');
       loadProducts();
-      alert('המוצר נוסף בהצלחה');
+      
+      const message = productsCount === 1 
+        ? 'המוצר נוסף בהצלחה!\n\nשים לב: משפיענים מאושרים קיבלו אוטומטית בקשת משלוח.'
+        : 'המוצר נוסף בהצלחה!';
+      
+      alert(message);
     } catch (error: any) {
       alert('שגיאה בהוספת מוצר: ' + error.message);
     }

@@ -227,9 +227,16 @@ export default function ApplicationDetailPage() {
       return;
     }
 
+    // Check if campaign has products (requires shipment)
+    const { count: productsCount } = await supabase
+      .from('campaign_products')
+      .select('*', { count: 'exact', head: true })
+      .eq('campaign_id', appData.campaign_id);
+    
+    const requiresProduct = (productsCount || 0) > 0;
+    
     // Create task automatically
     const taskTitle = `משימה לקמפיין ${appData.campaigns?.title || 'ללא שם'}`;
-    const requiresProduct = false; // Default to false, can be updated later
     
     const { data: taskData, error: taskError } = await supabase
       .from('tasks')
@@ -251,7 +258,7 @@ export default function ApplicationDetailPage() {
       return;
     }
 
-    // If requires product, create shipment request
+    // If campaign has products, create shipment request automatically
     if (requiresProduct && taskData) {
       const { error: shipmentError } = await supabase
         .from('shipment_requests')
@@ -264,6 +271,8 @@ export default function ApplicationDetailPage() {
       if (shipmentError) {
         console.error('Error creating shipment request:', shipmentError);
         alert('המשימה נוצרה אבל היתה שגיאה ביצירת בקשת משלוח: ' + shipmentError.message);
+      } else {
+        console.log(`✓ בקשת משלוח נוצרה אוטומטית - הקמפיין כולל ${productsCount} מוצרים`);
       }
     }
 
