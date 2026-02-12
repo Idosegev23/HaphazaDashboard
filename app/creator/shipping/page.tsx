@@ -68,8 +68,9 @@ export default function CreatorShippingPage() {
         id,
         status,
         created_at,
+        campaign_id,
         campaigns(title),
-        shipment_addresses!inner(full_name, street, house_number, apartment, city, postal_code, country, phone),
+        shipment_addresses(full_name, street, house_number, apartment, city, postal_code, country, phone),
         shipments(tracking_number, carrier, shipped_at)
       `)
       .eq('creator_id', user.id)
@@ -226,20 +227,19 @@ export default function CreatorShippingPage() {
                   </div>
 
                   {/* Waiting for Address */}
-                  {shipment.status === 'waiting_address' && !editingAddress && (
-                    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+                  {shipment.status === 'waiting_address' && editingAddress !== shipment.id && (
+                    <div className="bg-yellow-500/10 border-2 border-yellow-500/50 rounded-lg p-5">
                       <div className="flex items-start gap-3">
-                        
                         <div className="flex-1">
-                          <h4 className="text-[#212529] font-bold mb-1">יש להזין כתובת למשלוח</h4>
-                          <p className="text-yellow-200 text-sm mb-3">
+                          <h4 className="text-[#212529] font-bold text-lg mb-2">פעולה נדרשת: יש להזין כתובת למשלוח</h4>
+                          <p className="text-yellow-800 text-sm mb-4 leading-relaxed">
                             המותג מחכה לכתובת שלך כדי לשלוח את המוצר. לאחר שתקבל את המוצר תוכל להתחיל לעבוד על המשימה.
                           </p>
                           <Button
                             onClick={() => setEditingAddress(shipment.id)}
-                            className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
+                            className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b] font-bold"
                           >
-                            הזן כתובת
+                            הזן כתובת עכשיו
                           </Button>
                         </div>
                       </div>

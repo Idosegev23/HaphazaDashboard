@@ -6,7 +6,7 @@ import { NextResponse, type NextRequest } from 'next/server';
  * Refreshes auth tokens and handles redirects
  */
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
+  const supabaseResponse = NextResponse.next({
     request,
   });
 

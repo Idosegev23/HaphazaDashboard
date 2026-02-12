@@ -31,6 +31,14 @@ type Task = {
   } | null;
 };
 
+type CampaignProduct = {
+  id: string;
+  name: string;
+  image_url: string | null;
+  quantity: number | null;
+  description: string | null;
+};
+
 type ShipmentStatus = {
   status: string;
   shipments: Array<{ delivered_at: string | null }>;
@@ -62,6 +70,7 @@ export default function CreatorTaskDetailPage() {
   const [uploads, setUploads] = useState<Upload[]>([]);
   const [revisions, setRevisions] = useState<RevisionRequest[]>([]);
   const [shipmentStatus, setShipmentStatus] = useState<string | null>(null);
+  const [campaignProducts, setCampaignProducts] = useState<CampaignProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -118,6 +127,16 @@ export default function CreatorTaskDetailPage() {
         .maybeSingle();
 
       setShipmentStatus(shipmentData?.status || null);
+
+      // Load campaign products
+      const { data: productsData, error: productsError } = await supabase
+        .from('campaign_products')
+        .select('id, name, image_url, quantity, description')
+        .eq('campaign_id', taskData.campaign_id);
+
+      if (productsData && !productsError) {
+        setCampaignProducts(productsData as unknown as CampaignProduct[]);
+      }
     }
 
     // Load uploads
@@ -487,23 +506,33 @@ export default function CreatorTaskDetailPage() {
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Blocked by shipment */}
           {isBlocked && (
-            <Card className="border-2 border-orange-500 bg-orange-500/10">
+            <Card className="border-2 border-orange-500 bg-orange-50">
               <div className="flex items-start gap-4">
-                
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-[#212529] mb-2">⏳ ממתין לקבלת מוצר</h3>
-                  <p className="text-[#6c757d] mb-2">
-                    משימה זו דורשת קבלת מוצר פיזי מהמותג לפני שתוכל להתחיל לעבוד.
+                  <h3 className="text-xl font-bold text-[#212529] mb-2">
+                    {shipmentStatus === 'waiting_address' ? '📍 פעולה נדרשת: הזן כתובת למשלוח' : '⏳ ממתין לקבלת מוצר'}
+                  </h3>
+                  <p className="text-[#6c757d] mb-3 leading-relaxed">
+                    {shipmentStatus === 'waiting_address' 
+                      ? 'המותג מחכה לכתובת שלך כדי לשלוח את המוצר. לאחר שתזין את הכתובת ותקבל את המוצר, תוכל להתחיל לעבוד על המשימה.'
+                      : 'משימה זו דורשת קבלת מוצר פיזי מהמותג לפני שתוכל להתחיל לעבוד.'}
                   </p>
-                  <div className="bg-[#f8f9fa] rounded-lg p-3 mb-3 border border-[#dee2e6]">
-                    <div className="text-sm text-[#6c757d]">סטטוס משלוח:</div>
-                    <div className="text-[#212529] font-medium">{getShipmentStatusMessage()}</div>
+                  <div className="bg-white rounded-lg p-4 mb-4 border border-orange-200">
+                    <div className="text-sm text-[#6c757d] mb-1">סטטוס משלוח:</div>
+                    <div className={`font-bold text-lg ${
+                      shipmentStatus === 'waiting_address' ? 'text-orange-600' :
+                      shipmentStatus === 'address_received' ? 'text-blue-600' :
+                      shipmentStatus === 'shipped' ? 'text-purple-600' :
+                      'text-[#212529]'
+                    }`}>
+                      {getShipmentStatusMessage()}
+                    </div>
                   </div>
                   <Button
                     onClick={() => router.push('/creator/shipping')}
-                    className="bg-[#f2cc0d] text-black hover:bg-[#d4b50c]"
+                    className="bg-[#f2cc0d] text-black hover:bg-[#d4b50c] font-bold text-base"
                   >
-                    עבור לדף משלוחים
+                    {shipmentStatus === 'waiting_address' ? 'הזן כתובת עכשיו →' : 'עבור לדף משלוחים →'}
                   </Button>
                 </div>
               </div>
@@ -545,43 +574,73 @@ export default function CreatorTaskDetailPage() {
 
           {/* Product Requirements */}
           {task.requires_product && (
-            <Card className="border-2 border-orange-500 bg-orange-500/5">
-              <h2 className="text-xl font-bold text-[#212529] mb-3 flex items-center gap-2">
-                 דרישות מוצר
+            <Card className="border-2 border-orange-500 bg-orange-50">
+              <h2 className="text-xl font-bold text-[#212529] mb-4 flex items-center gap-2">
+                 המוצרים שיישלחו אליך
               </h2>
-              <div className="space-y-3">
-                <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
-                  <div className="flex items-start gap-3">
-                    
-                    <div className="flex-1">
-                      <h3 className="text-[#212529] font-bold mb-1">מוצר פיזי נדרש</h3>
-                      <p className="text-[#6c757d] text-sm mb-2">
-                        משימה זו דורשת קבלת מוצר פיזי מהמותג לפני התחלת העבודה
-                      </p>
-                      {task.product_requirements && (
-                        <div className="bg-white rounded-lg p-3 mt-2 border border-[#dee2e6]">
-                          <p className="text-[#212529] text-sm whitespace-pre-wrap">
-                            {task.product_requirements}
-                          </p>
+              
+              {campaignProducts.length > 0 ? (
+                <div className="space-y-4">
+                  {campaignProducts.map((product) => (
+                    <div key={product.id} className="bg-white rounded-lg p-4 border-2 border-[#dee2e6] hover:border-[#f2cc0d] transition-colors">
+                      <div className="flex gap-4">
+                        {product.image_url && (
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className="w-24 h-24 object-cover rounded-lg border border-[#dee2e6]"
+                          />
+                        )}
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between gap-3 mb-2">
+                            <h3 className="text-[#212529] font-bold text-lg">{product.name}</h3>
+                            {product.quantity && (
+                              <span className="bg-[#f2cc0d]/20 text-[#212529] px-3 py-1 rounded-full text-sm font-medium whitespace-nowrap">
+                                כמות: {product.quantity}
+                              </span>
+                            )}
+                          </div>
+                          {product.description && (
+                            <div className="bg-[#f8f9fa] p-3 rounded-lg border border-[#dee2e6]">
+                              <p className="text-[#6c757d] text-sm leading-relaxed whitespace-pre-line">
+                                {product.description}
+                              </p>
+                            </div>
+                          )}
                         </div>
-                      )}
-                      {shipmentStatus && (
-                        <div className="mt-3 text-sm">
-                          <span className="text-[#6c757d]">סטטוס משלוח: </span>
-                          <span className={`font-medium ${
-                            shipmentStatus === 'delivered' ? 'text-green-400' :
-                            shipmentStatus === 'shipped' ? 'text-blue-400' :
-                            shipmentStatus === 'issue' ? 'text-red-400' :
-                            'text-yellow-400'
-                          }`}>
-                            {getShipmentStatusMessage()}
-                          </span>
-                        </div>
-                      )}
+                      </div>
                     </div>
-                  </div>
+                  ))}
+                  
+                  {shipmentStatus && (
+                    <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
+                      <div className="text-sm text-[#6c757d] mb-1">סטטוס משלוח:</div>
+                      <div className={`font-bold text-lg ${
+                        shipmentStatus === 'delivered' ? 'text-green-600' :
+                        shipmentStatus === 'shipped' ? 'text-blue-600' :
+                        shipmentStatus === 'issue' ? 'text-red-600' :
+                        shipmentStatus === 'address_received' ? 'text-purple-600' :
+                        'text-orange-600'
+                      }`}>
+                        {getShipmentStatusMessage()}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              ) : (
+                <div className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
+                  <p className="text-[#6c757d] text-sm">
+                    משימה זו דורשת קבלת מוצר פיזי מהמותג לפני התחלת העבודה. המוצר יישלח אליך בקרוב.
+                  </p>
+                  {task.product_requirements && (
+                    <div className="bg-white rounded-lg p-3 mt-3 border border-[#dee2e6]">
+                      <p className="text-[#212529] text-sm whitespace-pre-wrap">
+                        {task.product_requirements}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </Card>
           )}
 

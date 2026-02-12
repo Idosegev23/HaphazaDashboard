@@ -84,7 +84,7 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => 
   const lazyComponent = useCallback(() => {
     if (!meta) return Promise.resolve({ default: () => null });
     return meta.importFn();
-  }, [tutorialKey]);
+  }, [meta]);
 
   // Don't render anything if no meta found
   if (!meta) return null;

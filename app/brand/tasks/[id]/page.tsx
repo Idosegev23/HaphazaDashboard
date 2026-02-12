@@ -160,7 +160,7 @@ export default function BrandTaskDetailPage() {
       .single();
 
     // שילוב הנתונים
-    let enrichedTask: any = {
+    const enrichedTask: any = {
       ...taskData,
       creators: creatorData ? {
         user_id: creatorData.user_id,
