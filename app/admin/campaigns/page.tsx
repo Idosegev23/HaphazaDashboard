@@ -13,10 +13,10 @@ type Campaign = {
   id: string;
   title: string;
   status: string;
-  budget: number;
   fixed_price: number | null;
   created_at: string;
   deadline: string | null;
+  brand_id: string;
   brands: {
     brand_id: string;
     name: string;
@@ -69,7 +69,7 @@ export default function AdminCampaignsPage() {
     // Get all campaigns with related data
     const { data: campaignsData, error: campaignsError } = await supabase
       .from('campaigns')
-      .select('id, title, status, budget, fixed_price, created_at, deadline, brand_id, brands(brand_id, name)')
+      .select('id, title, status, fixed_price, created_at, deadline, brand_id, brands(brand_id, name)')
       .order('created_at', { ascending: false });
 
     if (campaignsError) {

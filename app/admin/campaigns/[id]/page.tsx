@@ -14,7 +14,6 @@ type Campaign = {
   status: string;
   brief: string | null;
   description: string | null;
-  budget: number;
   fixed_price: number | null;
   deadline: string | null;
   created_at: string;
@@ -89,7 +88,7 @@ export default function AdminCampaignDetailPage({ params }: { params: { id: stri
 
     const { data, error } = await supabase
       .from('campaigns')
-      .select('id, title, status, brief, description, budget, fixed_price, deadline, created_at, brand_id, brands(brand_id, name)')
+      .select('id, title, status, brief, description, fixed_price, deadline, created_at, brand_id, brands(brand_id, name)')
       .eq('id', params.id)
       .single();
 
