@@ -137,7 +137,7 @@ export default function AdminCampaignDetailPage({ params }: { params: { id: stri
     setApplications(data as any || []);
   };
 
-  const handleChangeTaskStatus = async (taskId: string, newStatus: string) => {
+  const handleChangeTaskStatus = async (taskId: string, newStatus: 'selected' | 'in_production' | 'uploaded' | 'needs_edits' | 'approved' | 'paid' | 'disputed') => {
     if (!confirm(`Are you sure you want to change this task status to "${newStatus}"?`)) {
       return;
     }
@@ -172,7 +172,7 @@ export default function AdminCampaignDetailPage({ params }: { params: { id: stri
     }
   };
 
-  const handleChangeCampaignStatus = async (newStatus: string) => {
+  const handleChangeCampaignStatus = async (newStatus: 'draft' | 'open' | 'closed' | 'archived') => {
     if (!confirm(`Are you sure you want to change campaign status to "${newStatus}"?`)) {
       return;
     }
@@ -224,7 +224,7 @@ export default function AdminCampaignDetailPage({ params }: { params: { id: stri
   }
 
   // Kanban columns
-  const columns = [
+  const columns: Array<{ id: 'selected' | 'in_production' | 'uploaded' | 'needs_edits' | 'approved' | 'paid' | 'disputed'; label: string; color: string }> = [
     { id: 'selected', label: 'נבחרו', color: 'bg-blue-100' },
     { id: 'in_production', label: 'בביצוע', color: 'bg-yellow-100' },
     { id: 'uploaded', label: 'הועלה', color: 'bg-purple-100' },
@@ -284,7 +284,7 @@ export default function AdminCampaignDetailPage({ params }: { params: { id: stri
                     שנה סטטוס קמפיין
                   </Button>
                   <div className="hidden group-hover:block absolute left-0 top-full mt-1 bg-white border border-[#dee2e6] rounded-lg shadow-lg z-10 min-w-[150px]">
-                    {['draft', 'open', 'closed', 'archived'].map(status => (
+                    {(['draft', 'open', 'closed', 'archived'] as const).map(status => (
                       <button
                         key={status}
                         onClick={() => handleChangeCampaignStatus(status)}
