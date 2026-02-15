@@ -40,7 +40,10 @@ export async function getUser(): Promise<UserWithRole | null> {
     return null;
   }
 
-  // Get user role from memberships
+  // Get user role - first check raw_user_meta_data (for admins), then memberships
+  const roleFromMetadata = user.user_metadata?.role as UserRole | undefined;
+  
+  // Get user role from memberships (for brand/creator users)
   const { data: membership } = await supabase
     .from('memberships')
     .select('role, entity_id, entity_type')
@@ -50,10 +53,13 @@ export async function getUser(): Promise<UserWithRole | null> {
     .limit(1)
     .single();
 
+  // Priority: metadata role (admin) > membership role > null
+  const finalRole = roleFromMetadata || membership?.role || null;
+
   return {
     id: user.id,
     email: user.email!,
-    role: membership?.role || null,
+    role: finalRole,
     profile: profile ? {
       display_name: profile.display_name,
       language: profile.language || 'he',

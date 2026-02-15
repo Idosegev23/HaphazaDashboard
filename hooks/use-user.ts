@@ -54,7 +54,10 @@ export function useUser() {
         return;
       }
 
-      // Get role
+      // Get role - first check raw_user_meta_data (for admins), then memberships
+      const roleFromMetadata = authUser.user_metadata?.role as UserRole | undefined;
+      
+      // Get role from memberships (for brand/creator users)
       const { data: membership } = await supabase
         .from('memberships')
         .select('role, entity_id, entity_type')
@@ -64,10 +67,13 @@ export function useUser() {
         .limit(1)
         .single();
 
+      // Priority: metadata role (admin) > membership role > null
+      const finalRole = roleFromMetadata || membership?.role || null;
+
       setUser({
         id: authUser.id,
         email: authUser.email!,
-        role: membership?.role || null,
+        role: finalRole,
         profile: profile ? {
           display_name: profile.display_name,
           language: profile.language || 'he',
