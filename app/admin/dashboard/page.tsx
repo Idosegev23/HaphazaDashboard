@@ -49,8 +49,8 @@ export default async function AdminDashboardPage() {
     .from('tasks')
     .select('status');
 
-  const uploadedTasks = allTasks?.filter(t => ['uploaded', 'needs_edits', 'approved', 'paid'].includes(t.status)).length || 0;
-  const approvedTasks = allTasks?.filter(t => ['approved', 'paid'].includes(t.status)).length || 0;
+  const uploadedTasks = allTasks?.filter(t => t.status && ['uploaded', 'needs_edits', 'approved', 'paid'].includes(t.status)).length || 0;
+  const approvedTasks = allTasks?.filter(t => t.status && ['approved', 'paid'].includes(t.status)).length || 0;
   const approvalRate = uploadedTasks > 0 ? ((approvedTasks / uploadedTasks) * 100).toFixed(1) : '0';
 
   // Advanced metrics: Revision Rate
@@ -177,7 +177,7 @@ export default async function AdminDashboardPage() {
                     <div className="text-right">
                       <div className="font-bold text-red-600">₪{payment.amount}</div>
                       <div className="text-xs text-[#6c757d]">
-                        {Math.floor((new Date().getTime() - new Date(payment.created_at).getTime()) / (1000 * 60 * 60 * 24))} days
+                        {payment.created_at ? Math.floor((new Date().getTime() - new Date(payment.created_at).getTime()) / (1000 * 60 * 60 * 24)) : 0} days
                       </div>
                     </div>
                   </div>

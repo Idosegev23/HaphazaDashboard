@@ -29,13 +29,14 @@ type Payment = {
 
 type BatchPayout = {
   id: string;
-  created_at: string;
-  created_by: string;
+  created_at: string | null;
+  created_by: string | null;
   status: string;
   payment_ids: string[];
   total_amount: number;
   executed_at: string | null;
   notes: string | null;
+  batch_name: string;
 };
 
 export default function AdminPaymentsPage() {
@@ -151,11 +152,10 @@ export default function AdminPaymentsPage() {
 
       // Log audit
       await supabase.rpc('log_audit', {
-        p_actor_id: user!.id,
         p_action: 'mark_payment_paid',
         p_entity: 'payments',
         p_entity_id: paymentId,
-        p_meta: {}
+        p_metadata: {}
       });
 
       alert('✅ Payment marked as paid successfully!');
@@ -206,9 +206,11 @@ export default function AdminPaymentsPage() {
       const totalAmount = selectedPaymentData.reduce((sum, p) => sum + Number(p.amount), 0);
 
       // Create batch payout
+      const batchName = `Batch ${new Date().toLocaleDateString('he-IL')} - ${new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}`;
       const { data: batch, error: batchError } = await supabase
         .from('batch_payouts')
         .insert({
+          batch_name: batchName,
           created_by: user!.id,
           payment_ids: selectedPaymentIds,
           total_amount: totalAmount,
@@ -253,11 +255,10 @@ export default function AdminPaymentsPage() {
 
       // Log audit
       await supabase.rpc('log_audit', {
-        p_actor_id: user!.id,
         p_action: 'create_batch_payout',
         p_entity: 'batch_payouts',
         p_entity_id: batch.id,
-        p_meta: { payment_count: selectedPaymentIds.length, total_amount: totalAmount }
+        p_metadata: { payment_count: selectedPaymentIds.length, total_amount: totalAmount }
       });
 
       alert(`✅ Batch payout created successfully! ${selectedPaymentIds.length} payments processed.`);
@@ -492,7 +493,8 @@ export default function AdminPaymentsPage() {
                             Batch #{batch.id.slice(0, 8)}
                           </div>
                           <div className="text-sm text-[#6c757d] mb-2">
-                            {batch.payment_ids.length} payments • Created {new Date(batch.created_at).toLocaleDateString()}
+                            {batch.payment_ids.length} payments
+                            {batch.created_at && ` • Created ${new Date(batch.created_at).toLocaleDateString()}`}
                             {batch.executed_at && ` • Executed ${new Date(batch.executed_at).toLocaleDateString()}`}
                           </div>
                           {batch.notes && (

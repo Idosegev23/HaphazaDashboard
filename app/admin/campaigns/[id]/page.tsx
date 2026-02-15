@@ -154,11 +154,10 @@ export default function AdminCampaignDetailPage({ params }: { params: { id: stri
 
       // Log audit
       await supabase.rpc('log_audit', {
-        p_actor_id: user!.id,
         p_action: 'admin_change_task_status',
         p_entity: 'tasks',
         p_entity_id: taskId,
-        p_meta: { new_status: newStatus, campaign_id: params.id }
+        p_metadata: { new_status: newStatus, campaign_id: params.id }
       });
 
       alert('✅ Task status changed successfully!');
@@ -189,11 +188,10 @@ export default function AdminCampaignDetailPage({ params }: { params: { id: stri
 
       // Log audit
       await supabase.rpc('log_audit', {
-        p_actor_id: user!.id,
         p_action: 'admin_change_campaign_status',
         p_entity: 'campaigns',
         p_entity_id: params.id,
-        p_meta: { old_status: campaign?.status, new_status: newStatus }
+        p_metadata: { old_status: campaign?.status, new_status: newStatus }
       });
 
       alert('✅ Campaign status changed successfully!');
@@ -237,8 +235,8 @@ export default function AdminCampaignDetailPage({ params }: { params: { id: stri
   };
 
   // Analytics calculations
-  const uploadedCount = tasks.filter(t => ['uploaded', 'needs_edits', 'approved', 'paid'].includes(t.status)).length;
-  const approvedCount = tasks.filter(t => ['approved', 'paid'].includes(t.status)).length;
+  const uploadedCount = tasks.filter(t => t.status && ['uploaded', 'needs_edits', 'approved', 'paid'].includes(t.status)).length;
+  const approvedCount = tasks.filter(t => t.status && ['approved', 'paid'].includes(t.status)).length;
   const approvalRate = uploadedCount > 0 ? ((approvedCount / uploadedCount) * 100).toFixed(1) : '0';
   
   const revisionCount = tasks.filter(t => t.status === 'needs_edits').length;

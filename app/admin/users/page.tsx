@@ -71,7 +71,7 @@ export default function AdminUsersPage() {
 
     const { data, error } = await supabase
       .from('users_profiles')
-      .select('user_id, email, display_name, avatar_url, role, is_blocked, created_at, creators(user_id, niches, tier, verified_at), brands(brand_id, name, verified_at)')
+      .select('user_id, email, display_name, avatar_url, is_blocked, created_at, creators(user_id, niches, tier, verified_at), brands(brand_id, name, verified_at)')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -133,11 +133,10 @@ export default function AdminUsersPage() {
 
       // Log audit
       await supabase.rpc('log_audit', {
-        p_actor_id: user!.id,
         p_action: shouldBlock ? 'block_user' : 'unblock_user',
         p_entity: 'users_profiles',
         p_entity_id: userId,
-        p_meta: {}
+        p_metadata: {}
       });
 
       alert(`✅ User ${shouldBlock ? 'blocked' : 'unblocked'} successfully!`);
@@ -169,11 +168,10 @@ export default function AdminUsersPage() {
 
       // Log audit
       await supabase.rpc('log_audit', {
-        p_actor_id: user!.id,
         p_action: 'verify_user',
         p_entity: table,
         p_entity_id: userId,
-        p_meta: {}
+        p_metadata: {}
       });
 
       alert('✅ User verified successfully!');
@@ -207,11 +205,10 @@ export default function AdminUsersPage() {
       // Log audit for each user
       for (const userId of userIds) {
         await supabase.rpc('log_audit', {
-          p_actor_id: user!.id,
           p_action: shouldBlock ? 'bulk_block_user' : 'bulk_unblock_user',
           p_entity: 'users_profiles',
           p_entity_id: userId,
-          p_meta: { bulk_operation: true, total_users: userIds.length }
+          p_metadata: { bulk_operation: true, total_users: userIds.length }
         });
       }
 
@@ -427,7 +424,7 @@ export default function AdminUsersPage() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-sm text-[#6c757d]">
-                        {new Date(userProfile.created_at).toLocaleDateString('he-IL')}
+                        {userProfile.created_at ? new Date(userProfile.created_at).toLocaleDateString('he-IL') : '-'}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">

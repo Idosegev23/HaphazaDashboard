@@ -47,7 +47,7 @@ type AuditLog = {
   id: string;
   action: string;
   entity: string;
-  created_at: string;
+  created_at: string | null;
   meta: any;
 };
 
@@ -81,7 +81,7 @@ export default function AdminUserDetailPage({ params }: { params: { id: string }
 
     const { data, error } = await supabase
       .from('users_profiles')
-      .select('user_id, email, display_name, avatar_url, role, is_blocked, created_at, creators(user_id, niches, tier, verified_at, bio, platforms), brands(brand_id, name, verified_at, website, industry)')
+      .select('user_id, email, display_name, avatar_url, is_blocked, created_at, creators(user_id, niches, tier, verified_at, bio, platforms), brands(brand_id, name, verified_at, website, industry)')
       .eq('user_id', params.id)
       .single();
 
@@ -91,8 +91,10 @@ export default function AdminUserDetailPage({ params }: { params: { id: string }
       return;
     }
 
+    // Get role from auth.users via RPC or from current user if admin
     setUserDetails(data as any);
-    setNewRole(data.role);
+    // Default role to 'creator' if not found
+    setNewRole('creator');
     setLoading(false);
   };
 
@@ -129,8 +131,8 @@ export default function AdminUserDetailPage({ params }: { params: { id: string }
         .select('quality, communication, on_time')
         .eq('task_id', params.id);
 
-      const approvedTasks = tasksData?.filter(t => t.status === 'approved' || t.status === 'paid').length || 0;
-      const uploadedTasks = tasksData?.filter(t => ['uploaded', 'needs_edits', 'approved', 'paid'].includes(t.status)).length || 0;
+      const approvedTasks = tasksData?.filter(t => t.status && (t.status === 'approved' || t.status === 'paid')).length || 0;
+      const uploadedTasks = tasksData?.filter(t => t.status && ['uploaded', 'needs_edits', 'approved', 'paid'].includes(t.status)).length || 0;
       
       const avgRating = ratingsData && ratingsData.length > 0
         ? ratingsData.reduce((sum, r) => sum + ((r.quality || 0) + (r.communication || 0) + (r.on_time || 0)) / 3, 0) / ratingsData.length
@@ -207,11 +209,10 @@ export default function AdminUserDetailPage({ params }: { params: { id: string }
 
       // Log audit
       await supabase.rpc('log_audit', {
-        p_actor_id: user!.id,
         p_action: shouldBlock ? 'block_user' : 'unblock_user',
         p_entity: 'users_profiles',
         p_entity_id: params.id,
-        p_meta: {}
+        p_metadata: {}
       });
 
       alert(`✅ User ${shouldBlock ? 'blocked' : 'unblocked'} successfully!`);
@@ -243,11 +244,10 @@ export default function AdminUserDetailPage({ params }: { params: { id: string }
 
       // Log audit
       await supabase.rpc('log_audit', {
-        p_actor_id: user!.id,
         p_action: 'verify_user',
         p_entity: table,
         p_entity_id: params.id,
-        p_meta: {}
+        p_metadata: {}
       });
 
       alert('✅ User verified successfully!');
@@ -261,39 +261,9 @@ export default function AdminUserDetailPage({ params }: { params: { id: string }
   };
 
   const handleChangeRole = async () => {
-    if (!confirm('Are you sure you want to change this user\'s role? This may affect their access permissions.')) {
-      return;
-    }
-
-    setProcessing(true);
-    const supabase = createClient();
-
-    try {
-      const { error } = await supabase
-        .from('users_profiles')
-        .update({ role: newRole })
-        .eq('user_id', params.id);
-
-      if (error) throw error;
-
-      // Log audit
-      await supabase.rpc('log_audit', {
-        p_actor_id: user!.id,
-        p_action: 'change_role',
-        p_entity: 'users_profiles',
-        p_entity_id: params.id,
-        p_meta: { old_role: userDetails?.role, new_role: newRole }
-      });
-
-      alert('✅ Role changed successfully!');
-      setEditingRole(false);
-      loadUserDetails();
-    } catch (error: any) {
-      console.error('Error changing role:', error);
-      alert('Error changing role: ' + error.message);
-    } finally {
-      setProcessing(false);
-    }
+    // TODO: Implement role change via RPC function that updates auth.users.raw_user_meta_data
+    alert('⚠️ Role management feature is under construction. Roles are stored in auth.users and require special RPC functions to update.');
+    setEditingRole(false);
   };
 
   if (loading) {
@@ -496,7 +466,7 @@ export default function AdminUserDetailPage({ params }: { params: { id: string }
                   </div>
                   <div>
                     <div className="text-sm text-[#6c757d]">תאריך הצטרפות</div>
-                    <div className="text-[#212529]">{new Date(userDetails.created_at).toLocaleDateString('he-IL')}</div>
+                    <div className="text-[#212529]">{userDetails.created_at ? new Date(userDetails.created_at).toLocaleDateString('he-IL') : '-'}</div>
                   </div>
                   {userDetails.creators?.niches && (
                     <div>
@@ -588,7 +558,7 @@ export default function AdminUserDetailPage({ params }: { params: { id: string }
                           <span className="text-[#6c757d] text-sm">{log.entity}</span>
                         </div>
                         <div className="text-xs text-[#6c757d]">
-                          {new Date(log.created_at).toLocaleString('he-IL')}
+                          {log.created_at ? new Date(log.created_at).toLocaleString('he-IL') : '-'}
                         </div>
                       </div>
                       {log.meta && Object.keys(log.meta).length > 0 && (

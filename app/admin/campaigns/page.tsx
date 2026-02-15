@@ -145,8 +145,8 @@ export default function AdminCampaignsPage() {
 
   const calculateStats = () => {
     const allTasks = campaigns.flatMap(c => c._tasks);
-    const uploadedTasks = allTasks.filter(t => ['uploaded', 'needs_edits', 'approved', 'paid'].includes(t.status));
-    const approvedTasks = allTasks.filter(t => ['approved', 'paid'].includes(t.status));
+    const uploadedTasks = allTasks.filter(t => t.status && ['uploaded', 'needs_edits', 'approved', 'paid'].includes(t.status));
+    const approvedTasks = allTasks.filter(t => t.status && ['approved', 'paid'].includes(t.status));
     
     const rate = uploadedTasks.length > 0 ? (approvedTasks.length / uploadedTasks.length) * 100 : 0;
     setTotalApprovalRate(rate);
@@ -170,11 +170,10 @@ export default function AdminCampaignsPage() {
 
       // Log audit
       await supabase.rpc('log_audit', {
-        p_actor_id: user!.id,
         p_action: 'change_campaign_status',
         p_entity: 'campaigns',
         p_entity_id: campaignId,
-        p_meta: { new_status: newStatus }
+        p_metadata: { new_status: newStatus }
       });
 
       alert('✅ Campaign status changed successfully!');
@@ -208,8 +207,8 @@ export default function AdminCampaignsPage() {
   };
 
   const getApprovalRate = (campaign: Campaign) => {
-    const uploaded = campaign._tasks.filter(t => ['uploaded', 'needs_edits', 'approved', 'paid'].includes(t.status)).length;
-    const approved = campaign._tasks.filter(t => ['approved', 'paid'].includes(t.status)).length;
+    const uploaded = campaign._tasks.filter(t => t.status && ['uploaded', 'needs_edits', 'approved', 'paid'].includes(t.status)).length;
+    const approved = campaign._tasks.filter(t => t.status && ['approved', 'paid'].includes(t.status)).length;
     return uploaded > 0 ? ((approved / uploaded) * 100).toFixed(1) : '0';
   };
 
@@ -222,8 +221,20 @@ export default function AdminCampaignsPage() {
   }
 
   // Get unique brands for filter
-  const uniqueBrands = Array.from(new Set(campaigns.map(c => c.brands?.brand_id).filter(Boolean)));
-  const brandsMap = new Map(campaigns.map(c => [c.brands?.brand_id, c.brands?.name]).filter(([id]) => id));
+  const uniqueBrands = Array.from(
+    new Set(
+      campaigns
+        .map(c => c.brands?.brand_id)
+        .filter((id): id is string => !!id)
+    )
+  );
+  const brandsMap = new Map(
+    campaigns
+      .filter((c): c is Campaign & { brands: { brand_id: string; name: string } } => 
+        !!c.brands?.brand_id && !!c.brands?.name
+      )
+      .map(c => [c.brands.brand_id, c.brands.name] as const)
+  );
 
   const statusOptions = [
     { value: 'all', label: 'כל הסטטוסים' },
