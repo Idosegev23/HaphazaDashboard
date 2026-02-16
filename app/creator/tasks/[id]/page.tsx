@@ -76,6 +76,7 @@ export default function CreatorTaskDetailPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedDeliverableType, setSelectedDeliverableType] = useState<string>('');
+  const [deletingUpload, setDeletingUpload] = useState<string | null>(null);
 
   const DELIVERABLE_LABELS: Record<string, string> = {
     instagram_story: 'Instagram Story',
@@ -463,6 +464,58 @@ export default function CreatorTaskDetailPage() {
     return uploads.filter(u => u.meta?.deliverable_type === type).length;
   };
 
+  const handleDeleteUpload = async (uploadId: string, storagePath: string) => {
+    if (!confirm('האם אתה בטוח שברצונך למחוק את הקובץ הזה? פעולה זו לא ניתנת לביטול.')) {
+      return;
+    }
+
+    setDeletingUpload(uploadId);
+    const supabase = createClient();
+
+    try {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('task-uploads')
+        .remove([storagePath]);
+
+      if (storageError) {
+        console.error('Error deleting from storage:', storageError);
+      }
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('uploads')
+        .delete()
+        .eq('id', uploadId);
+
+      if (dbError) throw dbError;
+
+      alert('✅ הקובץ נמחק בהצלחה');
+      loadTaskData();
+    } catch (error: any) {
+      console.error('Error deleting upload:', error);
+      alert('שגיאה במחיקת הקובץ: ' + error.message);
+    } finally {
+      setDeletingUpload(null);
+    }
+  };
+
+  const getFileUrl = (storagePath: string) => {
+    const supabase = createClient();
+    const { data } = supabase.storage.from('task-uploads').getPublicUrl(storagePath);
+    return data.publicUrl;
+  };
+
+  const isImageFile = (filename: string) => {
+    const ext = filename.split('.').pop()?.toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext || '');
+  };
+
+  const isVideoFile = (filename: string) => {
+    const ext = filename.split('.').pop()?.toLowerCase();
+    return ['mp4', 'mov', 'avi', 'webm'].includes(ext || '');
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
@@ -819,32 +872,94 @@ export default function CreatorTaskDetailPage() {
           {/* Uploads History */}
           {uploads.length > 0 && (
             <Card>
-              <h2 className="text-xl font-bold text-[#212529] mb-4">היסטוריית העלאות</h2>
-              <div className="space-y-3">
-                {uploads.map((upload) => (
-                  <div key={upload.id} className="bg-[#f8f9fa] rounded-lg p-4 border border-[#dee2e6]">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-[#212529] font-medium">{upload.meta?.filename || upload.storage_path.split('/').pop()}</div>
-                        <div className="flex items-center gap-2 text-xs text-[#6c757d]">
-                          <span>{new Date(upload.created_at).toLocaleDateString('he-IL')} {new Date(upload.created_at).toLocaleTimeString('he-IL')}</span>
+              <h2 className="text-xl font-bold text-[#212529] mb-4">📤 הקבצים שהעלתי ({uploads.length})</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {uploads.map((upload) => {
+                  const filename = upload.meta?.filename || upload.storage_path.split('/').pop() || '';
+                  const fileUrl = getFileUrl(upload.storage_path);
+                  const isImage = isImageFile(filename);
+                  const isVideo = isVideoFile(filename);
+
+                  return (
+                    <div key={upload.id} className="bg-white rounded-lg border-2 border-[#dee2e6] overflow-hidden hover:border-[#f2cc0d] transition-all">
+                      {/* File Preview */}
+                      <div className="relative bg-[#f8f9fa] h-48 flex items-center justify-center">
+                        {isImage && (
+                          <img 
+                            src={fileUrl} 
+                            alt={filename}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                              (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                        )}
+                        {isVideo && (
+                          <video 
+                            src={fileUrl} 
+                            controls
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLVideoElement).style.display = 'none';
+                              (e.target as HTMLVideoElement).nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                        )}
+                        {!isImage && !isVideo && (
+                          <div className="text-6xl text-[#6c757d]">📄</div>
+                        )}
+                        <div className={`${(isImage || isVideo) ? 'hidden' : ''} text-[#6c757d] text-sm`}>
+                          {filename}
+                        </div>
+
+                        {/* Status Badge */}
+                        <span className={`absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-bold ${
+                          upload.status === 'approved' ? 'bg-green-500 text-white' :
+                          upload.status === 'rejected' ? 'bg-red-500 text-white' :
+                          'bg-yellow-500 text-black'
+                        }`}>
+                          {upload.status === 'approved' ? '✅ אושר' :
+                           upload.status === 'rejected' ? '❌ נדחה' :
+                           '⏳ ממתין'}
+                        </span>
+                      </div>
+
+                      {/* File Info */}
+                      <div className="p-4">
+                        <div className="text-[#212529] font-medium mb-2 truncate">{filename}</div>
+                        <div className="flex items-center justify-between text-xs text-[#6c757d] mb-3">
+                          <span>{new Date(upload.created_at).toLocaleDateString('he-IL')} {new Date(upload.created_at).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}</span>
                           {upload.meta?.deliverable_type && (
-                            <span className="bg-white px-2 py-0.5 rounded border border-[#dee2e6]">
+                            <span className="bg-[#f8f9fa] px-2 py-1 rounded border border-[#dee2e6]">
                               {DELIVERABLE_LABELS[upload.meta.deliverable_type] || upload.meta.deliverable_type}
                             </span>
                           )}
                         </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-2">
+                          <a 
+                            href={fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 px-3 py-2 bg-[#f8f9fa] text-[#212529] text-sm font-medium rounded-lg hover:bg-[#e9ecef] transition-colors text-center border border-[#dee2e6]"
+                          >
+                            👁️ צפה
+                          </a>
+                          <button
+                            onClick={() => handleDeleteUpload(upload.id, upload.storage_path)}
+                            disabled={deletingUpload === upload.id || upload.status === 'approved'}
+                            className="flex-1 px-3 py-2 bg-red-50 text-red-600 text-sm font-medium rounded-lg hover:bg-red-100 transition-colors border border-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title={upload.status === 'approved' ? 'לא ניתן למחוק קובץ שאושר' : 'מחק קובץ'}
+                          >
+                            {deletingUpload === upload.id ? '🗑️ מוחק...' : '🗑️ מחק'}
+                          </button>
+                        </div>
                       </div>
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        upload.status === 'approved' ? 'bg-green-500 text-[#212529]' :
-                        upload.status === 'rejected' ? 'bg-red-500 text-[#212529]' :
-                        'bg-gray-500 text-[#212529]'
-                      }`}>
-                        {upload.status}
-                      </span>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </Card>
           )}

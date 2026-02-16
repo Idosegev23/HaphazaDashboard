@@ -26,7 +26,7 @@ export default function CreatorPortfolioPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -65,14 +65,21 @@ export default function CreatorPortfolioPage() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) setSelectedFile(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setSelectedFiles([...selectedFiles, ...files]);
+      e.target.value = '';
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFile) {
-      alert('אנא בחר קובץ');
+    if (selectedFiles.length === 0) {
+      alert('אנא בחר לפחות קובץ אחד');
       return;
     }
 
@@ -85,40 +92,50 @@ export default function CreatorPortfolioPage() {
     const supabase = createClient();
 
     try {
-      // Upload file
-      const fileExt = selectedFile.name.split('.').pop();
-      const fileName = `${user.id}_${Date.now()}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('portfolio')
-        .upload(fileName, selectedFile);
+      // Upload each file and create portfolio item
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        
+        // Upload file
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}_${Date.now()}_${i}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('portfolio')
+          .upload(fileName, file);
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('portfolio')
-        .getPublicUrl(fileName);
+        const { data: { publicUrl } } = supabase.storage
+          .from('portfolio')
+          .getPublicUrl(fileName);
 
-      // Create portfolio item
-      const { error: insertError } = await supabase
-        .from('portfolio_items')
-        .insert({
-          creator_id: user.id,
-          title: formData.title,
-          description: formData.description || null,
-          media_url: publicUrl,
-          media_type: selectedFile.type.startsWith('image/') ? 'image' : 'video',
-          platform: formData.platform || null,
-          external_link: formData.external_link || null,
-        });
+        // Create portfolio item with file name in title if multiple files
+        const itemTitle = selectedFiles.length > 1 
+          ? `${formData.title} (${i + 1}/${selectedFiles.length})` 
+          : formData.title;
 
-      if (insertError) throw insertError;
+        const { error: insertError } = await supabase
+          .from('portfolio_items')
+          .insert({
+            creator_id: user.id,
+            title: itemTitle,
+            description: formData.description || null,
+            media_url: publicUrl,
+            media_type: file.type.startsWith('image/') ? 'image' : 'video',
+            platform: formData.platform || null,
+            external_link: formData.external_link || null,
+          });
+
+        if (insertError) throw insertError;
+      }
 
       // Reset form
       setFormData({ title: '', description: '', platform: '', external_link: '' });
-      setSelectedFile(null);
+      setSelectedFiles([]);
       setShowForm(false);
       loadPortfolio();
+      alert(`✅ ${selectedFiles.length} פריטים נוספו בהצלחה!`);
     } catch (error: any) {
       alert('שגיאה: ' + error.message);
     } finally {
@@ -223,48 +240,55 @@ export default function CreatorPortfolioPage() {
 
               <div>
                 <label className="block text-sm font-medium text-[#212529] mb-2">
-                  העלה קובץ (תמונה או וידאו)
+                  העלה קבצים (תמונות או וידאו) - ניתן להעלות מספר קבצים
                 </label>
-                {selectedFile ? (
-                  <div className="flex items-center justify-between bg-white p-4 rounded-lg border border-[#dee2e6]">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{selectedFile.type.startsWith('image/') ? '🖼️' : '🎥'}</span>
-                      <div>
-                        <div className="text-[#212529] font-medium">{selectedFile.name}</div>
-                        <div className="text-xs text-[#6c757d]">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</div>
+                
+                {selectedFiles.length > 0 && (
+                  <div className="space-y-2 mb-4">
+                    {selectedFiles.map((file, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-white p-4 rounded-lg border border-[#dee2e6]">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{file.type.startsWith('image/') ? '🖼️' : '🎥'}</span>
+                          <div>
+                            <div className="text-[#212529] font-medium">{file.name}</div>
+                            <div className="text-xs text-[#6c757d]">{(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(idx)}
+                          className="text-red-500 hover:text-red-400 transition-colors"
+                        >
+                          🗑️ הסר
+                        </button>
                       </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedFile(null)}
-                      className="text-red-500 hover:text-red-400 transition-colors"
-                    >
-                      🗑️ הסר
-                    </button>
+                    ))}
                   </div>
-                ) : (
-                  <div>
-                    <input
-                      type="file"
-                      id="media-upload"
-                      className="hidden"
-                      accept="image/*,video/*"
-                      onChange={handleFileChange}
+                )}
+
+                <div>
+                  <input
+                    type="file"
+                    id="media-upload"
+                    className="hidden"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={handleFileChange}
                     />
                     <Button
                       type="button"
                       onClick={() => document.getElementById('media-upload')?.click()}
                       className="bg-[#f8f9fa] border border-[#dee2e6] hover:bg-[#e9ecef]"
                     >
-                      📎 בחר קובץ
+                      📎 {selectedFiles.length > 0 ? 'הוסף עוד קבצים' : 'בחר קבצים'}
                     </Button>
                   </div>
                 )}
               </div>
 
               <div className="flex gap-4">
-                <Button type="submit" disabled={uploading}>
-                  {uploading ? 'מעלה...' : '💾 שמור'}
+                <Button type="submit" disabled={uploading || selectedFiles.length === 0}>
+                  {uploading ? 'מעלה...' : `💾 שמור${selectedFiles.length > 0 ? ` (${selectedFiles.length})` : ''}`}
                 </Button>
                 <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>
                   ביטול

@@ -25,6 +25,8 @@ export function ContentTab({ campaignId }: ContentTabProps) {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const [viewingContent, setViewingContent] = useState<{ url: string; type: string } | null>(null);
+  const [feedbackForm, setFeedbackForm] = useState<{ uploadId: string; feedback: string } | null>(null);
+  const [processing, setProcessing] = useState<string | null>(null);
 
   useEffect(() => {
     loadContent();
@@ -80,6 +82,67 @@ export function ContentTab({ campaignId }: ContentTabProps) {
 
     setUploads(enriched);
     setLoading(false);
+  };
+
+  const handleApprove = async (uploadId: string) => {
+    if (!confirm('האם לאשר את התוכן הזה?')) return;
+
+    setProcessing(uploadId);
+    const supabase = createClient();
+
+    try {
+      const { error } = await supabase
+        .from('uploads')
+        .update({ status: 'approved' })
+        .eq('id', uploadId);
+
+      if (error) throw error;
+
+      alert('✅ התוכן אושר בהצלחה!');
+      loadContent();
+    } catch (error: any) {
+      console.error('Error approving:', error);
+      alert('שגיאה באישור: ' + error.message);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const handleReject = async (uploadId: string) => {
+    const feedback = prompt('הוסף משוב למשפיען (אופציונלי):');
+    
+    setProcessing(uploadId);
+    const supabase = createClient();
+
+    try {
+      const { error } = await supabase
+        .from('uploads')
+        .update({ 
+          status: 'rejected',
+          meta: { ...uploads.find(u => u.id === uploadId)?.meta, rejection_reason: feedback || 'לא צוין' }
+        })
+        .eq('id', uploadId);
+
+      if (error) throw error;
+
+      alert('❌ התוכן נדחה');
+      loadContent();
+    } catch (error: any) {
+      console.error('Error rejecting:', error);
+      alert('שגיאה בדחייה: ' + error.message);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const handleDownload = (url: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (loading) {
@@ -203,22 +266,53 @@ export function ContentTab({ campaignId }: ContentTabProps) {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="mt-3">
                     <span
-                      className={`px-2 py-1 rounded text-xs font-bold text-[#212529] ${
+                      className={`inline-block px-2 py-1 rounded text-xs font-bold text-[#212529] ${
                         statusColors[upload.status || 'pending']
-                      }`}
+                      } mb-3`}
                     >
                       {statusLabels[upload.status || 'pending']}
                     </span>
-                    <a
-                      href={urlData.publicUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#f2cc0d] hover:text-[#d4b00b] text-xs"
-                    >
-                       פתח
-                    </a>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col gap-2 mt-2">
+                      {upload.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={() => handleApprove(upload.id)}
+                            disabled={processing === upload.id}
+                            className="w-full px-3 py-2 bg-green-500 text-white text-sm font-medium rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
+                          >
+                            {processing === upload.id ? '...' : '✅ אשר'}
+                          </button>
+                          <button
+                            onClick={() => handleReject(upload.id)}
+                            disabled={processing === upload.id}
+                            className="w-full px-3 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+                          >
+                            {processing === upload.id ? '...' : '❌ דחה'}
+                          </button>
+                        </>
+                      )}
+                      
+                      <div className="flex gap-2">
+                        <a
+                          href={urlData.publicUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 px-3 py-2 bg-[#f8f9fa] text-[#212529] text-sm font-medium rounded-lg hover:bg-[#e9ecef] transition-colors text-center border border-[#dee2e6]"
+                        >
+                          👁️ צפה
+                        </a>
+                        <button
+                          onClick={() => handleDownload(urlData.publicUrl, upload.meta?.filename || `file_${upload.id}`)}
+                          className="flex-1 px-3 py-2 bg-[#f2cc0d] text-black text-sm font-medium rounded-lg hover:bg-[#d4b00b] transition-colors"
+                        >
+                          ⬇️ הורד
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>

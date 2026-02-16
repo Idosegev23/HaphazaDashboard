@@ -23,6 +23,7 @@ type Application = {
 export default function CreatorApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cancelling, setCancelling] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -74,6 +75,32 @@ export default function CreatorApplicationsPage() {
 
     setApplications(data as Application[] || []);
     setLoading(false);
+  };
+
+  const handleCancelApplication = async (applicationId: string) => {
+    if (!confirm('האם אתה בטוח שברצונך לבטל את המועמדות? פעולה זו לא ניתנת לביטול.')) {
+      return;
+    }
+
+    setCancelling(applicationId);
+    const supabase = createClient();
+
+    try {
+      const { error } = await supabase
+        .from('applications')
+        .delete()
+        .eq('id', applicationId);
+
+      if (error) throw error;
+
+      alert('✅ המועמדות בוטלה בהצלחה');
+      loadApplications();
+    } catch (error: any) {
+      console.error('Error cancelling application:', error);
+      alert('שגיאה בביטול המועמדות: ' + error.message);
+    } finally {
+      setCancelling(null);
+    }
   };
 
   const statusLabels: Record<string, string> = {
@@ -150,11 +177,20 @@ export default function CreatorApplicationsPage() {
                         </Link>
                       )}
                       {application.status === 'submitted' && (
-                        <Link href={`/creator/applications/${application.id}/edit`}>
-                          <button className="px-4 py-2 bg-[#f8f9fa] text-[#212529] font-medium rounded-lg hover:bg-[#e9ecef] transition-colors border border-[#dee2e6]">
-                            ערוך מועמדות
+                        <>
+                          <Link href={`/creator/applications/${application.id}/edit`}>
+                            <button className="px-4 py-2 bg-[#f8f9fa] text-[#212529] font-medium rounded-lg hover:bg-[#e9ecef] transition-colors border border-[#dee2e6] w-full">
+                              ערוך מועמדות
+                            </button>
+                          </Link>
+                          <button 
+                            onClick={() => handleCancelApplication(application.id)}
+                            disabled={cancelling === application.id}
+                            className="px-4 py-2 bg-red-50 text-red-600 font-medium rounded-lg hover:bg-red-100 transition-colors border border-red-200 disabled:opacity-50"
+                          >
+                            {cancelling === application.id ? 'מבטל...' : '🗑️ בטל מועמדות'}
                           </button>
-                        </Link>
+                        </>
                       )}
                       {application.status === 'rejected' && (
                         <Link href="/creator/campaigns">

@@ -54,6 +54,24 @@ export default function NewCampaignPage() {
     photo: 'Photo (תמונה)',
   };
 
+  const DELIVERABLE_DESCRIPTIONS: Record<string, string> = {
+    instagram_story: 'סטורי באינסטגרם - 24 שעות, אנכי',
+    instagram_reel: 'רील באינסטגרם - סרטון קצר, מיקום: פיד + Reels',
+    instagram_post: 'פוסט באינסטגרם - תמונה או קרוסלה, מיקום: פיד',
+    tiktok_video: 'סרטון בטיקטוק - מיקום: For You + Following',
+    ugc_video: 'סרטון UGC - תוכן למותג ללא פרסום בחשבון היוצר',
+    photo: 'תמונה - צילום מקצועי למותג',
+  };
+
+  const DELIVERABLE_REQUIRED: Record<string, boolean> = {
+    instagram_story: false,
+    instagram_reel: false,
+    instagram_post: false,
+    tiktok_video: false,
+    ugc_video: false,
+    photo: false,
+  };
+
   const updateDeliverable = (key: keyof typeof deliverables, change: number) => {
     setDeliverables(prev => ({
       ...prev,
@@ -91,7 +109,7 @@ export default function NewCampaignPage() {
   };
   
   const [loading, setLoading] = useState(false);
-  const [briefFile, setBriefFile] = useState<File | null>(null);
+  const [briefFiles, setBriefFiles] = useState<File[]>([]);
   const [uploadingBrief, setUploadingBrief] = useState(false);
   const router = useRouter();
 
@@ -122,24 +140,27 @@ export default function NewCampaignPage() {
     const supabase = createClient();
 
     try {
-      // Upload brief file if exists
-      let briefUrl = null;
-      if (briefFile) {
+      // Upload brief files if exist
+      const briefUrls: string[] = [];
+      if (briefFiles.length > 0) {
         setUploadingBrief(true);
-        const fileExt = briefFile.name.split('.').pop();
-        const fileName = `brief_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
         
-        const { error: uploadError } = await supabase.storage
-          .from('campaign-briefs')
-          .upload(fileName, briefFile);
+        for (const file of briefFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `brief_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('campaign-briefs')
+            .upload(fileName, file);
 
-        if (uploadError) throw uploadError;
+          if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('campaign-briefs')
-          .getPublicUrl(fileName);
+          const { data: { publicUrl } } = supabase.storage
+            .from('campaign-briefs')
+            .getPublicUrl(fileName);
 
-        briefUrl = publicUrl;
+          briefUrls.push(publicUrl);
+        }
         setUploadingBrief(false);
       }
 
@@ -156,7 +177,8 @@ export default function NewCampaignPage() {
           deadline: formData.deadline || null,
           status: 'draft',
           deliverables: deliverables,
-          brief_url: briefUrl,
+          brief_url: briefUrls.length > 0 ? briefUrls[0] : null,
+          brief_urls: briefUrls.length > 0 ? briefUrls : null,
         })
         .select()
         .single();
@@ -257,78 +279,97 @@ export default function NewCampaignPage() {
 
             {/* Brief Upload Section */}
             <div className="bg-[#f8f9fa] p-6 rounded-lg border border-[#dee2e6]">
-              <h3 className="text-lg font-bold text-[#212529] mb-3">העלאת בריף (אופציונלי)</h3>
+              <h3 className="text-lg font-bold text-[#212529] mb-3">העלאת בריפים (אופציונלי)</h3>
               <p className="text-[#6c757d] text-sm mb-4">
-                העלה קובץ בריף מפורט (PDF/DOCX) שהמשפיען יוכל להוריד ולקרוא
+                העלה עד מספר קבצי בריף מפורטים (PDF/DOCX) שהמשפיען יוכל להוריד ולקרוא
               </p>
               
-              {briefFile ? (
-                <div className="flex items-center justify-between bg-white p-4 rounded-lg border border-[#dee2e6]">
-                  <div className="flex items-center gap-3">
-                    
-                    <div>
-                      <div className="text-[#212529] font-medium">{briefFile.name}</div>
-                      <div className="text-xs text-[#6c757d]">{(briefFile.size / 1024).toFixed(1)} KB</div>
+              {briefFiles.length > 0 && (
+                <div className="space-y-2 mb-4">
+                  {briefFiles.map((file, idx) => (
+                    <div key={idx} className="flex items-center justify-between bg-white p-4 rounded-lg border border-[#dee2e6]">
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <div className="text-[#212529] font-medium">{file.name}</div>
+                          <div className="text-xs text-[#6c757d]">{(file.size / 1024).toFixed(1)} KB</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setBriefFiles(briefFiles.filter((_, i) => i !== idx))}
+                        className="text-red-500 hover:text-red-400 transition-colors"
+                      >
+                        🗑️ הסר
+                      </button>
                     </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setBriefFile(null)}
-                    className="text-red-500 hover:text-red-400 transition-colors"
-                  >
-                    ️ הסר
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <input
-                    type="file"
-                    id="brief-upload"
-                    className="hidden"
-                    accept=".pdf,.doc,.docx"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) setBriefFile(file);
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    onClick={() => document.getElementById('brief-upload')?.click()}
-                    className="bg-[#f8f9fa] border border-[#dee2e6] hover:bg-[#e9ecef]"
-                  >
-                     בחר קובץ בריף
-                  </Button>
+                  ))}
                 </div>
               )}
+              
+              <div>
+                <input
+                  type="file"
+                  id="brief-upload"
+                  className="hidden"
+                  accept=".pdf,.doc,.docx"
+                  multiple
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    if (files.length > 0) {
+                      setBriefFiles([...briefFiles, ...files]);
+                      e.target.value = '';
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  onClick={() => document.getElementById('brief-upload')?.click()}
+                  className="bg-[#f8f9fa] border border-[#dee2e6] hover:bg-[#e9ecef]"
+                >
+                  📎 הוסף קבצי בריף
+                </Button>
+              </div>
             </div>
 
             {/* Deliverables Section */}
             <div className="bg-[#f8f9fa] p-6 rounded-lg border border-[#dee2e6]">
               <h3 className="text-lg font-bold text-[#212529] mb-4">תמהיל תוצרים דרוש</h3>
-              <p className="text-[#6c757d] text-sm mb-4">בחר את כמות התוצרים מכל סוג שעל המשפיען לספק:</p>
+              <p className="text-[#6c757d] text-sm mb-4">בחר את כמות התוצרים מכל סוג שעל המשפיען לספק. התוצרים מסומנים "לא חובה".</p>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(DELIVERABLE_LABELS).map(([key, label]) => (
-                  <div key={key} className="flex flex-col items-center p-3 bg-white rounded-lg border border-[#dee2e6]">
-                    <span className="text-[#212529] text-sm mb-2">{label}</span>
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => updateDeliverable(key as any, -1)}
-                        className="w-8 h-8 rounded-full bg-[#f8f9fa] text-[#212529] hover:bg-[#e9ecef] flex items-center justify-center text-xl"
-                      >
-                        -
-                      </button>
-                      <span className="text-xl font-bold text-[#f2cc0d] w-6 text-center">
-                        {deliverables[key as keyof typeof deliverables]}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => updateDeliverable(key as any, 1)}
-                        className="w-8 h-8 rounded-full bg-[#f2cc0d] text-black hover:bg-[#d4b00b] flex items-center justify-center text-xl"
-                      >
-                        +
-                      </button>
+                  <div key={key} className="flex flex-col p-4 bg-white rounded-lg border border-[#dee2e6]">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[#212529] font-bold">{label}</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-[#f8f9fa] text-[#6c757d]">
+                            {DELIVERABLE_REQUIRED[key as keyof typeof DELIVERABLE_REQUIRED] ? 'חובה' : 'לא חובה'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#6c757d]">
+                          {DELIVERABLE_DESCRIPTIONS[key as keyof typeof DELIVERABLE_DESCRIPTIONS]}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 ml-3">
+                        <button
+                          type="button"
+                          onClick={() => updateDeliverable(key as any, -1)}
+                          className="w-8 h-8 rounded-full bg-[#f8f9fa] text-[#212529] hover:bg-[#e9ecef] flex items-center justify-center text-xl"
+                        >
+                          -
+                        </button>
+                        <span className="text-xl font-bold text-[#f2cc0d] w-8 text-center">
+                          {deliverables[key as keyof typeof deliverables]}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateDeliverable(key as any, 1)}
+                          className="w-8 h-8 rounded-full bg-[#f2cc0d] text-black hover:bg-[#d4b00b] flex items-center justify-center text-xl"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
