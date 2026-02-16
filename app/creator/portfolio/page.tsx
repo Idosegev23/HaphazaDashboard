@@ -274,16 +274,15 @@ export default function CreatorPortfolioPage() {
                     accept="image/*,video/*"
                     multiple
                     onChange={handleFileChange}
-                    />
-                    <Button
-                      type="button"
-                      onClick={() => document.getElementById('media-upload')?.click()}
-                      className="bg-[#f8f9fa] border border-[#dee2e6] hover:bg-[#e9ecef]"
-                    >
-                      📎 {selectedFiles.length > 0 ? 'הוסף עוד קבצים' : 'בחר קבצים'}
-                    </Button>
-                  </div>
-                )}
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => document.getElementById('media-upload')?.click()}
+                    className="bg-[#f8f9fa] border border-[#dee2e6] hover:bg-[#e9ecef]"
+                  >
+                    📎 {selectedFiles.length > 0 ? 'הוסף עוד קבצים' : 'בחר קבצים'}
+                  </Button>
+                </div>
               </div>
 
               <div className="flex gap-4">
