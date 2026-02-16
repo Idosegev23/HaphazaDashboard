@@ -87,8 +87,8 @@ export default function AdminLogsPage() {
     <div className="flex flex-col h-[calc(100vh-72px)]">
       <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
         <div className="mb-4">
-          <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">Audit Logs</h1>
-          <p className="text-[#6c757d]">System activity trail ({filteredLogs.length} logs)</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">📋 לוג פעילות מערכת</h1>
+          <p className="text-[#6c757d]">רישום פעילות המערכת ({filteredLogs.length} לוגים)</p>
         </div>
 
         {/* Filters */}
@@ -159,7 +159,7 @@ export default function AdminLogsPage() {
                     
                     {log.actor_id && (
                       <div className="text-xs text-[#6c757d] mt-2 flex items-center gap-2">
-                        <span>👤 User:</span>
+                        <span>👤 משתמש:</span>
                         <span className="font-mono  bg-white px-2 py-0.5 rounded">
                           {log.actor_id.slice(0, 12)}...
                         </span>
@@ -169,7 +169,7 @@ export default function AdminLogsPage() {
                     {log.meta && Object.keys(log.meta).length > 0 && (
                       <details className="mt-3">
                         <summary className="text-xs text-[#f2cc0d] cursor-pointer hover:underline">
-                          📋 View Metadata
+                          📋 הצג מטה-דאטה
                         </summary>
                         <pre className="mt-2 p-2  bg-white rounded text-xs text-[#6c757d] overflow-x-auto">
                           {JSON.stringify(log.meta, null, 2)}

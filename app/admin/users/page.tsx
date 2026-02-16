@@ -137,7 +137,7 @@ export default function AdminUsersPage() {
   };
 
   const handleBlockUser = async (userId: string, shouldBlock: boolean) => {
-    if (!confirm(`Are you sure you want to ${shouldBlock ? 'block' : 'unblock'} this user?`)) {
+    if (!confirm(`האם אתה בטוח שברצונך ${shouldBlock ? 'לחסום' : 'לבטל חסימה של'} משתמש זה?`)) {
       return;
     }
 
@@ -160,18 +160,18 @@ export default function AdminUsersPage() {
         p_metadata: {}
       });
 
-      alert(`✅ User ${shouldBlock ? 'blocked' : 'unblocked'} successfully!`);
+      alert(`✅ משתמש ${shouldBlock ? 'נחסם' : 'חסימתו בוטלה'} בהצלחה!`);
       loadUsers();
     } catch (error: any) {
       console.error('Error updating user:', error);
-      alert('Error updating user: ' + error.message);
+      alert('שגיאה בעדכון משתמש: ' + error.message);
     } finally {
       setProcessing(null);
     }
   };
 
   const handleVerifyUser = async (userId: string, userType: 'creator' | 'brand') => {
-    if (!confirm('Are you sure you want to verify this user?')) {
+    if (!confirm('האם אתה בטוח שברצונך לאמת משתמש זה?')) {
       return;
     }
 
@@ -195,18 +195,18 @@ export default function AdminUsersPage() {
         p_metadata: {}
       });
 
-      alert('✅ User verified successfully!');
+      alert('✅ משתמש אומת בהצלחה!');
       loadUsers();
     } catch (error: any) {
       console.error('Error verifying user:', error);
-      alert('Error verifying user: ' + error.message);
+      alert('שגיאה באימות משתמש: ' + error.message);
     } finally {
       setProcessing(null);
     }
   };
 
   const handleBulkBlock = async (shouldBlock: boolean) => {
-    if (!confirm(`Are you sure you want to ${shouldBlock ? 'block' : 'unblock'} ${selectedUsers.size} users?`)) {
+    if (!confirm(`האם אתה בטוח שברצונך ${shouldBlock ? 'לחסום' : 'לבטל חסימה של'} ${selectedUsers.size} משתמשים?`)) {
       return;
     }
 
@@ -233,12 +233,12 @@ export default function AdminUsersPage() {
         });
       }
 
-      alert(`✅ ${userIds.length} users ${shouldBlock ? 'blocked' : 'unblocked'} successfully!`);
+      alert(`✅ ${userIds.length} משתמשים ${shouldBlock ? 'נחסמו' : 'חסימתם בוטלה'} בהצלחה!`);
       setSelectedUsers(new Set());
       loadUsers();
     } catch (error: any) {
       console.error('Error in bulk operation:', error);
-      alert('Error in bulk operation: ' + error.message);
+      alert('שגיאה בפעולה מרובה: ' + error.message);
     } finally {
       setProcessing(null);
     }
@@ -300,7 +300,7 @@ export default function AdminUsersPage() {
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
       <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
-        <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">Users Management</h1>
+        <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">👥 ניהול משתמשים</h1>
         <p className="text-[#6c757d]">ניהול משתמשים, הרשאות וחסימות</p>
       </div>
 

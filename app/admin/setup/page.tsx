@@ -30,11 +30,11 @@ export default function AdminSetupPage() {
       }
 
       setResult(data);
-      alert('✅ Admin users set successfully!');
+      alert('✅ משתמשי אדמין הוגדרו בהצלחה!');
     } catch (err: any) {
       console.error('Error:', err);
-      setError(err.message || 'Failed to set admins');
-      alert('❌ Error: ' + (err.message || 'Failed to set admins'));
+      setError(err.message || 'נכשל בהגדרת אדמינים');
+      alert('❌ שגיאה: ' + (err.message || 'נכשל בהגדרת אדמינים'));
     } finally {
       setLoading(false);
     }
@@ -46,7 +46,7 @@ export default function AdminSetupPage() {
 
     try {
       // This would require running the migration
-      alert('⚠️ RLS fix requires running the migration file.\n\nPlease run:\nnpx supabase db push\n\nOr run the SQL from:\nsupabase/migrations/20260212_fix_campaigns_rls.sql\n\nin Supabase Dashboard.');
+      alert('⚠️ תיקון RLS דורש הרצת קובץ המיגרציה.\n\nאנא הרץ:\nnpx supabase db push\n\nאו הרץ את ה-SQL מ:\nsupabase/migrations/20260212_fix_campaigns_rls.sql\n\nב-Supabase Dashboard.');
     } catch (err: any) {
       console.error('Error:', err);
       setError(err.message);
@@ -59,15 +59,15 @@ export default function AdminSetupPage() {
     <div className="min-h-screen bg-[#f6f7f8] p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-[#212529] mb-2">Admin Setup</h1>
-          <p className="text-[#6c757d]">Configure admin users and system settings</p>
+          <h1 className="text-3xl font-bold text-[#212529] mb-2">⚙️ הגדרות אדמין</h1>
+          <p className="text-[#6c757d]">הגדרת משתמשי אדמין והגדרות מערכת</p>
         </div>
 
         {/* Set Admins */}
         <Card>
-          <h2 className="text-xl font-bold text-[#212529] mb-4">1️⃣ Set Admin Users</h2>
+          <h2 className="text-xl font-bold text-[#212529] mb-4">1️⃣ הגדר משתמשי אדמין</h2>
           <p className="text-[#6c757d] mb-4">
-            This will grant admin privileges to the following users:
+            פעולה זו תעניק הרשאות אדמין למשתמשים הבאים:
           </p>
           <ul className="list-disc list-inside mb-6 text-[#212529]">
             {adminEmails.map(email => (
@@ -80,14 +80,14 @@ export default function AdminSetupPage() {
             disabled={loading}
             className="bg-blue-600 hover:bg-blue-700"
           >
-            {loading ? 'Processing...' : 'Set Admin Users'}
+            {loading ? 'מעבד...' : 'הגדר משתמשי אדמין'}
           </Button>
 
           {result && (
             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <div className="font-bold text-green-700 mb-2">✅ Success!</div>
+              <div className="font-bold text-green-700 mb-2">✅ הצלחה!</div>
               <div className="text-sm text-green-600">
-                {result.count} user(s) updated
+                {result.count} משתמש/ים עודכנו
               </div>
               {result.users && (
                 <div className="mt-2 space-y-1">
@@ -103,14 +103,14 @@ export default function AdminSetupPage() {
 
           {error && (
             <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <div className="font-bold text-red-700 mb-2">❌ Error</div>
+              <div className="font-bold text-red-700 mb-2">❌ שגיאה</div>
               <div className="text-sm text-red-600">{error}</div>
               <div className="mt-3 text-xs text-[#6c757d]">
-                <strong>Note:</strong> If the RPC function doesn't exist, you need to run the migration first:
+                <strong>הערה:</strong> אם פונקציית ה-RPC לא קיימת, עליך להריץ את המיגרציה תחילה:
                 <pre className="mt-2 p-2 bg-gray-100 rounded overflow-x-auto">
                   npx supabase db push
                 </pre>
-                Or run the SQL from: <code>supabase/migrations/20260212_create_admin_functions.sql</code>
+                או הרץ את ה-SQL מ: <code>supabase/migrations/20260212_create_admin_functions.sql</code>
               </div>
             </div>
           )}
@@ -118,9 +118,9 @@ export default function AdminSetupPage() {
 
         {/* Fix RLS */}
         <Card>
-          <h2 className="text-xl font-bold text-[#212529] mb-4">2️⃣ Fix Campaigns RLS</h2>
+          <h2 className="text-xl font-bold text-[#212529] mb-4">2️⃣ תיקון RLS קמפיינים</h2>
           <p className="text-[#6c757d] mb-4">
-            This will update the Row Level Security policies for the campaigns table to allow campaign creation.
+            פעולה זו תעדכן את מדיניות Row Level Security עבור טבלת הקמפיינים כדי לאפשר יצירת קמפיינים.
           </p>
           
           <Button
@@ -128,28 +128,28 @@ export default function AdminSetupPage() {
             disabled={loading}
             className="bg-orange-600 hover:bg-orange-700"
           >
-            View Instructions
+            הצג הוראות
           </Button>
 
           <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div className="font-bold text-yellow-800 mb-2">⚠️ Manual Step Required</div>
+            <div className="font-bold text-yellow-800 mb-2">⚠️ נדרש שלב ידני</div>
             <div className="text-sm text-yellow-700 mb-3">
-              Run this migration to fix RLS policies:
+              הרץ מיגרציה זו כדי לתקן מדיניות RLS:
             </div>
             <pre className="text-xs bg-yellow-100 p-3 rounded overflow-x-auto">
               npx supabase db push
             </pre>
             <div className="text-xs text-yellow-600 mt-2">
-              Or run the SQL from: <code>supabase/migrations/20260212_fix_campaigns_rls.sql</code>
+              או הרץ את ה-SQL מ: <code>supabase/migrations/20260212_fix_campaigns_rls.sql</code>
             </div>
           </div>
         </Card>
 
         {/* Alternative: Manual SQL */}
         <Card className="bg-blue-50 border-2 border-blue-300">
-          <h2 className="text-xl font-bold text-blue-900 mb-4">💡 Alternative: Run SQL Manually</h2>
+          <h2 className="text-xl font-bold text-blue-900 mb-4">💡 אלטרנטיבה: הרץ SQL ידנית</h2>
           <p className="text-blue-700 mb-4">
-            If the above doesn't work, run this SQL directly in Supabase Dashboard → SQL Editor:
+            אם הנ"ל לא עובד, הרץ SQL זה ישירות ב-Supabase Dashboard → SQL Editor:
           </p>
           <pre className="text-xs bg-blue-100 p-4 rounded overflow-x-auto text-blue-900">
 {`-- Set admin users

@@ -119,7 +119,7 @@ export default function AdminPaymentsPage() {
   };
 
   const handleMarkAsPaid = async (paymentId: string, taskId: string) => {
-    if (!confirm('Are you sure you want to mark this payment as paid?')) {
+    if (!confirm('האם אתה בטוח שברצונך לסמן תשלום זה כשולם?')) {
       return;
     }
 
@@ -158,11 +158,11 @@ export default function AdminPaymentsPage() {
         p_metadata: {}
       });
 
-      alert('✅ Payment marked as paid successfully!');
+      alert('✅ התשלום סומן כשולם בהצלחה!');
       loadPayments();
     } catch (error: any) {
       console.error('Payment error:', error);
-      alert('Error marking payment as paid: ' + error.message);
+      alert('שגיאה בסימון תשלום כשולם: ' + error.message);
     } finally {
       setProcessing(null);
     }
@@ -189,11 +189,11 @@ export default function AdminPaymentsPage() {
 
   const handleCreateBatchPayout = async () => {
     if (selectedPayments.size === 0) {
-      alert('Please select at least one payment');
+      alert('אנא בחר לפחות תשלום אחד');
       return;
     }
 
-    if (!confirm(`Create batch payout for ${selectedPayments.size} payments?`)) {
+    if (!confirm(`ליצור תשלום קבוצתי עבור ${selectedPayments.size} תשלומים?`)) {
       return;
     }
 
@@ -206,7 +206,7 @@ export default function AdminPaymentsPage() {
       const totalAmount = selectedPaymentData.reduce((sum, p) => sum + Number(p.amount), 0);
 
       // Create batch payout
-      const batchName = `Batch ${new Date().toLocaleDateString('he-IL')} - ${new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}`;
+      const batchName = `אצווה ${new Date().toLocaleDateString('he-IL')} - ${new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}`;
       const { data: batch, error: batchError } = await supabase
         .from('batch_payouts')
         .insert({
@@ -261,7 +261,7 @@ export default function AdminPaymentsPage() {
         p_metadata: { payment_count: selectedPaymentIds.length, total_amount: totalAmount }
       });
 
-      alert(`✅ Batch payout created successfully! ${selectedPaymentIds.length} payments processed.`);
+      alert(`✅ תשלום קבוצתי נוצר בהצלחה! ${selectedPaymentIds.length} תשלומים עובדו.`);
       setSelectedPayments(new Set());
       setBatchNotes('');
       setShowBatchModal(false);
@@ -269,7 +269,7 @@ export default function AdminPaymentsPage() {
       loadBatches();
     } catch (error: any) {
       console.error('Batch payout error:', error);
-      alert('Error creating batch payout: ' + error.message);
+      alert('שגיאה ביצירת תשלום קבוצתי: ' + error.message);
     } finally {
       setProcessing(null);
     }
@@ -278,7 +278,7 @@ export default function AdminPaymentsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-[#212529] text-xl">Loading...</div>
+        <div className="text-[#212529] text-xl">טוען...</div>
       </div>
     );
   }
@@ -305,9 +305,9 @@ export default function AdminPaymentsPage() {
     .reduce((sum, p) => sum + Number(p.amount), 0);
 
   const statusLabels: Record<string, string> = {
-    pending: 'Pending',
-    paid: 'Paid',
-    failed: 'Failed',
+    pending: 'ממתין',
+    paid: 'שולם',
+    failed: 'נכשל',
   };
 
   const statusColors: Record<string, string> = {
@@ -320,18 +320,18 @@ export default function AdminPaymentsPage() {
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
       <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
-        <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">Payments Console</h1>
-        <p className="text-[#6c757d]">Manage creator payouts and batch operations</p>
+        <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">💰 קונסולת תשלומים</h1>
+        <p className="text-[#6c757d]">ניהול תשלומים למשפיענים ופעולות אצוות</p>
       </div>
 
       {/* Tabs */}
       <div className="px-4 lg:px-8 border-b border-[#dee2e6] bg-[#f8f9fa]">
         <div className="flex gap-6">
           {[
-            { id: 'pending', label: 'Pending', count: payments.filter(p => p.status === 'pending').length },
-            { id: 'paid', label: 'Paid', count: payments.filter(p => p.status === 'paid').length },
-            { id: 'failed', label: 'Failed', count: payments.filter(p => p.status === 'failed').length },
-            { id: 'batches', label: 'Batch History', count: batches.length },
+            { id: 'pending', label: 'ממתינים', count: payments.filter(p => p.status === 'pending').length },
+            { id: 'paid', label: 'שולמו', count: payments.filter(p => p.status === 'paid').length },
+            { id: 'failed', label: 'נכשלו', count: payments.filter(p => p.status === 'failed').length },
+            { id: 'batches', label: 'היסטוריית אצוות', count: batches.length },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -354,17 +354,17 @@ export default function AdminPaymentsPage() {
           {/* Stats */}
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
-              <div className="text-[#6c757d] text-sm mb-2">Total Paid</div>
+              <div className="text-[#6c757d] text-sm mb-2">סה״כ שולם</div>
               <div className="text-4xl font-bold text-[#f2cc0d]">₪{totalPaid.toLocaleString()}</div>
               <div className="text-xs text-[#6c757d] mt-2">
-                {payments.filter(p => p.status === 'paid').length} payments completed
+                {payments.filter(p => p.status === 'paid').length} תשלומים הושלמו
               </div>
             </Card>
             <Card>
-              <div className="text-[#6c757d] text-sm mb-2">Pending Payouts</div>
+              <div className="text-[#6c757d] text-sm mb-2">תשלומים ממתינים</div>
               <div className="text-4xl font-bold text-yellow-400">₪{totalPending.toLocaleString()}</div>
               <div className="text-xs text-[#6c757d] mt-2">
-                {payments.filter(p => p.status === 'pending').length} payments awaiting
+                {payments.filter(p => p.status === 'pending').length} תשלומים ממתינים
               </div>
             </Card>
           </div>
@@ -374,8 +374,8 @@ export default function AdminPaymentsPage() {
             <Card className="bg-blue-50 border-2 border-blue-500">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-bold text-[#212529]">{selectedPayments.size} payments selected</div>
-                  <div className="text-sm text-[#6c757d]">Total: ₪{selectedTotal.toLocaleString()}</div>
+                  <div className="font-bold text-[#212529]">{selectedPayments.size} תשלומים נבחרו</div>
+                  <div className="text-sm text-[#6c757d]">סה"כ: ₪{selectedTotal.toLocaleString()}</div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Button
@@ -383,13 +383,13 @@ export default function AdminPaymentsPage() {
                     disabled={processing === 'batch'}
                     className="bg-blue-600 hover:bg-blue-700"
                   >
-                    Create Batch Payout
+                    צור תשלום קבוצתי
                   </Button>
                   <button
                     onClick={() => setSelectedPayments(new Set())}
                     className="text-[#6c757d] hover:text-[#212529]"
                   >
-                    Clear
+                    נקה
                   </button>
                 </div>
               </div>
@@ -400,13 +400,13 @@ export default function AdminPaymentsPage() {
           {activeTab !== 'batches' && (
             <Card>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-[#212529]">{statusLabels[activeTab]} Payments</h2>
+                <h2 className="text-xl font-bold text-[#212529]">תשלומים {statusLabels[activeTab]}</h2>
                 {activeTab === 'pending' && filteredPayments.length > 0 && (
                   <button
                     onClick={toggleSelectAll}
                     className="text-sm text-blue-500 hover:underline"
                   >
-                    {selectedPayments.size === filteredPayments.length ? 'Deselect All' : 'Select All'}
+                    {selectedPayments.size === filteredPayments.length ? 'בטל בחירה' : 'בחר הכל'}
                   </button>
                 )}
               </div>
@@ -429,16 +429,16 @@ export default function AdminPaymentsPage() {
                       
                       <div className="flex-1">
                         <div className="text-[#212529] font-medium mb-1">
-                          {payment.tasks?.title || 'Untitled Task'}
+                          {payment.tasks?.title || 'משימה ללא שם'}
                         </div>
                         <div className="text-sm text-[#6c757d] mb-2">
                           {payment.tasks?.campaigns?.brands?.name} • {payment.tasks?.campaigns?.title}
                         </div>
                         <div className="flex items-center gap-3 text-xs text-[#6c757d]">
-                          <span>Created: {new Date(payment.created_at).toLocaleDateString()}</span>
+                          <span>נוצר: {new Date(payment.created_at).toLocaleDateString('he-IL')}</span>
                           {payment.paid_at && (
                             <span className="text-green-400">
-                              Paid: {new Date(payment.paid_at).toLocaleDateString()}
+                              שולם: {new Date(payment.paid_at).toLocaleDateString('he-IL')}
                             </span>
                           )}
                         </div>
@@ -449,7 +449,7 @@ export default function AdminPaymentsPage() {
                           <div className="text-2xl font-bold text-[#f2cc0d] mb-2">
                             ₪{Number(payment.amount).toLocaleString()}
                           </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${statusColors[payment.status]}`}>
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${statusColors[payment.status]}`}>
                             {statusLabels[payment.status]}
                           </span>
                         </div>
@@ -460,7 +460,7 @@ export default function AdminPaymentsPage() {
                             disabled={processing === payment.id}
                             className="bg-green-600 hover:bg-green-700"
                           >
-                            {processing === payment.id ? 'Processing...' : 'Mark as Paid'}
+                            {processing === payment.id ? 'מעבד...' : 'סמן כשולם'}
                           </Button>
                         )}
                       </div>
@@ -470,7 +470,7 @@ export default function AdminPaymentsPage() {
               ) : (
                 <div className="text-center py-12">
                   <div className="text-4xl mb-3">💰</div>
-                  <p className="text-[#6c757d] text-lg mb-2">No {activeTab} payments</p>
+                  <p className="text-[#6c757d] text-lg mb-2">אין תשלומים {statusLabels[activeTab]}</p>
                 </div>
               )}
             </Card>
@@ -479,7 +479,7 @@ export default function AdminPaymentsPage() {
           {/* Batch History */}
           {activeTab === 'batches' && (
             <Card>
-              <h2 className="text-xl font-bold text-[#212529] mb-4">Batch Payout History</h2>
+              <h2 className="text-xl font-bold text-[#212529] mb-4">היסטוריית תשלומים קבוצתיים</h2>
               {batches.length > 0 ? (
                 <div className="space-y-3">
                   {batches.map((batch) => (
@@ -490,16 +490,16 @@ export default function AdminPaymentsPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="font-medium text-[#212529] mb-1">
-                            Batch #{batch.id.slice(0, 8)}
+                            אצווה #{batch.id.slice(0, 8)}
                           </div>
                           <div className="text-sm text-[#6c757d] mb-2">
-                            {batch.payment_ids.length} payments
-                            {batch.created_at && ` • Created ${new Date(batch.created_at).toLocaleDateString()}`}
-                            {batch.executed_at && ` • Executed ${new Date(batch.executed_at).toLocaleDateString()}`}
+                            {batch.payment_ids.length} תשלומים
+                            {batch.created_at && ` • נוצר ${new Date(batch.created_at).toLocaleDateString('he-IL')}`}
+                            {batch.executed_at && ` • בוצע ${new Date(batch.executed_at).toLocaleDateString('he-IL')}`}
                           </div>
                           {batch.notes && (
                             <div className="text-xs text-[#6c757d] italic mt-2">
-                              Note: {batch.notes}
+                              הערה: {batch.notes}
                             </div>
                           )}
                         </div>
@@ -512,7 +512,7 @@ export default function AdminPaymentsPage() {
                             batch.status === 'failed' ? 'bg-red-500' :
                             'bg-yellow-500'
                           }`}>
-                            {batch.status === 'executed' ? 'Executed' : batch.status === 'failed' ? 'Failed' : 'Pending'}
+                            {batch.status === 'executed' ? 'בוצע' : batch.status === 'failed' ? 'נכשל' : 'ממתין'}
                           </span>
                         </div>
                       </div>
@@ -522,7 +522,7 @@ export default function AdminPaymentsPage() {
               ) : (
                 <div className="text-center py-12">
                   <div className="text-4xl mb-3">📦</div>
-                  <p className="text-[#6c757d] text-lg">No batch payouts yet</p>
+                  <p className="text-[#6c757d] text-lg">אין עדיין תשלומים קבוצתיים</p>
                 </div>
               )}
             </Card>
@@ -534,10 +534,10 @@ export default function AdminPaymentsPage() {
       {showBatchModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <Card className="max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold text-[#212529] mb-4">Create Batch Payout</h2>
+            <h2 className="text-2xl font-bold text-[#212529] mb-4">יצירת תשלום קבוצתי</h2>
             
             <div className="mb-6">
-              <div className="text-sm text-[#6c757d] mb-2">Selected Payments: {selectedPayments.size}</div>
+              <div className="text-sm text-[#6c757d] mb-2">תשלומים שנבחרו: {selectedPayments.size}</div>
               <div className="text-3xl font-bold text-[#f2cc0d] mb-4">₪{selectedTotal.toLocaleString()}</div>
               
               <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
@@ -556,12 +556,12 @@ export default function AdminPaymentsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-[#212529] mb-2">
-                  Notes (optional)
+                  הערות (אופציונלי)
                 </label>
                 <textarea
                   value={batchNotes}
                   onChange={(e) => setBatchNotes(e.target.value)}
-                  placeholder="Add notes about this batch payout..."
+                  placeholder="הוסף הערות על תשלום קבוצתי זה..."
                   className="w-full px-4 py-2 border border-[#dee2e6] rounded-lg"
                   rows={3}
                 />
@@ -574,7 +574,7 @@ export default function AdminPaymentsPage() {
                 disabled={processing === 'batch'}
                 className="flex-1 bg-green-600 hover:bg-green-700"
               >
-                {processing === 'batch' ? 'Processing...' : 'Execute Batch Payout'}
+                {processing === 'batch' ? 'מעבד...' : 'בצע תשלום קבוצתי'}
               </Button>
               <button
                 onClick={() => {
@@ -583,7 +583,7 @@ export default function AdminPaymentsPage() {
                 }}
                 className="px-6 py-2 text-[#6c757d] hover:text-[#212529]"
               >
-                Cancel
+                ביטול
               </button>
             </div>
           </Card>

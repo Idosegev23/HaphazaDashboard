@@ -153,7 +153,14 @@ export default function AdminCampaignsPage() {
   };
 
   const handleChangeStatus = async (campaignId: string, newStatus: 'draft' | 'open' | 'closed' | 'archived') => {
-    if (!confirm(`Are you sure you want to change this campaign status to "${newStatus}"?`)) {
+    const statusLabels: Record<string, string> = {
+      draft: 'טיוטה',
+      open: 'פתוח',
+      closed: 'סגור',
+      archived: 'בארכיון',
+    };
+    
+    if (!confirm(`האם אתה בטוח שברצונך לשנות את הסטטוס ל"${statusLabels[newStatus]}"?`)) {
       return;
     }
 
@@ -176,11 +183,11 @@ export default function AdminCampaignsPage() {
         p_metadata: { new_status: newStatus }
       });
 
-      alert('✅ Campaign status changed successfully!');
+      alert('✅ סטטוס הקמפיין שונה בהצלחה!');
       loadCampaigns();
     } catch (error: any) {
       console.error('Error changing status:', error);
-      alert('Error changing status: ' + error.message);
+      alert('שגיאה בשינוי סטטוס: ' + error.message);
     } finally {
       setProcessing(null);
     }
@@ -248,7 +255,7 @@ export default function AdminCampaignsPage() {
     <div className="flex flex-col h-[calc(100vh-72px)]">
       {/* Header */}
       <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
-        <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">Campaigns Management</h1>
+        <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">🎯 ניהול קמפיינים</h1>
         <p className="text-[#6c757d]">ניהול קמפיינים, משימות והתערבות בחריגות</p>
       </div>
 
