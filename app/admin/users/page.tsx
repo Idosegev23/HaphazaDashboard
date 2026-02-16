@@ -69,18 +69,39 @@ export default function AdminUsersPage() {
   const loadUsers = async () => {
     const supabase = createClient();
 
-    const { data, error } = await supabase
-      .from('users_profiles')
-      .select('user_id, email, display_name, avatar_url, is_blocked, created_at, creators(user_id, niches, tier, verified_at), brands(brand_id, name, verified_at)')
-      .order('created_at', { ascending: false });
+    // Use RPC function to get users with roles
+    const { data, error } = await supabase.rpc('get_admin_users');
 
     if (error) {
       console.error('Error loading users:', error);
+      alert('שגיאה בטעינת משתמשים: ' + error.message);
       setLoading(false);
       return;
     }
 
-    setUsers(data as any || []);
+    // Transform data to match UserProfile type
+    const transformedData = (data || []).map((user: any) => ({
+      user_id: user.user_id,
+      email: user.email,
+      display_name: user.display_name,
+      avatar_url: user.avatar_url,
+      role: user.role,
+      is_blocked: user.is_blocked,
+      created_at: user.created_at,
+      creators: user.creator_id ? {
+        user_id: user.creator_id,
+        niches: user.creator_niches,
+        tier: user.creator_tier,
+        verified_at: user.creator_verified_at
+      } : null,
+      brands: user.brand_id ? {
+        brand_id: user.brand_id,
+        name: user.brand_name,
+        verified_at: user.brand_verified_at
+      } : null
+    }));
+
+    setUsers(transformedData);
     setLoading(false);
   };
 
