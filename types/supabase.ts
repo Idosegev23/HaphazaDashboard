@@ -98,6 +98,13 @@ export type Database = {
             foreignKeyName: "applications_creator_id_fkey"
             columns: ["creator_id"]
             isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["creator_id"]
+          },
+          {
+            foreignKeyName: "applications_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
             referencedRelation: "creators"
             referencedColumns: ["user_id"]
           },
@@ -411,6 +418,7 @@ export type Database = {
           brand_id: string
           brief: string | null
           brief_url: string | null
+          brief_urls: string[] | null
           concept: string | null
           created_at: string | null
           currency: string | null
@@ -428,6 +436,7 @@ export type Database = {
           brand_id: string
           brief?: string | null
           brief_url?: string | null
+          brief_urls?: string[] | null
           concept?: string | null
           created_at?: string | null
           currency?: string | null
@@ -445,6 +454,7 @@ export type Database = {
           brand_id?: string
           brief?: string | null
           brief_url?: string | null
+          brief_urls?: string[] | null
           concept?: string | null
           created_at?: string | null
           currency?: string | null
@@ -509,6 +519,13 @@ export type Database = {
           total_tasks?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "creator_metrics_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: true
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["creator_id"]
+          },
           {
             foreignKeyName: "creator_metrics_creator_id_fkey"
             columns: ["creator_id"]
@@ -682,7 +699,21 @@ export type Database = {
             foreignKeyName: "disputes_raised_by_fkey"
             columns: ["raised_by"]
             isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "disputes_raised_by_fkey"
+            columns: ["raised_by"]
+            isOneToOne: false
             referencedRelation: "users_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "disputes_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
             referencedColumns: ["user_id"]
           },
           {
@@ -1047,6 +1078,13 @@ export type Database = {
             foreignKeyName: "selections_creator_id_fkey"
             columns: ["creator_id"]
             isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["creator_id"]
+          },
+          {
+            foreignKeyName: "selections_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
             referencedRelation: "creators"
             referencedColumns: ["user_id"]
           },
@@ -1103,6 +1141,13 @@ export type Database = {
             foreignKeyName: "shipment_addresses_creator_id_fkey"
             columns: ["creator_id"]
             isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["creator_id"]
+          },
+          {
+            foreignKeyName: "shipment_addresses_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
             referencedRelation: "creators"
             referencedColumns: ["user_id"]
           },
@@ -1150,6 +1195,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "campaigns"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipment_requests_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["creator_id"]
           },
           {
             foreignKeyName: "shipment_requests_creator_id_fkey"
@@ -1612,6 +1664,13 @@ export type Database = {
             foreignKeyName: "tasks_creator_id_fkey"
             columns: ["creator_id"]
             isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["creator_id"]
+          },
+          {
+            foreignKeyName: "tasks_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
             referencedRelation: "creators"
             referencedColumns: ["user_id"]
           },
@@ -1742,7 +1801,33 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_users_view: {
+        Row: {
+          avatar_url: string | null
+          brand_id: string | null
+          brand_name: string | null
+          brand_verified_at: string | null
+          created_at: string | null
+          creator_id: string | null
+          creator_niches: string[] | null
+          creator_tier: string | null
+          creator_verified_at: string | null
+          display_name: string | null
+          email: string | null
+          is_blocked: boolean | null
+          role: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_users_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       approve_application_and_create_tasks: {
@@ -1773,6 +1858,35 @@ export type Database = {
       create_shipment_request: {
         Args: { p_campaign_id: string; p_creator_id: string }
         Returns: Json
+      }
+      get_admin_users: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          brand_id: string
+          brand_name: string
+          brand_verified_at: string
+          created_at: string
+          creator_id: string
+          creator_niches: string[]
+          creator_tier: string
+          creator_verified_at: string
+          display_name: string
+          email: string
+          is_blocked: boolean
+          role: string
+          user_id: string
+        }[]
+      }
+      get_users_list: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          last_sign_in_at: string
+          raw_user_meta_data: Json
+        }[]
       }
       is_admin: { Args: never; Returns: boolean }
       is_brand_member: { Args: { brand_uuid: string }; Returns: boolean }
@@ -2033,3 +2147,4 @@ export const Constants = {
     },
   },
 } as const
+
