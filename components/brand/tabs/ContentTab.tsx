@@ -25,7 +25,6 @@ export function ContentTab({ campaignId }: ContentTabProps) {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const [viewingContent, setViewingContent] = useState<{ url: string; type: string } | null>(null);
-  const [feedbackForm, setFeedbackForm] = useState<{ uploadId: string; feedback: string } | null>(null);
   const [processing, setProcessing] = useState<string | null>(null);
 
   useEffect(() => {
@@ -91,12 +90,14 @@ export function ContentTab({ campaignId }: ContentTabProps) {
     const supabase = createClient();
 
     try {
-      const { error } = await supabase
-        .from('uploads')
-        .update({ status: 'approved' })
-        .eq('id', uploadId);
+      const { data, error } = await supabase.rpc('review_content' as any, {
+        p_upload_id: uploadId,
+        p_action: 'approve',
+      });
 
       if (error) throw error;
+      const result = data as any;
+      if (result && !result.success) throw new Error(result.error);
 
       alert('✅ התוכן אושר בהצלחה!');
       loadContent();
@@ -116,36 +117,15 @@ export function ContentTab({ campaignId }: ContentTabProps) {
     const supabase = createClient();
 
     try {
-      const upload = uploads.find(u => u.id === uploadId);
-
-      // Update upload status to rejected
-      const { error } = await supabase
-        .from('uploads')
-        .update({
-          status: 'rejected',
-          meta: { ...upload?.meta, rejection_reason: feedback || 'לא צוין' }
-        })
-        .eq('id', uploadId);
+      const { data, error } = await supabase.rpc('review_content' as any, {
+        p_upload_id: uploadId,
+        p_action: 'reject',
+        p_feedback: feedback || 'התוכן נדחה - נדרש תיקון',
+      });
 
       if (error) throw error;
-
-      // Update task status to needs_edits so creator knows to resubmit
-      if (upload?.task_id) {
-        await supabase
-          .from('tasks')
-          .update({ status: 'needs_edits', updated_at: new Date().toISOString() })
-          .eq('id', upload.task_id);
-
-        // Create a revision request so creator sees the feedback
-        await supabase
-          .from('revision_requests')
-          .insert({
-            task_id: upload.task_id,
-            note: feedback || 'התוכן נדחה - נדרש תיקון',
-            tags: ['content_rejected'],
-            status: 'open',
-          });
-      }
+      const result = data as any;
+      if (result && !result.success) throw new Error(result.error);
 
       alert('❌ התוכן נדחה והמשפיען יקבל הודעה לתקן');
       loadContent();

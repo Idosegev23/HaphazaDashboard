@@ -11,11 +11,17 @@
       "Bash(__NEW_LINE_3394bca55b0b1764__ curl -s -X POST \"https://api.supabase.com/v1/projects/$PROJECT_ID/database/query\" -H \"Authorization: Bearer $ACCESS_TOKEN\" -H \"Content-Type: application/json\" -d '{\"\"query\"\": \"\"SELECT policyname, cmd, qual FROM pg_policies WHERE tablename = ''''users_profiles'''' AND cmd = ''''SELECT'''' ORDER BY policyname;\"\"}')",
       "Bash(__NEW_LINE_98c77932762bfe9e__ curl -s -X POST \"https://api.supabase.com/v1/projects/$PROJECT_ID/database/query\" -H \"Authorization: Bearer $ACCESS_TOKEN\" -H \"Content-Type: application/json\" -d '{\"\"query\"\": \"\"SELECT policyname, cmd, qual FROM pg_policies WHERE tablename = ''''creator_metrics'''' AND cmd = ''''SELECT'''' ORDER BY policyname;\"\"}')",
       "Bash(__NEW_LINE_a4be0792f81162f2__ curl -s -X POST \"https://api.supabase.com/v1/projects/$PROJECT_ID/database/query\" -H \"Authorization: Bearer $ACCESS_TOKEN\" -H \"Content-Type: application/json\" -d '{\"\"query\"\": \"\"SELECT count\\(*\\) as brand_users_count FROM brand_users; SELECT count\\(*\\) as profiles_count FROM users_profiles;\"\"}')",
-      "Bash(claude mcp add:*)"
+      "Bash(claude mcp add:*)",
+      "Bash(__NEW_LINE_b1792fc331d2cc55__ curl -s -X POST \"https://api.supabase.com/v1/projects/$PROJECT_ID/database/query\" -H \"Authorization: Bearer $ACCESS_TOKEN\" -H \"Content-Type: application/json\" -d '{\"\"query\"\": \"\"SELECT column_name FROM information_schema.columns WHERE table_name = ''''tasks'''' AND column_name = ''''updated_at'''';\"\"}')",
+      "Bash(npx tsc:*)",
+      "Bash(supabase status:*)",
+      "Bash(git -C /Users/idosegev/Downloads/TriRoars/Leaders/influencorcom status)",
+      "Bash(supabase migration list:*)",
+      "Bash(ls:*)"
     ]
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "supabase"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }
