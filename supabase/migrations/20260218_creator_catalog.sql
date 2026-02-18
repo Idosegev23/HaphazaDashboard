@@ -19,3 +19,10 @@ DROP POLICY IF EXISTS "Users can view their own creator profile" ON public.creat
 CREATE POLICY "Authenticated users can view creators" ON public.creators
   FOR SELECT TO authenticated
   USING (true);
+
+-- 5. Add direct FK from creators to users_profiles for PostgREST join support
+-- creators already has FK to auth.users, but PostgREST needs a direct FK to resolve
+-- the users_profiles!inner(...) embedding syntax
+ALTER TABLE public.creators
+  ADD CONSTRAINT creators_profile_fkey
+  FOREIGN KEY (user_id) REFERENCES public.users_profiles(user_id);

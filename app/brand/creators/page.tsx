@@ -100,7 +100,7 @@ export default function CreatorCatalogPage() {
       .select(`
         user_id, bio, city, niches, tier, platforms, gender, country, age_range,
         verified_at, created_at,
-        users_profiles!inner(display_name, avatar_url, language),
+        users_profiles!creators_profile_fkey!inner(display_name, avatar_url, language),
         creator_metrics(average_rating, total_tasks, approval_rate)
       `)
       .order('created_at', { ascending: false });
