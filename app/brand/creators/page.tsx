@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/hooks/use-user';
 import { useRouter } from 'next/navigation';
@@ -14,7 +14,6 @@ import {
   formatFollowers,
   PLATFORM_ICONS,
 } from '@/components/brand/CreatorCard';
-import { DrawerPanel } from '@/components/layout/DrawerPanel';
 import { TierBadge, TierLevel } from '@/components/ui/TierBadge';
 
 const NICHES = [
@@ -65,11 +64,13 @@ export default function CreatorCatalogPage() {
   const [ageFilter, setAgeFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'rating' | 'followers' | 'recent'>('recent');
 
-  // Drawer
+  // Modal
   const [selectedCreator, setSelectedCreator] = useState<CatalogCreator | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [portfolioItems, setPortfolioItems] = useState<FullPortfolioItem[]>([]);
   const [loadingPortfolio, setLoadingPortfolio] = useState(false);
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user && !['brand_manager', 'brand_user', 'admin'].includes(user.role || '')) {
@@ -167,10 +168,12 @@ export default function CreatorCatalogPage() {
     });
   }, [user?.id]);
 
-  const openCreatorDrawer = async (creator: CatalogCreator) => {
+  const openCreatorModal = async (creator: CatalogCreator) => {
     setSelectedCreator(creator);
-    setDrawerOpen(true);
+    setModalOpen(true);
+    setActiveMediaIndex(0);
     setLoadingPortfolio(true);
+    document.body.style.overflow = 'hidden';
 
     const supabase = createClient();
     const { data } = await supabase
@@ -182,6 +185,23 @@ export default function CreatorCatalogPage() {
     setPortfolioItems((data || []) as FullPortfolioItem[]);
     setLoadingPortfolio(false);
   };
+
+  const closeModal = useCallback(() => {
+    setModalOpen(false);
+    setSelectedCreator(null);
+    setPortfolioItems([]);
+    setActiveMediaIndex(0);
+    document.body.style.overflow = '';
+  }, []);
+
+  // Close modal on Escape
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && modalOpen) closeModal();
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [modalOpen, closeModal]);
 
   // Extract unique countries from data
   const countries = useMemo(() => {
@@ -468,7 +488,7 @@ export default function CreatorCatalogPage() {
               <CreatorCard
                 key={creator.user_id}
                 creator={creator}
-                onClick={() => openCreatorDrawer(creator)}
+                onClick={() => openCreatorModal(creator)}
                 isFavorite={favorites.has(creator.user_id)}
                 onToggleFavorite={() => toggleFavorite(creator.user_id)}
               />
@@ -499,250 +519,316 @@ export default function CreatorCatalogPage() {
         )}
       </div>
 
-      {/* Creator Detail Drawer */}
-      <DrawerPanel
-        isOpen={drawerOpen}
-        onClose={() => {
-          setDrawerOpen(false);
-          setSelectedCreator(null);
-          setPortfolioItems([]);
-        }}
-        title={sc?.users_profiles?.display_name || 'פרופיל יוצר'}
-      >
-        {sc && (
-          <div className="space-y-6">
-            {/* Hero portfolio in drawer */}
-            {portfolioItems.length > 0 && !loadingPortfolio && (
-              <div className="relative -mx-6 -mt-6 mb-4">
-                <div className="aspect-video overflow-hidden bg-[#f8f9fa]">
-                  {portfolioItems[0].media_type === 'video' ? (
-                    <video
-                      src={portfolioItems[0].media_url}
-                      className="w-full h-full object-cover"
-                      controls
-                      playsInline
-                    />
-                  ) : (
-                    <img
-                      src={portfolioItems[0].media_url}
-                      alt={portfolioItems[0].title}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </div>
-              </div>
-            )}
+      {/* Creator Profile Modal */}
+      {modalOpen && sc && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={closeModal}
+          />
 
-            {/* Profile Header */}
-            <div className="flex items-center gap-4">
-              <div
-                className={`w-20 h-20 rounded-full overflow-hidden flex-shrink-0 border-3 ${
-                  sc.verified_at ? 'border-[#f2cc0d]' : 'border-[#dee2e6]'
-                }`}
-              >
-                {sc.users_profiles?.avatar_url ? (
-                  <img
-                    src={sc.users_profiles.avatar_url}
-                    alt={sc.users_profiles.display_name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#f8f9fa] flex items-center justify-center text-3xl text-[#6c757d]">
-                    {(sc.users_profiles?.display_name || '?').charAt(0)}
-                  </div>
-                )}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-2xl font-bold text-[#212529]">
-                    {sc.users_profiles?.display_name}
-                  </h3>
-                  <button
-                    onClick={() => toggleFavorite(sc.user_id)}
-                    className="text-2xl hover:scale-110 transition-transform"
-                  >
-                    {favorites.has(sc.user_id) ? '\u2764\uFE0F' : '\u2661'}
-                  </button>
-                </div>
-                <StarRating rating={scMetrics?.average_rating ?? null} />
-                {sc.tier && (
-                  <div className="mt-1">
-                    <TierBadge tier={sc.tier as TierLevel} showTooltip={false} />
-                  </div>
-                )}
-              </div>
-            </div>
+          {/* Modal */}
+          <div
+            ref={modalRef}
+            className="relative z-10 w-full max-w-5xl mx-4 my-6 max-h-[calc(100vh-3rem)] overflow-y-auto bg-white rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+          >
+            {/* Close button */}
+            <button
+              onClick={closeModal}
+              className="sticky top-4 right-4 float-left z-20 w-10 h-10 rounded-full bg-black/10 hover:bg-black/20 backdrop-blur-sm flex items-center justify-center transition-colors mr-4 mt-4"
+            >
+              <svg className="w-5 h-5 text-[#495057]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
 
-            {/* Bio */}
-            {sc.bio && (
-              <div>
-                <h4 className="text-sm font-medium text-[#6c757d] mb-2">אודות</h4>
-                <p className="text-[#212529] leading-relaxed whitespace-pre-wrap">{sc.bio}</p>
-              </div>
-            )}
+            {/* Two-column layout */}
+            <div className="flex flex-col lg:flex-row">
 
-            {/* Info Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              {sc.age_range && (
-                <div className="bg-[#f8f9fa] rounded-lg p-3 border border-[#dee2e6]">
-                  <div className="text-xs text-[#6c757d] mb-1">גיל</div>
-                  <div className="text-[#212529] font-medium">{sc.age_range}</div>
-                </div>
-              )}
-              {(sc.city || sc.country) && (
-                <div className="bg-[#f8f9fa] rounded-lg p-3 border border-[#dee2e6]">
-                  <div className="text-xs text-[#6c757d] mb-1">מיקום</div>
-                  <div className="text-[#212529] font-medium">
-                    {[sc.city, sc.country].filter(Boolean).join(', ')}
-                  </div>
-                </div>
-              )}
-              {scJoinDate && (
-                <div className="bg-[#f8f9fa] rounded-lg p-3 border border-[#dee2e6]">
-                  <div className="text-xs text-[#6c757d] mb-1">תאריך הצטרפות</div>
-                  <div className="text-[#212529] font-medium">{scJoinDate}</div>
-                </div>
-              )}
-              {sc.users_profiles?.language && (
-                <div className="bg-[#f8f9fa] rounded-lg p-3 border border-[#dee2e6]">
-                  <div className="text-xs text-[#6c757d] mb-1">שפה</div>
-                  <div className="text-[#212529] font-medium">
-                    {LANG_LABELS[sc.users_profiles.language] || sc.users_profiles.language}
-                  </div>
-                </div>
-              )}
-              {sc.gender && (
-                <div className="bg-[#f8f9fa] rounded-lg p-3 border border-[#dee2e6]">
-                  <div className="text-xs text-[#6c757d] mb-1">מגדר</div>
-                  <div className="text-[#212529] font-medium">
-                    {sc.gender === 'female' ? 'נקבה' : sc.gender === 'male' ? 'זכר' : 'אחר'}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Niches */}
-            {sc.niches && sc.niches.length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium text-[#6c757d] mb-2">תחומי עניין</h4>
-                <div className="flex flex-wrap gap-2">
-                  {sc.niches.map((niche) => (
-                    <span
-                      key={niche}
-                      className="px-3 py-1 bg-[#f2cc0d]/10 rounded-full text-sm text-[#946f00] border border-[#f2cc0d]/20"
-                    >
-                      {niche}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Metrics */}
-            {scMetrics && (
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-[#f8f9fa] rounded-lg p-3 text-center border border-[#dee2e6]">
-                  <div className="text-2xl font-bold text-[#212529]">
-                    {scMetrics.average_rating?.toFixed(1) || '-'}
-                  </div>
-                  <div className="text-xs text-[#6c757d]">ציון</div>
-                </div>
-                <div className="bg-[#f8f9fa] rounded-lg p-3 text-center border border-[#dee2e6]">
-                  <div className="text-2xl font-bold text-[#212529]">
-                    {scMetrics.total_tasks || 0}
-                  </div>
-                  <div className="text-xs text-[#6c757d]">קמפיינים</div>
-                </div>
-                <div className="bg-[#f8f9fa] rounded-lg p-3 text-center border border-[#dee2e6]">
-                  <div className="text-2xl font-bold text-[#212529]">
-                    {scMetrics.approval_rate ? `${Math.round(scMetrics.approval_rate)}%` : '-'}
-                  </div>
-                  <div className="text-xs text-[#6c757d]">אחוז אישור</div>
-                </div>
-              </div>
-            )}
-
-            {/* Platforms */}
-            {sc.platforms && Object.keys(sc.platforms).length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium text-[#6c757d] mb-2">פלטפורמות</h4>
-                <div className="space-y-2">
-                  {Object.entries(sc.platforms).map(([name, data]) => {
-                    if (!data) return null;
-                    return (
-                      <div
-                        key={name}
-                        className="flex items-center justify-between bg-[#f8f9fa] rounded-lg px-4 py-3 border border-[#dee2e6]"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="font-bold text-[#212529] text-sm w-6">
-                            {PLATFORM_ICONS[name] || name}
-                          </span>
-                          <span className="text-[#212529]">{name}</span>
-                          {(data.handle || data.username) && (
-                            <span className="text-[#6c757d] text-sm">@{data.handle || data.username}</span>
-                          )}
-                        </div>
-                        {data.followers != null && (
-                          <span className="font-bold text-[#212529]">
-                            {formatFollowers(data.followers)}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                  <div className="flex justify-end pt-1">
-                    <span className="text-sm font-bold text-[#f2cc0d]">
-                      {formatFollowers(getTotalFollowers(sc.platforms))} עוקבים
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Portfolio Gallery */}
-            <div>
-              <h4 className="text-sm font-medium text-[#6c757d] mb-2">תיק עבודות</h4>
-              {loadingPortfolio ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="w-8 h-8 border-3 border-[#f2cc0d] border-t-transparent rounded-full animate-spin" />
-                </div>
-              ) : portfolioItems.length > 0 ? (
-                <div className="grid grid-cols-2 gap-3">
-                  {portfolioItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="aspect-square rounded-xl overflow-hidden bg-[#f8f9fa] border border-[#dee2e6] hover:border-[#f2cc0d]/40 transition-colors"
-                    >
-                      {item.media_type === 'video' ? (
+              {/* LEFT: Content Gallery */}
+              <div className="lg:w-[58%] flex-shrink-0 p-5 pb-0 lg:pb-5">
+                {/* Active media - hero */}
+                <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-[#f1f3f5]">
+                  {loadingPortfolio ? (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-10 h-10 border-4 border-[#f2cc0d] border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  ) : portfolioItems.length > 0 ? (
+                    <>
+                      {portfolioItems[activeMediaIndex]?.media_type === 'video' ? (
                         <video
-                          src={item.media_url}
+                          key={portfolioItems[activeMediaIndex].id}
+                          src={portfolioItems[activeMediaIndex].media_url}
                           className="w-full h-full object-cover"
                           controls
                           playsInline
+                          autoPlay
+                          muted
                         />
                       ) : (
                         <img
-                          src={item.media_url}
-                          alt={item.title}
+                          key={portfolioItems[activeMediaIndex]?.id}
+                          src={portfolioItems[activeMediaIndex]?.media_url}
+                          alt={portfolioItems[activeMediaIndex]?.title}
                           className="w-full h-full object-cover"
                         />
                       )}
+                      {/* Navigation arrows */}
+                      {portfolioItems.length > 1 && (
+                        <>
+                          <button
+                            onClick={() => setActiveMediaIndex((prev) => (prev > 0 ? prev - 1 : portfolioItems.length - 1))}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-lg flex items-center justify-center transition-all"
+                          >
+                            <svg className="w-5 h-5 text-[#495057]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => setActiveMediaIndex((prev) => (prev < portfolioItems.length - 1 ? prev + 1 : 0))}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-lg flex items-center justify-center transition-all"
+                          >
+                            <svg className="w-5 h-5 text-[#495057]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                          </button>
+                          {/* Counter */}
+                          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/40 backdrop-blur-sm rounded-full text-white text-xs font-medium">
+                            {activeMediaIndex + 1} / {portfolioItems.length}
+                          </div>
+                        </>
+                      )}
+                    </>
+                  ) : sc.users_profiles?.avatar_url ? (
+                    <img
+                      src={sc.users_profiles.avatar_url}
+                      alt={sc.users_profiles.display_name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+                      <span className="text-8xl font-bold text-[#dee2e6]">
+                        {(sc.users_profiles?.display_name || '?').charAt(0)}
+                      </span>
+                      <p className="text-[#adb5bd] text-sm">אין תוכן בתיק עבודות</p>
                     </div>
-                  ))}
+                  )}
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center bg-[#f8f9fa] rounded-xl border border-dashed border-[#dee2e6]">
-                  <svg className="w-10 h-10 text-[#dee2e6] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <p className="text-[#adb5bd] text-sm">אין פריטים בתיק העבודות</p>
+
+                {/* Thumbnails row */}
+                {!loadingPortfolio && portfolioItems.length > 1 && (
+                  <div className="flex gap-2 mt-3 overflow-x-auto pb-2">
+                    {portfolioItems.map((item, idx) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setActiveMediaIndex(idx)}
+                        className={`relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden transition-all ${
+                          idx === activeMediaIndex
+                            ? 'ring-2 ring-[#f2cc0d] ring-offset-2'
+                            : 'opacity-60 hover:opacity-100'
+                        }`}
+                      >
+                        {item.media_type === 'video' ? (
+                          <>
+                            <video
+                              src={item.media_url}
+                              className="w-full h-full object-cover"
+                              muted
+                              playsInline
+                              preload="metadata"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-5 h-5 bg-black/40 rounded-full flex items-center justify-center">
+                                <svg className="w-2.5 h-2.5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z" />
+                                </svg>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <img
+                            src={item.media_url}
+                            alt={item.title}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* RIGHT: Creator Info */}
+              <div className="lg:w-[42%] p-5 lg:pr-6 lg:border-r border-[#f1f3f5] space-y-5 overflow-y-auto">
+
+                {/* Profile Header */}
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 ${
+                      sc.verified_at ? 'border-[#f2cc0d]' : 'border-[#dee2e6]'
+                    }`}
+                  >
+                    {sc.users_profiles?.avatar_url ? (
+                      <img
+                        src={sc.users_profiles.avatar_url}
+                        alt={sc.users_profiles.display_name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-[#f8f9fa] flex items-center justify-center text-2xl text-[#6c757d]">
+                        {(sc.users_profiles?.display_name || '?').charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xl font-bold text-[#212529] truncate">
+                        {sc.users_profiles?.display_name}
+                      </h3>
+                      <button
+                        onClick={() => toggleFavorite(sc.user_id)}
+                        className="text-xl hover:scale-110 transition-transform flex-shrink-0"
+                      >
+                        {favorites.has(sc.user_id) ? '\u2764\uFE0F' : '\u2661'}
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <StarRating rating={scMetrics?.average_rating ?? null} />
+                      {sc.tier && (
+                        <TierBadge tier={sc.tier as TierLevel} showTooltip={false} showLabel={false} className="scale-90" />
+                      )}
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                {/* Bio */}
+                {sc.bio && (
+                  <p className="text-[#495057] text-sm leading-relaxed whitespace-pre-wrap">{sc.bio}</p>
+                )}
+
+                {/* Metrics row */}
+                {scMetrics && (
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="bg-[#f8f9fa] rounded-xl p-3 text-center">
+                      <div className="text-xl font-bold text-[#212529]">
+                        {scMetrics.average_rating?.toFixed(1) || '-'}
+                      </div>
+                      <div className="text-[10px] text-[#868e96] font-medium">ציון</div>
+                    </div>
+                    <div className="bg-[#f8f9fa] rounded-xl p-3 text-center">
+                      <div className="text-xl font-bold text-[#212529]">
+                        {scMetrics.total_tasks || 0}
+                      </div>
+                      <div className="text-[10px] text-[#868e96] font-medium">קמפיינים</div>
+                    </div>
+                    <div className="bg-[#f8f9fa] rounded-xl p-3 text-center">
+                      <div className="text-xl font-bold text-[#212529]">
+                        {scMetrics.approval_rate ? `${Math.round(scMetrics.approval_rate)}%` : '-'}
+                      </div>
+                      <div className="text-[10px] text-[#868e96] font-medium">אחוז אישור</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Niches */}
+                {sc.niches && sc.niches.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {sc.niches.map((niche) => (
+                      <span
+                        key={niche}
+                        className="px-2.5 py-1 bg-[#f2cc0d]/10 rounded-full text-xs font-medium text-[#946f00] border border-[#f2cc0d]/20"
+                      >
+                        {niche}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Info details */}
+                <div className="space-y-2 text-sm">
+                  {(sc.city || sc.country) && (
+                    <div className="flex items-center gap-2 text-[#495057]">
+                      <svg className="w-4 h-4 text-[#adb5bd] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {[sc.city, sc.country].filter(Boolean).join(', ')}
+                    </div>
+                  )}
+                  {sc.age_range && (
+                    <div className="flex items-center gap-2 text-[#495057]">
+                      <svg className="w-4 h-4 text-[#adb5bd] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      גיל {sc.age_range}
+                      {sc.gender && (
+                        <span className="text-[#adb5bd]">
+                          {' \u00B7 '}{sc.gender === 'female' ? 'נקבה' : sc.gender === 'male' ? 'זכר' : 'אחר'}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {sc.users_profiles?.language && (
+                    <div className="flex items-center gap-2 text-[#495057]">
+                      <svg className="w-4 h-4 text-[#adb5bd] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                      </svg>
+                      {LANG_LABELS[sc.users_profiles.language] || sc.users_profiles.language}
+                    </div>
+                  )}
+                  {scJoinDate && (
+                    <div className="flex items-center gap-2 text-[#495057]">
+                      <svg className="w-4 h-4 text-[#adb5bd] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      הצטרפות: {scJoinDate}
+                    </div>
+                  )}
+                </div>
+
+                {/* Platforms */}
+                {sc.platforms && Object.keys(sc.platforms).length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">פלטפורמות</h4>
+                    <div className="space-y-1.5">
+                      {Object.entries(sc.platforms).map(([name, data]) => {
+                        if (!data) return null;
+                        return (
+                          <div
+                            key={name}
+                            className="flex items-center justify-between py-2 px-3 bg-[#f8f9fa] rounded-lg text-sm"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-[#212529] text-xs w-5">
+                                {PLATFORM_ICONS[name] || name}
+                              </span>
+                              <span className="text-[#495057]">{name}</span>
+                              {(data.handle || data.username) && (
+                                <span className="text-[#adb5bd] text-xs">@{data.handle || data.username}</span>
+                              )}
+                            </div>
+                            {data.followers != null && (
+                              <span className="font-bold text-[#212529] text-sm">
+                                {formatFollowers(data.followers)}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="text-left">
+                      <span className="text-sm font-bold text-[#f2cc0d]">
+                        {formatFollowers(getTotalFollowers(sc.platforms))} עוקבים
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        )}
-      </DrawerPanel>
+        </div>
+      )}
     </div>
   );
 }
