@@ -4,7 +4,18 @@
       "Bash(git -C /Users/idosegev/Downloads/TriRoars/Leaders/influencorcom log --oneline)",
       "Bash(supabase link:*)",
       "Bash(curl:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(ACCESS_TOKEN=\"sbp_8acd6a360d621c1b237f0e1c2f8eac3e1579a1f4\")",
+      "Bash(PROJECT_ID=\"cmbdmphuysntziwuosev\")",
+      "Bash(__NEW_LINE_6d586e19b9d0f869__ curl -s -X POST \"https://api.supabase.com/v1/projects/$PROJECT_ID/database/query\" -H \"Authorization: Bearer $ACCESS_TOKEN\" -H \"Content-Type: application/json\" -d '{\"\"query\"\": \"\"SELECT policyname, cmd, qual, roles FROM pg_policies WHERE tablename = ''''creators'''' ORDER BY policyname;\"\"}')",
+      "Bash(__NEW_LINE_3394bca55b0b1764__ curl -s -X POST \"https://api.supabase.com/v1/projects/$PROJECT_ID/database/query\" -H \"Authorization: Bearer $ACCESS_TOKEN\" -H \"Content-Type: application/json\" -d '{\"\"query\"\": \"\"SELECT policyname, cmd, qual FROM pg_policies WHERE tablename = ''''users_profiles'''' AND cmd = ''''SELECT'''' ORDER BY policyname;\"\"}')",
+      "Bash(__NEW_LINE_98c77932762bfe9e__ curl -s -X POST \"https://api.supabase.com/v1/projects/$PROJECT_ID/database/query\" -H \"Authorization: Bearer $ACCESS_TOKEN\" -H \"Content-Type: application/json\" -d '{\"\"query\"\": \"\"SELECT policyname, cmd, qual FROM pg_policies WHERE tablename = ''''creator_metrics'''' AND cmd = ''''SELECT'''' ORDER BY policyname;\"\"}')",
+      "Bash(__NEW_LINE_a4be0792f81162f2__ curl -s -X POST \"https://api.supabase.com/v1/projects/$PROJECT_ID/database/query\" -H \"Authorization: Bearer $ACCESS_TOKEN\" -H \"Content-Type: application/json\" -d '{\"\"query\"\": \"\"SELECT count\\(*\\) as brand_users_count FROM brand_users; SELECT count\\(*\\) as profiles_count FROM users_profiles;\"\"}')",
+      "Bash(claude mcp add:*)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "supabase"
+  ],
+  "enableAllProjectMcpServers": true
 }

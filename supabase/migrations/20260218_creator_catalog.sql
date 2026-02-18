@@ -11,3 +11,11 @@ DROP POLICY IF EXISTS "Brands can view creator metrics" ON public.creator_metric
 CREATE POLICY "Brands can view creator metrics" ON public.creator_metrics
   FOR SELECT TO authenticated
   USING (true);
+
+-- 4. Fix creators SELECT policy - allow all authenticated users to browse catalog
+-- Previous policy only checked brand_users table but missed memberships table
+DROP POLICY IF EXISTS "Admins and brands can view creator profiles" ON public.creators;
+DROP POLICY IF EXISTS "Users can view their own creator profile" ON public.creators;
+CREATE POLICY "Authenticated users can view creators" ON public.creators
+  FOR SELECT TO authenticated
+  USING (true);
