@@ -19,12 +19,15 @@ type FormData = {
   password: string;
   confirmPassword: string;
   displayName: string;
+  avatarFile: File | null;
+  avatarPreview: string;
 
   // Step 2: Personal Details
   age: string;
   gender: string;
   country: string;
   city: string;
+  bio: string;
 
   // Step 3: Professional Info
   niches: string[];
@@ -90,10 +93,13 @@ export default function CreatorRegisterPage() {
     password: "",
     confirmPassword: "",
     displayName: "",
+    avatarFile: null,
+    avatarPreview: "",
     age: "",
     gender: "",
     country: "ישראל",
     city: "",
+    bio: "",
     niches: [],
     occupations: [],
     platforms: [],
@@ -101,6 +107,26 @@ export default function CreatorRegisterPage() {
   });
 
   const totalSteps = 5;
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setError("גודל התמונה חייב להיות עד 2MB");
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      setError("יש להעלות קובץ תמונה בלבד");
+      return;
+    }
+    setError("");
+    const preview = URL.createObjectURL(file);
+    setFormData((prev) => ({
+      ...prev,
+      avatarFile: file,
+      avatarPreview: preview,
+    }));
+  };
 
   const handleNext = () => {
     // Validation per step
@@ -264,7 +290,30 @@ export default function CreatorRegisterPage() {
 
       console.log("User created:", authData.user.id);
 
-      // 2. יצירת פרופיל
+      // 2. העלאת תמונת פרופיל (אם נבחרה)
+      let avatarUrl: string | null = null;
+      if (formData.avatarFile) {
+        const fileExt = formData.avatarFile.name.split(".").pop();
+        const fileName = `${authData.user.id}-${Date.now()}.${fileExt}`;
+        const filePath = `avatars/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(filePath, formData.avatarFile);
+
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
+            .from("avatars")
+            .getPublicUrl(filePath);
+          avatarUrl = urlData.publicUrl;
+          console.log("Avatar uploaded:", avatarUrl);
+        } else {
+          console.error("Avatar upload error:", uploadError);
+          // לא חוסם - ממשיך בלי תמונה
+        }
+      }
+
+      // 3. יצירת פרופיל
       const { error: profileError } = await supabase
         .from("users_profiles")
         .insert({
@@ -272,6 +321,7 @@ export default function CreatorRegisterPage() {
           display_name: formData.displayName,
           email: formData.email,
           language: "he",
+          avatar_url: avatarUrl,
         });
 
       if (profileError) {
@@ -281,7 +331,7 @@ export default function CreatorRegisterPage() {
 
       console.log("Profile created");
 
-      // 3. יצירת creator עם כל הפרטים
+      // 4. יצירת creator עם כל הפרטים
       const platformsData = formData.platforms.reduce((acc, p) => {
         acc[p.name] = {
           handle: p.handle,
@@ -290,11 +340,17 @@ export default function CreatorRegisterPage() {
         return acc;
       }, {} as any);
 
+      // Convert age to age_range
+      const ageNum = parseInt(formData.age);
+      const ageRange = ageNum < 18 ? '13-17' : ageNum < 25 ? '18-24' : ageNum < 35 ? '25-34' : ageNum < 45 ? '35-44' : '45+';
+
       const { error: creatorError } = await supabase.from("creators").insert({
         user_id: authData.user.id,
-        age: parseInt(formData.age),
+        age_range: ageRange,
         gender: formData.gender,
         country: formData.country,
+        city: formData.city,
+        bio: formData.bio || null,
         niches: formData.niches,
         occupations: formData.occupations,
         platforms: platformsData,
@@ -308,7 +364,7 @@ export default function CreatorRegisterPage() {
 
       console.log("Creator created");
 
-      // 4. יצירת membership
+      // 5. יצירת membership
       const { error: membershipError } = await supabase
         .from("memberships")
         .insert({
@@ -326,7 +382,7 @@ export default function CreatorRegisterPage() {
 
       console.log("Membership created");
 
-      // 5. התחבר מחדש עם הסיסמה (כדי לוודא שהסשן פעיל)
+      // 6. התחבר מחדש עם הסיסמה (כדי לוודא שהסשן פעיל)
       console.log("Signing in...");
       const { data: signInData, error: signInError } =
         await supabase.auth.signInWithPassword({
@@ -342,12 +398,12 @@ export default function CreatorRegisterPage() {
         console.log("Signed in successfully:", signInData);
       }
 
-      // 6. המתן קצר
+      // 7. המתן קצר
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       console.log("Redirecting to dashboard...");
 
-      // 7. Redirect עם window.location
+      // 8. Redirect עם window.location
       window.location.href = "/creator/dashboard";
     } catch (err: any) {
       console.error("Registration error:", err);
@@ -395,6 +451,41 @@ export default function CreatorRegisterPage() {
                 <h2 className="text-xl font-bold text-[#212529] mb-4">
                   פרטים בסיסיים
                 </h2>
+
+                {/* Avatar Upload */}
+                <div className="flex flex-col items-center gap-3 mb-2">
+                  <div className="relative">
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-3 border-[#f2cc0d] bg-white flex items-center justify-center">
+                      {formData.avatarPreview ? (
+                        <img
+                          src={formData.avatarPreview}
+                          alt="תמונת פרופיל"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-3xl text-[#6c757d]">
+                          {formData.displayName ? formData.displayName.charAt(0) : "?"}
+                        </span>
+                      )}
+                    </div>
+                    <label
+                      htmlFor="avatar-upload"
+                      className="absolute bottom-0 right-0 w-8 h-8 bg-[#f2cc0d] rounded-full flex items-center justify-center cursor-pointer hover:bg-[#d4b00b] transition-colors shadow-md"
+                    >
+                      <span className="text-black text-sm">+</span>
+                    </label>
+                    <input
+                      id="avatar-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      className="hidden"
+                    />
+                  </div>
+                  <p className="text-xs text-[#6c757d]">
+                    תמונת פרופיל (אופציונלי, עד 2MB)
+                  </p>
+                </div>
 
                 <Input
                   label="שם מלא"
@@ -495,6 +586,26 @@ export default function CreatorRegisterPage() {
                   placeholder="לדוגמה: תל אביב"
                   required
                 />
+
+                <div>
+                  <label className="block text-sm font-medium text-[#6c757d] mb-2">
+                    קצת על עצמך (אופציונלי)
+                  </label>
+                  <textarea
+                    value={formData.bio}
+                    onChange={(e) => {
+                      if (e.target.value.length <= 500) {
+                        setFormData({ ...formData, bio: e.target.value });
+                      }
+                    }}
+                    placeholder="ספר/י קצת על עצמך, התחומים שלך וסגנון התוכן שאת/ה יוצר/ת..."
+                    rows={3}
+                    className="w-full px-3 py-2 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:ring-2 focus:ring-[#f2cc0d] resize-none"
+                  />
+                  <p className="text-xs text-[#6c757d] text-left mt-1">
+                    {formData.bio.length}/500
+                  </p>
+                </div>
               </div>
             )}
 

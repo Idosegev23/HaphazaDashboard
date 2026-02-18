@@ -46,6 +46,7 @@ export function RailNav({ user }: RailNavProps) {
       return [
         { href: '/brand/dashboard', label: 'לוח בקרה', icon: '▪' },
         { href: '/brand/campaigns', label: 'קמפיינים', icon: '▪' },
+        { href: '/brand/creators', label: 'יוצרים', icon: '▪' },
       ];
     }
 

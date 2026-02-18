@@ -109,23 +109,45 @@ export function ContentTab({ campaignId }: ContentTabProps) {
   };
 
   const handleReject = async (uploadId: string) => {
-    const feedback = prompt('הוסף משוב למשפיען (אופציונלי):');
-    
+    const feedback = prompt('הוסף משוב למשפיען (חובה):', '');
+    if (feedback === null) return; // User cancelled
+
     setProcessing(uploadId);
     const supabase = createClient();
 
     try {
+      const upload = uploads.find(u => u.id === uploadId);
+
+      // Update upload status to rejected
       const { error } = await supabase
         .from('uploads')
-        .update({ 
+        .update({
           status: 'rejected',
-          meta: { ...uploads.find(u => u.id === uploadId)?.meta, rejection_reason: feedback || 'לא צוין' }
+          meta: { ...upload?.meta, rejection_reason: feedback || 'לא צוין' }
         })
         .eq('id', uploadId);
 
       if (error) throw error;
 
-      alert('❌ התוכן נדחה');
+      // Update task status to needs_edits so creator knows to resubmit
+      if (upload?.task_id) {
+        await supabase
+          .from('tasks')
+          .update({ status: 'needs_edits', updated_at: new Date().toISOString() })
+          .eq('id', upload.task_id);
+
+        // Create a revision request so creator sees the feedback
+        await supabase
+          .from('revision_requests')
+          .insert({
+            task_id: upload.task_id,
+            note: feedback || 'התוכן נדחה - נדרש תיקון',
+            tags: ['content_rejected'],
+            status: 'open',
+          });
+      }
+
+      alert('❌ התוכן נדחה והמשפיען יקבל הודעה לתקן');
       loadContent();
     } catch (error: any) {
       console.error('Error rejecting:', error);

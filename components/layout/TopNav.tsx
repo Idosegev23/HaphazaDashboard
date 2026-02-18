@@ -50,6 +50,7 @@ export function TopNav({ user }: TopNavProps) {
       return [
         { href: '/brand/dashboard', label: 'לוח בקרה', icon: '' },
         { href: '/brand/campaigns', label: 'הקמפיינים שלי', icon: '' },
+        { href: '/brand/creators', label: 'קטלוג יוצרים', icon: '' },
       ];
     }
 

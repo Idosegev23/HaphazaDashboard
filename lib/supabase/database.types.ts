@@ -521,6 +521,8 @@ export type Database = {
       creators: {
         Row: {
           age_range: string | null
+          bio: string | null
+          city: string | null
           country: string | null
           created_at: string | null
           gender: string | null
@@ -536,6 +538,8 @@ export type Database = {
         }
         Insert: {
           age_range?: string | null
+          bio?: string | null
+          city?: string | null
           country?: string | null
           created_at?: string | null
           gender?: string | null
@@ -551,6 +555,8 @@ export type Database = {
         }
         Update: {
           age_range?: string | null
+          bio?: string | null
+          city?: string | null
           country?: string | null
           created_at?: string | null
           gender?: string | null

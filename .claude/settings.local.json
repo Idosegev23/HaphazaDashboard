@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/idosegev/Downloads/TriRoars/Leaders/influencorcom log --oneline)",
+      "Bash(supabase link:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)"
+    ]
+  }
+}
