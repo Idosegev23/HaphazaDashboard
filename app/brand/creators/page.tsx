@@ -40,6 +40,30 @@ type FullPortfolioItem = {
   media_url: string;
   media_type: string;
   title: string;
+  description: string | null;
+  platform: string | null;
+  external_link: string | null;
+};
+
+type CreatorDetailData = {
+  ratingBreakdown: {
+    quality: number;
+    communication: number;
+    on_time: number;
+    revision: number;
+    totalRatings: number;
+  } | null;
+  reviews: Array<{
+    note: string;
+    created_at: string;
+    quality: number | null;
+  }>;
+  taskSummary: {
+    total: number;
+    approved: number;
+    inProgress: number;
+    disputed: number;
+  };
 };
 
 export default function CreatorCatalogPage() {
@@ -70,6 +94,8 @@ export default function CreatorCatalogPage() {
   const [portfolioItems, setPortfolioItems] = useState<FullPortfolioItem[]>([]);
   const [loadingPortfolio, setLoadingPortfolio] = useState(false);
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+  const [creatorDetail, setCreatorDetail] = useState<CreatorDetailData | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -102,9 +128,9 @@ export default function CreatorCatalogPage() {
       .from('creators')
       .select(`
         user_id, bio, city, niches, tier, platforms, gender, country, age_range,
-        verified_at, created_at,
+        verified_at, created_at, occupations, portfolio_links,
         users_profiles!creators_profile_fkey!inner(display_name, avatar_url, language),
-        creator_metrics(average_rating, total_tasks, approval_rate)
+        creator_metrics(average_rating, total_tasks, approval_rate, on_time_rate, on_time_deliveries, late_deliveries, approved_tasks, rejected_tasks)
       `)
       .order('created_at', { ascending: false });
 
@@ -173,17 +199,29 @@ export default function CreatorCatalogPage() {
     setModalOpen(true);
     setActiveMediaIndex(0);
     setLoadingPortfolio(true);
+    setLoadingDetail(true);
+    setCreatorDetail(null);
     document.body.style.overflow = 'hidden';
 
     const supabase = createClient();
-    const { data } = await supabase
-      .from('portfolio_items')
-      .select('id, media_url, media_type, title')
-      .eq('creator_id', creator.user_id)
-      .order('created_at', { ascending: false });
 
-    setPortfolioItems((data || []) as FullPortfolioItem[]);
+    // Fetch portfolio items and creator detail in parallel
+    const [portfolioRes, detailRes] = await Promise.all([
+      supabase
+        .from('portfolio_items')
+        .select('id, media_url, media_type, title, description, platform, external_link')
+        .eq('creator_id', creator.user_id)
+        .order('created_at', { ascending: false }),
+      supabase.rpc('get_creator_profile_details' as any, { p_creator_id: creator.user_id }),
+    ]);
+
+    setPortfolioItems((portfolioRes.data || []) as FullPortfolioItem[]);
     setLoadingPortfolio(false);
+
+    if (detailRes.data) {
+      setCreatorDetail(detailRes.data as unknown as CreatorDetailData);
+    }
+    setLoadingDetail(false);
   };
 
   const closeModal = useCallback(() => {
@@ -191,6 +229,7 @@ export default function CreatorCatalogPage() {
     setSelectedCreator(null);
     setPortfolioItems([]);
     setActiveMediaIndex(0);
+    setCreatorDetail(null);
     document.body.style.overflow = '';
   }, []);
 
@@ -616,6 +655,44 @@ export default function CreatorCatalogPage() {
                   )}
                 </div>
 
+                {/* Active item metadata */}
+                {!loadingPortfolio && portfolioItems.length > 0 && (() => {
+                  const activeItem = portfolioItems[activeMediaIndex];
+                  const hasMetadata = activeItem?.title || activeItem?.description || activeItem?.platform || activeItem?.external_link;
+                  if (!hasMetadata) return null;
+                  return (
+                    <div className="mt-2 px-1 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {activeItem.title && (
+                          <span className="text-sm font-semibold text-[#212529]">{activeItem.title}</span>
+                        )}
+                        {activeItem.platform && (
+                          <span className="px-2 py-0.5 bg-[#f1f3f5] rounded-md text-[10px] font-medium text-[#495057] border border-[#e9ecef]">
+                            {activeItem.platform}
+                          </span>
+                        )}
+                        {activeItem.external_link && (
+                          <a
+                            href={activeItem.external_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-xs text-[#f2cc0d] hover:underline font-medium flex items-center gap-1"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            צפה בפוסט
+                          </a>
+                        )}
+                      </div>
+                      {activeItem.description && (
+                        <p className="text-xs text-[#6c757d] line-clamp-2">{activeItem.description}</p>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 {/* Thumbnails row */}
                 {!loadingPortfolio && portfolioItems.length > 1 && (
                   <div className="flex gap-2 mt-3 overflow-x-auto pb-2">
@@ -707,26 +784,124 @@ export default function CreatorCatalogPage() {
                   <p className="text-[#495057] text-sm leading-relaxed whitespace-pre-wrap">{sc.bio}</p>
                 )}
 
-                {/* Metrics row */}
+                {/* Occupations */}
+                {sc.occupations && sc.occupations.length > 0 && (
+                  <div className="flex items-center gap-2 text-sm text-[#495057]">
+                    <svg className="w-4 h-4 text-[#adb5bd] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span>{sc.occupations.join(' \u00B7 ')}</span>
+                  </div>
+                )}
+
+                {/* Metrics grid - 2 rows */}
                 {scMetrics && (
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-[#f8f9fa] rounded-xl p-3 text-center">
-                      <div className="text-xl font-bold text-[#212529]">
-                        {scMetrics.average_rating?.toFixed(1) || '-'}
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="bg-[#f8f9fa] rounded-xl p-3 text-center">
+                        <div className="text-xl font-bold text-[#212529]">
+                          {scMetrics.average_rating?.toFixed(1) || '-'}
+                        </div>
+                        <div className="text-[10px] text-[#868e96] font-medium">ציון</div>
                       </div>
-                      <div className="text-[10px] text-[#868e96] font-medium">ציון</div>
+                      <div className="bg-[#f8f9fa] rounded-xl p-3 text-center">
+                        <div className="text-xl font-bold text-[#212529]">
+                          {scMetrics.total_tasks || 0}
+                        </div>
+                        <div className="text-[10px] text-[#868e96] font-medium">קמפיינים</div>
+                      </div>
+                      <div className="bg-[#f8f9fa] rounded-xl p-3 text-center">
+                        <div className="text-xl font-bold text-[#212529]">
+                          {scMetrics.approval_rate ? `${Math.round(scMetrics.approval_rate)}%` : '-'}
+                        </div>
+                        <div className="text-[10px] text-[#868e96] font-medium">אחוז אישור</div>
+                      </div>
                     </div>
-                    <div className="bg-[#f8f9fa] rounded-xl p-3 text-center">
-                      <div className="text-xl font-bold text-[#212529]">
-                        {scMetrics.total_tasks || 0}
+                    {/* Reliability row */}
+                    {(scMetrics.on_time_rate != null || scMetrics.on_time_deliveries != null) && (
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="bg-[#f8f9fa] rounded-xl p-3 text-center">
+                          <div className="text-xl font-bold text-emerald-600">
+                            {scMetrics.on_time_rate ? `${Math.round(scMetrics.on_time_rate)}%` : '-'}
+                          </div>
+                          <div className="text-[10px] text-[#868e96] font-medium">בזמן</div>
+                        </div>
+                        <div className="bg-[#f8f9fa] rounded-xl p-3 text-center">
+                          <div className="text-xl font-bold text-[#212529]">
+                            {scMetrics.on_time_deliveries ?? 0}
+                          </div>
+                          <div className="text-[10px] text-[#868e96] font-medium">משלוחים בזמן</div>
+                        </div>
+                        <div className="bg-[#f8f9fa] rounded-xl p-3 text-center">
+                          <div className="text-xl font-bold text-red-500">
+                            {scMetrics.late_deliveries ?? 0}
+                          </div>
+                          <div className="text-[10px] text-[#868e96] font-medium">מאוחרים</div>
+                        </div>
                       </div>
-                      <div className="text-[10px] text-[#868e96] font-medium">קמפיינים</div>
-                    </div>
-                    <div className="bg-[#f8f9fa] rounded-xl p-3 text-center">
-                      <div className="text-xl font-bold text-[#212529]">
-                        {scMetrics.approval_rate ? `${Math.round(scMetrics.approval_rate)}%` : '-'}
+                    )}
+                  </div>
+                )}
+
+                {/* Rating Breakdown */}
+                {loadingDetail ? (
+                  <div className="space-y-2">
+                    <div className="h-3 w-24 bg-[#f1f3f5] rounded animate-pulse" />
+                    <div className="bg-[#f1f3f5] rounded-xl h-28 animate-pulse" />
+                  </div>
+                ) : creatorDetail?.ratingBreakdown && creatorDetail.ratingBreakdown.totalRatings > 0 && (
+                  <div className="space-y-2.5">
+                    <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">פירוט דירוגים</h4>
+                    {[
+                      { label: 'איכות', value: creatorDetail.ratingBreakdown.quality },
+                      { label: 'תקשורת', value: creatorDetail.ratingBreakdown.communication },
+                      { label: 'עמידה בזמנים', value: creatorDetail.ratingBreakdown.on_time },
+                      { label: 'תיקונים', value: creatorDetail.ratingBreakdown.revision },
+                    ].map((item) => (
+                      <div key={item.label} className="flex items-center gap-3">
+                        <span className="text-xs text-[#868e96] w-24 text-right flex-shrink-0">{item.label}</span>
+                        <div className="flex-1 h-2 bg-[#f1f3f5] rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-[#f2cc0d] rounded-full transition-all"
+                            style={{ width: `${(item.value / 5) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-sm font-bold text-[#212529] w-8 text-left">{item.value.toFixed(1)}</span>
                       </div>
-                      <div className="text-[10px] text-[#868e96] font-medium">אחוז אישור</div>
+                    ))}
+                    <p className="text-[10px] text-[#adb5bd]">
+                      מבוסס על {creatorDetail.ratingBreakdown.totalRatings} דירוגים
+                    </p>
+                  </div>
+                )}
+
+                {/* Brand Reviews */}
+                {!loadingDetail && creatorDetail?.reviews && creatorDetail.reviews.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">ביקורות מלקוחות</h4>
+                    <div className="space-y-2">
+                      {creatorDetail.reviews.map((review, idx) => (
+                        <div key={idx} className="bg-[#f8f9fa] rounded-xl p-3 space-y-1">
+                          <div className="flex items-center gap-2">
+                            {review.quality != null && (
+                              <div className="flex items-center gap-0.5">
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                  <span
+                                    key={i}
+                                    className={`text-xs ${i <= Math.round(review.quality!) ? 'text-[#f2cc0d]' : 'text-[#dee2e6]'}`}
+                                  >
+                                    {'\u2605'}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            <span className="text-[10px] text-[#adb5bd]">
+                              {new Date(review.created_at).toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' })}
+                            </span>
+                          </div>
+                          <p className="text-sm text-[#495057] leading-relaxed">&ldquo;{review.note}&rdquo;</p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -821,6 +996,65 @@ export default function CreatorCatalogPage() {
                       <span className="text-sm font-bold text-[#f2cc0d]">
                         {formatFollowers(getTotalFollowers(sc.platforms))} עוקבים
                       </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Portfolio Links */}
+                {sc.portfolio_links && sc.portfolio_links.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">קישורים לתיק עבודות</h4>
+                    <div className="space-y-1.5">
+                      {sc.portfolio_links.map((link, idx) => (
+                        <a
+                          key={idx}
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 py-2 px-3 bg-[#f8f9fa] rounded-lg text-sm text-[#495057] hover:text-[#f2cc0d] hover:bg-[#f8f9fa]/80 transition-colors"
+                        >
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          <span className="truncate">{link.replace(/^https?:\/\/(www\.)?/, '')}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Task History Summary */}
+                {!loadingDetail && creatorDetail?.taskSummary && creatorDetail.taskSummary.total > 0 && (
+                  <div className="bg-[#f8f9fa] rounded-xl p-4">
+                    <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide mb-2">היסטוריית עבודה</h4>
+                    <div className="flex items-center gap-3 text-sm flex-wrap">
+                      <span>
+                        <span className="font-bold text-[#212529]">{creatorDetail.taskSummary.total}</span>
+                        <span className="text-[#868e96] mr-1">משימות</span>
+                      </span>
+                      <span className="text-[#dee2e6]">{'\u00B7'}</span>
+                      <span>
+                        <span className="font-bold text-emerald-600">{creatorDetail.taskSummary.approved}</span>
+                        <span className="text-[#868e96] mr-1">אושרו</span>
+                      </span>
+                      {creatorDetail.taskSummary.inProgress > 0 && (
+                        <>
+                          <span className="text-[#dee2e6]">{'\u00B7'}</span>
+                          <span>
+                            <span className="font-bold text-blue-500">{creatorDetail.taskSummary.inProgress}</span>
+                            <span className="text-[#868e96] mr-1">בתהליך</span>
+                          </span>
+                        </>
+                      )}
+                      {creatorDetail.taskSummary.disputed > 0 && (
+                        <>
+                          <span className="text-[#dee2e6]">{'\u00B7'}</span>
+                          <span>
+                            <span className="font-bold text-red-500">{creatorDetail.taskSummary.disputed}</span>
+                            <span className="text-[#868e96] mr-1">מחלוקות</span>
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}

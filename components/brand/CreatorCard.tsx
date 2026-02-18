@@ -21,6 +21,8 @@ export type CatalogCreator = {
   age_range: string | null;
   verified_at: string | null;
   created_at: string | null;
+  occupations: string[] | null;
+  portfolio_links: string[] | null;
   users_profiles: {
     display_name: string;
     avatar_url: string | null;
@@ -30,6 +32,11 @@ export type CatalogCreator = {
     average_rating: number | null;
     total_tasks: number | null;
     approval_rate: number | null;
+    on_time_rate: number | null;
+    on_time_deliveries: number | null;
+    late_deliveries: number | null;
+    approved_tasks: number | null;
+    rejected_tasks: number | null;
   }> | null;
   portfolio_preview?: PortfolioPreview[];
 };
