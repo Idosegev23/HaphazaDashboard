@@ -531,7 +531,7 @@ export default function CreatorCatalogPage() {
           {/* Modal */}
           <div
             ref={modalRef}
-            className="relative z-10 w-full max-w-5xl mx-4 my-6 max-h-[calc(100vh-3rem)] overflow-y-auto bg-white rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+            className="relative z-10 w-[95vw] max-w-[1400px] mx-auto my-4 max-h-[calc(100vh-2rem)] overflow-y-auto bg-white rounded-2xl shadow-2xl"
           >
             {/* Close button */}
             <button
@@ -547,9 +547,9 @@ export default function CreatorCatalogPage() {
             <div className="flex flex-col lg:flex-row">
 
               {/* LEFT: Content Gallery */}
-              <div className="lg:w-[58%] flex-shrink-0 p-5 pb-0 lg:pb-5">
+              <div className="lg:w-[60%] flex-shrink-0 p-5 pb-0 lg:pb-5">
                 {/* Active media - hero */}
-                <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-[#f1f3f5]">
+                <div className="relative aspect-[3/4] lg:aspect-[4/5] rounded-xl overflow-hidden bg-[#f1f3f5]">
                   {loadingPortfolio ? (
                     <div className="w-full h-full flex items-center justify-center">
                       <div className="w-10 h-10 border-4 border-[#f2cc0d] border-t-transparent rounded-full animate-spin" />
@@ -623,7 +623,7 @@ export default function CreatorCatalogPage() {
                       <button
                         key={item.id}
                         onClick={() => setActiveMediaIndex(idx)}
-                        className={`relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden transition-all ${
+                        className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden transition-all ${
                           idx === activeMediaIndex
                             ? 'ring-2 ring-[#f2cc0d] ring-offset-2'
                             : 'opacity-60 hover:opacity-100'
@@ -660,7 +660,7 @@ export default function CreatorCatalogPage() {
               </div>
 
               {/* RIGHT: Creator Info */}
-              <div className="lg:w-[42%] p-5 lg:pr-6 lg:border-r border-[#f1f3f5] space-y-5 overflow-y-auto">
+              <div className="lg:w-[40%] p-5 lg:pl-6 lg:border-l border-[#f1f3f5] space-y-5 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
 
                 {/* Profile Header */}
                 <div className="flex items-center gap-4">
