@@ -591,7 +591,7 @@ export default function CreatorCatalogPage() {
             {/* Close button */}
             <button
               onClick={closeModal}
-              className="sticky top-4 right-4 float-left z-20 w-10 h-10 rounded-full bg-black/10 hover:bg-black/20 backdrop-blur-sm flex items-center justify-center transition-colors mr-4 mt-4"
+              className="absolute top-4 left-4 z-20 w-10 h-10 rounded-full bg-black/10 hover:bg-black/20 backdrop-blur-sm flex items-center justify-center transition-colors"
             >
               <svg className="w-5 h-5 text-[#495057]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -602,9 +602,9 @@ export default function CreatorCatalogPage() {
             <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
 
               {/* LEFT: Content Gallery */}
-              <div className="lg:w-[60%] flex-shrink-0 p-5 pb-0 lg:pb-5 overflow-y-auto">
+              <div className="lg:w-[60%] flex-shrink-0 p-5 pb-0 lg:pb-5 overflow-y-auto flex flex-col">
                 {/* Active media - hero */}
-                <div className="relative aspect-[4/5] lg:aspect-[3/4] rounded-xl overflow-hidden bg-[#f1f3f5]">
+                <div className="relative rounded-xl overflow-hidden bg-[#f1f3f5] flex-1 min-h-0 max-h-[55vh]">
                   {loadingPortfolio ? (
                     <div className="w-full h-full flex items-center justify-center">
                       <div className="w-10 h-10 border-4 border-[#f2cc0d] border-t-transparent rounded-full animate-spin" />
