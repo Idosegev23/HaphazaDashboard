@@ -23,6 +23,7 @@ export type CatalogCreator = {
   created_at: string | null;
   occupations: string[] | null;
   portfolio_links: string[] | null;
+  highlights: string[] | null;
   users_profiles: {
     display_name: string;
     avatar_url: string | null;

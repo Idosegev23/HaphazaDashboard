@@ -35,6 +35,22 @@ const LANG_LABELS: Record<string, string> = {
   en: 'English',
 };
 
+const PLATFORM_URLS: Record<string, (handle: string) => string> = {
+  Instagram: (h) => `https://instagram.com/${h}`,
+  instagram: (h) => `https://instagram.com/${h}`,
+  TikTok: (h) => `https://tiktok.com/@${h}`,
+  tiktok: (h) => `https://tiktok.com/@${h}`,
+  YouTube: (h) => `https://youtube.com/@${h}`,
+  youtube: (h) => `https://youtube.com/@${h}`,
+  Facebook: (h) => `https://facebook.com/${h}`,
+  facebook: (h) => `https://facebook.com/${h}`,
+  'Twitter/X': (h) => `https://x.com/${h}`,
+  LinkedIn: (h) => `https://linkedin.com/in/${h}`,
+  linkedin: (h) => `https://linkedin.com/in/${h}`,
+  Threads: (h) => `https://threads.net/@${h}`,
+  threads: (h) => `https://threads.net/@${h}`,
+};
+
 type FullPortfolioItem = {
   id: string;
   media_url: string;
@@ -128,7 +144,7 @@ export default function CreatorCatalogPage() {
       .from('creators')
       .select(`
         user_id, bio, city, niches, tier, platforms, gender, country, age_range,
-        verified_at, created_at, occupations, portfolio_links,
+        verified_at, created_at, occupations, portfolio_links, highlights,
         users_profiles!creators_profile_fkey!inner(display_name, avatar_url, language),
         creator_metrics(average_rating, total_tasks, approval_rate, on_time_rate, on_time_deliveries, late_deliveries, approved_tasks, rejected_tasks)
       `)
@@ -560,7 +576,7 @@ export default function CreatorCatalogPage() {
 
       {/* Creator Profile Modal */}
       {modalOpen && sc && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -570,7 +586,7 @@ export default function CreatorCatalogPage() {
           {/* Modal */}
           <div
             ref={modalRef}
-            className="relative z-10 w-[95vw] max-w-[1400px] mx-auto my-4 max-h-[calc(100vh-2rem)] overflow-y-auto bg-white rounded-2xl shadow-2xl"
+            className="relative z-10 w-[95vw] max-w-[1400px] h-[calc(100vh-1.5rem)] max-h-[900px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Close button */}
             <button
@@ -583,12 +599,12 @@ export default function CreatorCatalogPage() {
             </button>
 
             {/* Two-column layout */}
-            <div className="flex flex-col lg:flex-row">
+            <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
 
               {/* LEFT: Content Gallery */}
-              <div className="lg:w-[60%] flex-shrink-0 p-5 pb-0 lg:pb-5">
+              <div className="lg:w-[60%] flex-shrink-0 p-5 pb-0 lg:pb-5 overflow-y-auto">
                 {/* Active media - hero */}
-                <div className="relative aspect-[3/4] lg:aspect-[4/5] rounded-xl overflow-hidden bg-[#f1f3f5]">
+                <div className="relative aspect-[4/5] lg:aspect-[3/4] rounded-xl overflow-hidden bg-[#f1f3f5]">
                   {loadingPortfolio ? (
                     <div className="w-full h-full flex items-center justify-center">
                       <div className="w-10 h-10 border-4 border-[#f2cc0d] border-t-transparent rounded-full animate-spin" />
@@ -737,7 +753,7 @@ export default function CreatorCatalogPage() {
               </div>
 
               {/* RIGHT: Creator Info */}
-              <div className="lg:w-[40%] p-5 lg:pl-6 lg:border-l border-[#f1f3f5] space-y-5 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto">
+              <div className="lg:w-[40%] p-5 lg:pl-6 lg:border-l border-[#f1f3f5] space-y-5 overflow-y-auto">
 
                 {/* Profile Header */}
                 <div className="flex items-center gap-4">
@@ -962,29 +978,58 @@ export default function CreatorCatalogPage() {
                   )}
                 </div>
 
-                {/* Platforms */}
+                {/* Highlights / Key Points */}
+                {sc.highlights && sc.highlights.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">נקודות חשובות</h4>
+                    <div className="space-y-1.5">
+                      {sc.highlights.map((point, idx) => (
+                        <div key={idx} className="flex items-start gap-2 text-sm text-[#495057]">
+                          <span className="text-[#f2cc0d] mt-0.5 flex-shrink-0">{'\u2726'}</span>
+                          <span>{point}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Platforms with profile links */}
                 {sc.platforms && Object.keys(sc.platforms).length > 0 && (
                   <div className="space-y-2">
-                    <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">פלטפורמות</h4>
+                    <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">פלטפורמות ופרופילים</h4>
                     <div className="space-y-1.5">
                       {Object.entries(sc.platforms).map(([name, data]) => {
                         if (!data) return null;
+                        const handle = data.handle || data.username;
+                        const profileUrl = handle && PLATFORM_URLS[name] ? PLATFORM_URLS[name](handle) : null;
                         return (
                           <div
                             key={name}
                             className="flex items-center justify-between py-2 px-3 bg-[#f8f9fa] rounded-lg text-sm"
                           >
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-[#212529] text-xs w-5">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="font-bold text-[#212529] text-xs w-5 flex-shrink-0">
                                 {PLATFORM_ICONS[name] || name}
                               </span>
-                              <span className="text-[#495057]">{name}</span>
-                              {(data.handle || data.username) && (
-                                <span className="text-[#adb5bd] text-xs">@{data.handle || data.username}</span>
+                              {profileUrl ? (
+                                <a
+                                  href={profileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="text-[#495057] hover:text-[#f2cc0d] transition-colors truncate flex items-center gap-1"
+                                >
+                                  @{handle}
+                                  <svg className="w-3 h-3 flex-shrink-0 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                  </svg>
+                                </a>
+                              ) : (
+                                <span className="text-[#495057]">{name}</span>
                               )}
                             </div>
                             {data.followers != null && (
-                              <span className="font-bold text-[#212529] text-sm">
+                              <span className="font-bold text-[#212529] text-sm flex-shrink-0">
                                 {formatFollowers(data.followers)}
                               </span>
                             )}
