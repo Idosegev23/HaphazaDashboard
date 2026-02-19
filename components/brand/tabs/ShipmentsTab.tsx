@@ -18,11 +18,26 @@ type Shipment = {
   creator_avatar: string | null;
   address: any;
   tracking_number: string | null;
+  carrier: string | null;
 };
+
+const CARRIERS: { value: string; label: string; trackUrl: (num: string) => string }[] = [
+  { value: 'israel_post', label: 'דואר ישראל', trackUrl: (n) => `https://mypost.israelpost.co.il/itemtrace?itemcode=${n}` },
+  { value: 'ups', label: 'UPS', trackUrl: (n) => `https://www.ups.com/track?tracknum=${n}` },
+  { value: 'dhl', label: 'DHL', trackUrl: (n) => `https://www.dhl.com/il-en/home/tracking.html?tracking-id=${n}` },
+  { value: 'fedex', label: 'FedEx', trackUrl: (n) => `https://www.fedex.com/fedextrack/?trknbr=${n}` },
+  { value: 'hfd', label: 'HFD שליחויות', trackUrl: (n) => `https://www.hfd.co.il/track?id=${n}` },
+  { value: 'mahirli', label: 'מהיר לי', trackUrl: (n) => `https://www.mahirli.co.il/tracking/${n}` },
+  { value: 'other', label: 'אחר', trackUrl: () => '' },
+];
 
 export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingTracking, setEditingTracking] = useState<string | null>(null);
+  const [trackingInput, setTrackingInput] = useState('');
+  const [carrierInput, setCarrierInput] = useState('israel_post');
+  const [savingTracking, setSavingTracking] = useState(false);
 
   useEffect(() => {
     loadShipments();
@@ -33,7 +48,7 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
 
     const { data: shipmentsData, error } = await supabase
       .from('shipment_requests')
-      .select('id, status, created_at, creator_id')
+      .select('id, status, created_at, creator_id, tracking_number, carrier')
       .eq('campaign_id', campaignId)
       .order('created_at', { ascending: false });
 
@@ -58,18 +73,13 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
           .eq('shipment_request_id', shipment.id)
           .single();
 
-        const { data: tracking } = await supabase
-          .from('shipments')
-          .select('tracking_number')
-          .eq('shipment_request_id', shipment.id)
-          .single();
-
         return {
           ...shipment,
           creator_name: profileData?.display_name || 'לא זמין',
           creator_avatar: profileData?.avatar_url || null,
           address: addressData,
-          tracking_number: tracking?.tracking_number || null,
+          tracking_number: (shipment as any).tracking_number || null,
+          carrier: (shipment as any).carrier || null,
         };
       })
     );
@@ -166,13 +176,108 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
                       </div>
                     )}
 
-                    {shipment.tracking_number && (
-                      <div className="mt-2 bg-blue-500/10 border border-blue-500/30 rounded-lg p-2 text-sm">
-                        <span className="text-blue-400 font-medium">
-                           מספר מעקב: {shipment.tracking_number}
-                        </span>
+                    {/* Tracking number */}
+                    {editingTracking === shipment.id ? (
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={carrierInput}
+                            onChange={(e) => setCarrierInput(e.target.value)}
+                            className="px-3 py-1.5 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-sm text-[#212529] focus:outline-none focus:border-[#f2cc0d]"
+                          >
+                            {CARRIERS.map((c) => (
+                              <option key={c.value} value={c.value}>{c.label}</option>
+                            ))}
+                          </select>
+                          <input
+                            type="text"
+                            value={trackingInput}
+                            onChange={(e) => setTrackingInput(e.target.value)}
+                            placeholder="הזן מספר מעקב..."
+                            className="flex-1 px-3 py-1.5 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-sm text-[#212529] focus:outline-none focus:border-[#f2cc0d]"
+                            autoFocus
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={async () => {
+                              setSavingTracking(true);
+                              const supabase = createClient();
+                              const updates: any = {
+                                tracking_number: trackingInput || null,
+                                carrier: carrierInput || null,
+                              };
+                              if (trackingInput && shipment.status === 'address_received') {
+                                updates.status = 'shipped';
+                              }
+                              await supabase.from('shipment_requests').update(updates).eq('id', shipment.id);
+                              setSavingTracking(false);
+                              setEditingTracking(null);
+                              loadShipments();
+                            }}
+                            disabled={savingTracking}
+                            className="px-3 py-1.5 bg-[#f2cc0d] text-black text-sm font-medium rounded-lg hover:bg-[#d4b00b] transition-colors disabled:opacity-50"
+                          >
+                            {savingTracking ? '...' : 'שמור'}
+                          </button>
+                          <button
+                            onClick={() => setEditingTracking(null)}
+                            className="px-3 py-1.5 bg-[#f8f9fa] text-[#6c757d] text-sm rounded-lg hover:bg-[#e9ecef] transition-colors border border-[#dee2e6]"
+                          >
+                            ביטול
+                          </button>
+                        </div>
                       </div>
-                    )}
+                    ) : shipment.tracking_number ? (() => {
+                      const carrier = CARRIERS.find((c) => c.value === shipment.carrier);
+                      const trackUrl = carrier && shipment.tracking_number ? carrier.trackUrl(shipment.tracking_number) : '';
+                      return (
+                        <div className="mt-2 bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 text-sm space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              {carrier && <span className="text-xs text-[#6c757d]">{carrier.label}</span>}
+                              <span className="text-blue-600 font-medium">
+                                {shipment.tracking_number}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setEditingTracking(shipment.id);
+                                setTrackingInput(shipment.tracking_number || '');
+                                setCarrierInput(shipment.carrier || 'israel_post');
+                              }}
+                              className="text-xs text-[#6c757d] hover:text-[#212529] transition-colors"
+                            >
+                              ערוך
+                            </button>
+                          </div>
+                          {trackUrl && (
+                            <a
+                              href={trackUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              </svg>
+                              עקוב אחרי המשלוח
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })() : shipment.status === 'address_received' ? (
+                      <button
+                        onClick={() => {
+                          setEditingTracking(shipment.id);
+                          setTrackingInput('');
+                          setCarrierInput('israel_post');
+                        }}
+                        className="mt-2 w-full px-3 py-2 bg-[#f2cc0d] text-black text-sm font-medium rounded-lg hover:bg-[#d4b00b] transition-colors"
+                      >
+                        + הוסף מספר מעקב ועדכן כנשלח
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               </div>

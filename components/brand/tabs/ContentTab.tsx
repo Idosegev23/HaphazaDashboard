@@ -18,7 +18,20 @@ type Upload = {
   creator_name: string;
   creator_avatar: string | null;
   task_title: string;
+  rejection_reason: string | null;
+  rejection_notes: string | null;
 };
+
+const REJECTION_REASONS = [
+  { value: 'not_matching_brief', label: 'לא תואם את הבריף' },
+  { value: 'low_quality', label: 'איכות נמוכה (תמונה/וידאו)' },
+  { value: 'text_errors', label: 'טעויות בטקסט / כיתוב' },
+  { value: 'wrong_format', label: 'פורמט לא נכון (אורך/גודל)' },
+  { value: 'missing_elements', label: 'חסרים אלמנטים נדרשים' },
+  { value: 'branding_issues', label: 'בעיות במיתוג / לוגו' },
+  { value: 'tone_mismatch', label: 'טון לא מתאים למותג' },
+  { value: 'other', label: 'אחר' },
+];
 
 export function ContentTab({ campaignId }: ContentTabProps) {
   const [uploads, setUploads] = useState<Upload[]>([]);
@@ -26,6 +39,11 @@ export function ContentTab({ campaignId }: ContentTabProps) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [viewingContent, setViewingContent] = useState<{ url: string; type: string } | null>(null);
   const [processing, setProcessing] = useState<string | null>(null);
+
+  // Rejection modal state
+  const [rejectingUploadId, setRejectingUploadId] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('not_matching_brief');
+  const [rejectionNotes, setRejectionNotes] = useState('');
 
   useEffect(() => {
     loadContent();
@@ -109,25 +127,44 @@ export function ContentTab({ campaignId }: ContentTabProps) {
     }
   };
 
-  const handleReject = async (uploadId: string) => {
-    const feedback = prompt('הוסף משוב למשפיען (חובה):', '');
-    if (feedback === null) return; // User cancelled
+  const openRejectModal = (uploadId: string) => {
+    setRejectingUploadId(uploadId);
+    setRejectionReason('not_matching_brief');
+    setRejectionNotes('');
+  };
 
-    setProcessing(uploadId);
+  const handleReject = async () => {
+    if (!rejectingUploadId) return;
+
+    const reasonLabel = REJECTION_REASONS.find(r => r.value === rejectionReason)?.label || rejectionReason;
+    const feedback = rejectionNotes
+      ? `${reasonLabel}: ${rejectionNotes}`
+      : reasonLabel;
+
+    setProcessing(rejectingUploadId);
     const supabase = createClient();
 
     try {
       const { data, error } = await supabase.rpc('review_content' as any, {
-        p_upload_id: uploadId,
+        p_upload_id: rejectingUploadId,
         p_action: 'reject',
-        p_feedback: feedback || 'התוכן נדחה - נדרש תיקון',
+        p_feedback: feedback,
       });
 
       if (error) throw error;
       const result = data as any;
       if (result && !result.success) throw new Error(result.error);
 
-      alert('❌ התוכן נדחה והמשפיען יקבל הודעה לתקן');
+      // Save structured rejection data to dedicated columns
+      await supabase
+        .from('uploads')
+        .update({
+          rejection_reason: rejectionReason,
+          rejection_notes: rejectionNotes || null,
+        } as any)
+        .eq('id', rejectingUploadId);
+
+      setRejectingUploadId(null);
       loadContent();
     } catch (error: any) {
       console.error('Error rejecting:', error);
@@ -277,6 +314,18 @@ export function ContentTab({ campaignId }: ContentTabProps) {
                       {statusLabels[upload.status || 'pending']}
                     </span>
 
+                    {/* Rejection info */}
+                    {upload.status === 'rejected' && upload.rejection_reason && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-2 mb-2 text-xs">
+                        <div className="font-medium text-red-700">
+                          {REJECTION_REASONS.find(r => r.value === upload.rejection_reason)?.label || upload.rejection_reason}
+                        </div>
+                        {upload.rejection_notes && (
+                          <p className="text-red-600 mt-0.5 line-clamp-2">{upload.rejection_notes}</p>
+                        )}
+                      </div>
+                    )}
+
                     {/* Action Buttons */}
                     <div className="flex flex-col gap-2 mt-2">
                       {upload.status === 'pending' && (
@@ -289,7 +338,7 @@ export function ContentTab({ campaignId }: ContentTabProps) {
                             {processing === upload.id ? '...' : '✅ אשר'}
                           </button>
                           <button
-                            onClick={() => handleReject(upload.id)}
+                            onClick={() => openRejectModal(upload.id)}
                             disabled={processing === upload.id}
                             className="w-full px-3 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
                           >
@@ -329,6 +378,59 @@ export function ContentTab({ campaignId }: ContentTabProps) {
               : 'לא נמצאו תכנים בסטטוס זה'}
           </p>
         </Card>
+      )}
+
+      {/* Rejection Reason Modal */}
+      {rejectingUploadId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setRejectingUploadId(null)}
+          />
+          <div className="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <h3 className="text-lg font-bold text-[#212529]">דחיית תוכן</h3>
+
+            <div>
+              <label className="block text-sm font-medium text-[#6c757d] mb-1.5">סיבת הדחייה</label>
+              <select
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                className="w-full px-3 py-2.5 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-[#f2cc0d]"
+              >
+                {REJECTION_REASONS.map((r) => (
+                  <option key={r.value} value={r.value}>{r.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[#6c757d] mb-1.5">הערות למשפיען</label>
+              <textarea
+                value={rejectionNotes}
+                onChange={(e) => setRejectionNotes(e.target.value)}
+                placeholder="פרט מה צריך לתקן..."
+                rows={3}
+                className="w-full px-3 py-2.5 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-[#f2cc0d] resize-none"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={handleReject}
+                disabled={processing === rejectingUploadId}
+                className="flex-1 px-4 py-2.5 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                {processing === rejectingUploadId ? 'שולח...' : 'דחה תוכן'}
+              </button>
+              <button
+                onClick={() => setRejectingUploadId(null)}
+                className="px-4 py-2.5 bg-[#f8f9fa] text-[#6c757d] rounded-lg font-medium hover:bg-[#e9ecef] transition-colors border border-[#dee2e6]"
+              >
+                ביטול
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Full Screen Viewer Modal */}

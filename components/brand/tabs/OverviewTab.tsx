@@ -127,49 +127,103 @@ export function OverviewTab({ campaignId, campaign, onTabChange }: OverviewTabPr
       {/* Campaign Info */}
       <Card>
         <h2 className="text-xl font-bold text-[#212529] mb-4">פרטי קמפיין</h2>
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <span className="text-[#6c757d] text-sm">מחיר למשפיען</span>
+            <span className="text-[#6c757d] text-sm">
+              {campaign.is_barter ? 'סוג תשלום' : 'מחיר למשפיען'}
+            </span>
             <div className="text-[#f2cc0d] font-bold text-2xl">
-              ₪{campaign.fixed_price?.toLocaleString() || 0}
+              {campaign.is_barter ? 'ברטר' : `₪${campaign.fixed_price?.toLocaleString() || 0}`}
             </div>
+            {campaign.is_barter && campaign.barter_description && (
+              <p className="text-[#6c757d] text-xs mt-1">{campaign.barter_description}</p>
+            )}
           </div>
+          {(campaign.start_date || campaign.end_date) && (
+            <div>
+              <span className="text-[#6c757d] text-sm">תקופת קמפיין</span>
+              <div className="text-[#212529] font-medium">
+                {campaign.start_date ? new Date(campaign.start_date).toLocaleDateString('he-IL') : '—'}
+                {' - '}
+                {campaign.end_date ? new Date(campaign.end_date).toLocaleDateString('he-IL') : '—'}
+              </div>
+            </div>
+          )}
           {campaign.deadline && (
             <div>
-              <span className="text-[#6c757d] text-sm">תאריך יעד</span>
+              <span className="text-[#6c757d] text-sm">דדליין תוכן</span>
               <div className="text-[#212529] font-medium">
                 {new Date(campaign.deadline).toLocaleDateString('he-IL')}
               </div>
             </div>
           )}
+          <div>
+            <span className="text-[#6c757d] text-sm">אישור ממומן</span>
+            <div className="text-[#212529] font-medium">
+              {campaign.requires_sponsored_approval !== false ? 'נדרש' : 'לא נדרש'}
+            </div>
+          </div>
         </div>
 
         {/* Deliverables summary */}
-        {campaign.deliverables && typeof campaign.deliverables === 'object' &&
-         Object.entries(campaign.deliverables as Record<string, number>).some(([, v]) => v > 0) && (
-          <div className="mt-4 pt-4 border-t border-[#dee2e6]">
-            <span className="text-[#6c757d] text-sm block mb-2">תמהיל תוצרים נדרש</span>
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(campaign.deliverables as Record<string, number>)
-                .filter(([, v]) => v > 0)
-                .map(([key, count]) => {
-                  const labels: Record<string, string> = {
-                    instagram_story: 'Instagram Story',
-                    instagram_reel: 'Instagram Reel',
-                    instagram_post: 'Instagram Post',
-                    tiktok_video: 'TikTok Video',
-                    ugc_video: 'UGC Video',
-                    photo: 'Photo',
-                  };
-                  return (
-                    <span key={key} className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#f2cc0d]/15 text-[#212529] rounded-full text-sm font-medium">
-                      {count}x {labels[key] || key}
-                    </span>
-                  );
-                })}
+        {campaign.deliverables && typeof campaign.deliverables === 'object' && (() => {
+          const deliverables = campaign.deliverables as Record<string, any>;
+          const labels: Record<string, string> = {
+            instagram_story: 'Instagram Story',
+            instagram_reel: 'Instagram Reel',
+            instagram_post: 'Instagram Post',
+            tiktok_video: 'TikTok Video',
+            youtube_shorts: 'YouTube Shorts',
+            ugc_video: 'UGC Video',
+            photo: 'Photo',
+          };
+          const hasFixed = Object.entries(deliverables).some(([k, v]) => k !== '_options' && typeof v === 'number' && v > 0);
+          const options = Array.isArray(deliverables._options) ? deliverables._options as Array<Array<{ type: string; count: number }>> : [];
+
+          if (!hasFixed && options.length === 0) return null;
+
+          return (
+            <div className="mt-4 pt-4 border-t border-[#dee2e6]">
+              {hasFixed && (
+                <>
+                  <span className="text-[#6c757d] text-sm block mb-2">תמהיל תוצרים נדרש</span>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(deliverables)
+                      .filter(([k, v]) => k !== '_options' && typeof v === 'number' && v > 0)
+                      .map(([key, count]) => (
+                        <span key={key} className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#f2cc0d]/15 text-[#212529] rounded-full text-sm font-medium">
+                          {count}x {labels[key] || key}
+                        </span>
+                      ))}
+                  </div>
+                </>
+              )}
+
+              {options.length > 0 && (
+                <div className={hasFixed ? 'mt-4' : ''}>
+                  <span className="text-[#6c757d] text-sm block mb-2">אפשרויות לבחירה (המשפיען בוחר אחת)</span>
+                  <div className="space-y-2">
+                    {options.map((option, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <span className="text-[#f2cc0d] font-bold text-sm min-w-[70px]">אפשרות {idx + 1}:</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {option.map((item, itemIdx) => (
+                            <span key={itemIdx} className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-500/15 text-[#212529] rounded-full text-xs font-medium">
+                              {item.count}x {labels[item.type] || item.type}
+                            </span>
+                          ))}
+                        </div>
+                        {idx < options.length - 1 && (
+                          <span className="text-[#6c757d] text-xs font-medium">או</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
       </Card>
 
       {/* Stats Grid */}

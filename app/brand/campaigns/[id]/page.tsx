@@ -13,6 +13,7 @@ import { ApplicationsTab } from '@/components/brand/tabs/ApplicationsTab';
 import { ShipmentsTab } from '@/components/brand/tabs/ShipmentsTab';
 import { ContentTab } from '@/components/brand/tabs/ContentTab';
 import { PaymentsTab } from '@/components/brand/tabs/PaymentsTab';
+import { MessagesTab } from '@/components/brand/tabs/MessagesTab';
 import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 type Campaign = {
@@ -22,6 +23,11 @@ type Campaign = {
   concept: string | null;
   fixed_price: number | null;
   deadline: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  is_barter: boolean;
+  barter_description: string | null;
+  requires_sponsored_approval: boolean;
   status: 'draft' | 'open' | 'closed' | 'archived' | 'published' | null;
   deliverables?: any;
   brief_url?: string | null;
@@ -46,6 +52,7 @@ const TABS = [
   { id: 'shipments', label: ' משלוחים', icon: '' },
   { id: 'content', label: ' תכנים', icon: '' },
   { id: 'payments', label: ' תשלומים', icon: '' },
+  { id: 'messages', label: ' הודעות', icon: '' },
 ];
 
 export default function CampaignPage() {
@@ -66,6 +73,11 @@ export default function CampaignPage() {
     concept: '',
     fixedPrice: '',
     deadline: '',
+    startDate: '',
+    endDate: '',
+    isBarter: false,
+    barterDescription: '',
+    requiresSponsoredApproval: true,
   });
 
   // Deliverables
@@ -78,11 +90,19 @@ export default function CampaignPage() {
     photo: 0,
   });
 
+  // Deliverable options (OR choices)
+  const [deliverableOptions, setDeliverableOptions] = useState<Array<Array<{ type: string; count: number }>>>([]);
+  const [showAddOption, setShowAddOption] = useState(false);
+  const [newOptionItems, setNewOptionItems] = useState<Array<{ type: string; count: number }>>([
+    { type: 'instagram_reel', count: 1 },
+  ]);
+
   const DELIVERABLE_LABELS: Record<string, string> = {
     instagram_story: 'Instagram Story',
     instagram_reel: 'Instagram Reel',
     instagram_post: 'Instagram Post',
     tiktok_video: 'TikTok Video',
+    youtube_shorts: 'YouTube Shorts',
     ugc_video: 'UGC Video',
     photo: 'Photo (תמונה)',
   };
@@ -92,6 +112,7 @@ export default function CampaignPage() {
     instagram_reel: 'רילס באינסטגרם - סרטון קצר',
     instagram_post: 'פוסט באינסטגרם - תמונה או קרוסלה',
     tiktok_video: 'סרטון בטיקטוק',
+    youtube_shorts: 'YouTube Shorts - סרטון קצר עד 60 שניות',
     ugc_video: 'סרטון UGC - תוכן למותג ללא פרסום',
     photo: 'תמונה - צילום מקצועי למותג',
   };
@@ -134,9 +155,9 @@ export default function CampaignPage() {
   const loadCampaign = async () => {
     const supabase = createClient();
 
-    const { data, error } = await supabase
+    const { data: rawData, error } = await supabase
       .from('campaigns')
-      .select('id, title, objective, concept, fixed_price, deadline, status, deliverables, brief_url, brands(name)')
+      .select('id, title, objective, concept, fixed_price, deadline, start_date, end_date, is_barter, barter_description, requires_sponsored_approval, status, deliverables, brief_url, brands(name)')
       .eq('id', campaignId)
       .single();
 
@@ -147,6 +168,7 @@ export default function CampaignPage() {
       return;
     }
 
+    const data = rawData as any;
     setCampaign(data as Campaign);
     setFormData({
       title: data.title || '',
@@ -154,13 +176,19 @@ export default function CampaignPage() {
       concept: data.concept || '',
       fixedPrice: data.fixed_price?.toString() || '',
       deadline: data.deadline || '',
+      startDate: data.start_date || '',
+      endDate: data.end_date || '',
+      isBarter: data.is_barter || false,
+      barterDescription: data.barter_description || '',
+      requiresSponsoredApproval: data.requires_sponsored_approval !== false,
     });
     // Load deliverables from campaign data
     if (data.deliverables && typeof data.deliverables === 'object') {
-      setDeliverables(prev => ({
-        ...prev,
-        ...(data.deliverables as Record<string, number>),
-      }));
+      const { _options, ...counts } = data.deliverables as any;
+      setDeliverables(prev => ({ ...prev, ...counts }));
+      if (Array.isArray(_options)) {
+        setDeliverableOptions(_options);
+      }
     }
     setLoading(false);
   };
@@ -188,10 +216,15 @@ export default function CampaignPage() {
           title: formData.title,
           objective: formData.objective,
           concept: formData.concept,
-          fixed_price: formData.fixedPrice ? Number(formData.fixedPrice) : null,
+          fixed_price: formData.isBarter ? null : (formData.fixedPrice ? Number(formData.fixedPrice) : null),
           deadline: formData.deadline || null,
-          deliverables: deliverables as any,
-        })
+          start_date: formData.startDate || null,
+          end_date: formData.endDate || null,
+          is_barter: formData.isBarter,
+          barter_description: formData.isBarter ? formData.barterDescription : null,
+          requires_sponsored_approval: formData.requiresSponsoredApproval,
+          deliverables: { ...deliverables, _options: deliverableOptions.length > 0 ? deliverableOptions : undefined } as any,
+        } as any)
         .eq('id', campaignId);
 
       if (error) throw error;
@@ -484,25 +517,93 @@ export default function CampaignPage() {
                   />
                 </div>
 
-                <div>
-                  <Input
-                    label="מחיר מוצע למשפיען (₪) - אופציונלי"
-                    type="number"
-                    value={formData.fixedPrice}
-                    onChange={(e) => setFormData({ ...formData, fixedPrice: e.target.value })}
-                    placeholder="השאר ריק אם תרצה להחליט בנפרד לכל משפיען"
-                  />
-                  <p className="text-[#6c757d] text-sm mt-1">
-                     אם תשאיר ריק, תוכל להגדיר מחיר מותאם אישית לכל משפיען בעת אישור המועמדות
-                  </p>
+                {/* Barter Toggle */}
+                <div className="border border-[#dee2e6] rounded-lg p-4 bg-[#f8f9fa]">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <span className="text-[#212529] font-medium">קמפיין ברטר</span>
+                      <p className="text-[#6c757d] text-xs">תשלום במוצרים/שירותים במקום כסף</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, isBarter: !formData.isBarter })}
+                      className={`relative w-12 h-6 rounded-full transition-colors ${
+                        formData.isBarter ? 'bg-[#f2cc0d]' : 'bg-[#dee2e6]'
+                      }`}
+                    >
+                      <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                        formData.isBarter ? 'right-0.5' : 'left-0.5'
+                      }`} />
+                    </button>
+                  </div>
+                  {formData.isBarter && (
+                    <textarea
+                      value={formData.barterDescription}
+                      onChange={(e) => setFormData({ ...formData, barterDescription: e.target.value })}
+                      className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors mt-2"
+                      rows={2}
+                      placeholder="תאר את שווי הברטר - מה המשפיען מקבל?"
+                    />
+                  )}
                 </div>
 
-                <Input
-                  label="תאריך יעד"
-                  type="date"
-                  value={formData.deadline}
-                  onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                />
+                {!formData.isBarter && (
+                  <div>
+                    <Input
+                      label="מחיר מוצע למשפיען (₪) - אופציונלי"
+                      type="number"
+                      value={formData.fixedPrice}
+                      onChange={(e) => setFormData({ ...formData, fixedPrice: e.target.value })}
+                      placeholder="השאר ריק אם תרצה להחליט בנפרד לכל משפיען"
+                    />
+                    <p className="text-[#6c757d] text-sm mt-1">
+                       אם תשאיר ריק, תוכל להגדיר מחיר מותאם אישית לכל משפיען בעת אישור המועמדות
+                    </p>
+                  </div>
+                )}
+
+                {/* Campaign Dates */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Input
+                    label="תאריך התחלה"
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                  />
+                  <Input
+                    label="תאריך סיום"
+                    type="date"
+                    value={formData.endDate}
+                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                  />
+                  <Input
+                    label="דדליין להגשת תוכן"
+                    type="date"
+                    value={formData.deadline}
+                    onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                  />
+                </div>
+
+                {/* Sponsored Approval */}
+                <div className="border border-[#dee2e6] rounded-lg p-4 bg-[#f8f9fa]">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[#212529] font-medium">נדרש אישור קידום ממומן</span>
+                      <p className="text-[#6c757d] text-xs">המשפיען יצטרך אישור מהמותג לפני פרסום ממומן</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, requiresSponsoredApproval: !formData.requiresSponsoredApproval })}
+                      className={`relative w-12 h-6 rounded-full transition-colors ${
+                        formData.requiresSponsoredApproval ? 'bg-[#f2cc0d]' : 'bg-[#dee2e6]'
+                      }`}
+                    >
+                      <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                        formData.requiresSponsoredApproval ? 'right-0.5' : 'left-0.5'
+                      }`} />
+                    </button>
+                  </div>
+                </div>
 
                 {/* Deliverables Section */}
                 <div className="border border-[#dee2e6] rounded-lg p-5 bg-[#f8f9fa]">
@@ -552,6 +653,97 @@ export default function CampaignPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* OR Options */}
+                  <div className="mt-4 pt-4 border-t border-[#dee2e6]">
+                    <h4 className="text-[#212529] font-bold text-sm mb-1">אפשרויות לבחירה (או)</h4>
+                    <p className="text-[#6c757d] text-xs mb-3">
+                      המשפיען יבחר אחת מהאפשרויות. לדוגמה: רילס אחד <strong>או</strong> שני פוסטים.
+                    </p>
+
+                    {deliverableOptions.length > 0 && (
+                      <div className="space-y-2 mb-3">
+                        {deliverableOptions.map((option, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <div className="flex-1 bg-white rounded-lg border border-[#dee2e6] px-3 py-2 flex items-center gap-2 flex-wrap">
+                              <span className="text-xs font-bold text-[#f2cc0d] bg-[#f2cc0d]/15 px-2 py-0.5 rounded-full">
+                                אפשרות {idx + 1}
+                              </span>
+                              {option.map((item, i) => (
+                                <span key={i} className="text-sm text-[#212529]">
+                                  {i > 0 && <span className="text-[#868e96] mx-1">+</span>}
+                                  {item.count}x {DELIVERABLE_LABELS[item.type] || item.type}
+                                </span>
+                              ))}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setDeliverableOptions(deliverableOptions.filter((_, i) => i !== idx))}
+                              className="text-red-400 hover:text-red-500 p-1"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {showAddOption ? (
+                      <div className="bg-white rounded-lg border-2 border-[#f2cc0d] p-3 space-y-2">
+                        {newOptionItems.map((item, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <select
+                              value={item.type}
+                              onChange={(e) => {
+                                const updated = [...newOptionItems];
+                                updated[idx] = { ...updated[idx], type: e.target.value };
+                                setNewOptionItems(updated);
+                              }}
+                              className="flex-1 px-2 py-1.5 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-sm text-[#212529]"
+                            >
+                              {Object.entries(DELIVERABLE_LABELS).map(([k, v]) => (
+                                <option key={k} value={k}>{v}</option>
+                              ))}
+                            </select>
+                            <div className="flex items-center gap-1">
+                              <button type="button" onClick={() => {
+                                const updated = [...newOptionItems];
+                                updated[idx] = { ...updated[idx], count: Math.max(1, updated[idx].count - 1) };
+                                setNewOptionItems(updated);
+                              }} className="w-6 h-6 rounded-full bg-[#f8f9fa] text-[#212529] hover:bg-[#e9ecef] flex items-center justify-center text-sm font-bold">-</button>
+                              <span className="w-5 text-center text-sm font-bold text-[#f2cc0d]">{item.count}</span>
+                              <button type="button" onClick={() => {
+                                const updated = [...newOptionItems];
+                                updated[idx] = { ...updated[idx], count: updated[idx].count + 1 };
+                                setNewOptionItems(updated);
+                              }} className="w-6 h-6 rounded-full bg-[#f2cc0d] text-black hover:bg-[#d4b00b] flex items-center justify-center text-sm font-bold">+</button>
+                            </div>
+                            {newOptionItems.length > 1 && (
+                              <button type="button" onClick={() => setNewOptionItems(newOptionItems.filter((_, i) => i !== idx))} className="text-red-400 p-1">
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        <button type="button" onClick={() => setNewOptionItems([...newOptionItems, { type: 'instagram_post', count: 1 }])} className="text-xs text-[#f2cc0d] font-medium">+ תוצר נוסף</button>
+                        <div className="flex gap-2 pt-1">
+                          <button type="button" onClick={() => {
+                            setDeliverableOptions([...deliverableOptions, newOptionItems]);
+                            setNewOptionItems([{ type: 'instagram_reel', count: 1 }]);
+                            setShowAddOption(false);
+                          }} className="px-3 py-1 bg-[#f2cc0d] text-black rounded-lg text-xs font-medium hover:bg-[#d4b00b]">שמור</button>
+                          <button type="button" onClick={() => { setShowAddOption(false); setNewOptionItems([{ type: 'instagram_reel', count: 1 }]); }} className="px-3 py-1 bg-[#f8f9fa] text-[#6c757d] rounded-lg text-xs hover:bg-[#e9ecef]">ביטול</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => setShowAddOption(true)} className="text-sm text-[#f2cc0d] hover:text-[#d4b00b] font-medium flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                        הוסף אפשרות לבחירה
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex gap-4 pt-4">
@@ -787,6 +979,7 @@ export default function CampaignPage() {
         {activeTab === 'shipments' && <ShipmentsTab campaignId={campaignId} />}
         {activeTab === 'content' && <ContentTab campaignId={campaignId} />}
         {activeTab === 'payments' && <PaymentsTab campaignId={campaignId} />}
+        {activeTab === 'messages' && <MessagesTab campaignId={campaignId} />}
       </div>
 
       <TutorialPopup tutorialKey="brand_campaign_detail" />

@@ -41,6 +41,13 @@ export default function CreatorSettingsPage() {
     facebook: { username: '', followers: 0 },
   });
 
+  const [address, setAddress] = useState({
+    address_street: '',
+    address_city: '',
+    address_zip: '',
+    phone: '',
+  });
+
   useEffect(() => {
     if (user && user.role !== 'creator') {
       router.push('/');
@@ -70,20 +77,29 @@ export default function CreatorSettingsPage() {
       });
     }
 
-    // Load creator platforms
+    // Load creator platforms and address
     const { data: creatorData } = await supabase
       .from('creators')
-      .select('platforms')
+      .select('platforms, address_street, address_city, address_zip, phone')
       .eq('user_id', user!.id)
       .single();
 
-    if (creatorData?.platforms) {
-      const platformsData = creatorData.platforms as Record<string, any>;
-      setPlatforms({
-        instagram: platformsData.instagram || { username: '', followers: 0 },
-        tiktok: platformsData.tiktok || { username: '', followers: 0 },
-        youtube: platformsData.youtube || { username: '', followers: 0 },
-        facebook: platformsData.facebook || { username: '', followers: 0 },
+    if (creatorData) {
+      const cd = creatorData as any;
+      if (cd.platforms) {
+        const platformsData = cd.platforms as Record<string, any>;
+        setPlatforms({
+          instagram: platformsData.instagram || { username: '', followers: 0 },
+          tiktok: platformsData.tiktok || { username: '', followers: 0 },
+          youtube: platformsData.youtube || { username: '', followers: 0 },
+          facebook: platformsData.facebook || { username: '', followers: 0 },
+        });
+      }
+      setAddress({
+        address_street: cd.address_street || '',
+        address_city: cd.address_city || '',
+        address_zip: cd.address_zip || '',
+        phone: cd.phone || '',
       });
     }
 
@@ -199,6 +215,31 @@ export default function CreatorSettingsPage() {
     } catch (error: any) {
       console.error('Error saving platforms:', error);
       alert(` שגיאה בשמירת הפלטפורמות: ${error.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveAddress = async () => {
+    setSaving(true);
+    const supabase = createClient();
+
+    try {
+      const { error } = await supabase
+        .from('creators')
+        .update({
+          address_street: address.address_street || null,
+          address_city: address.address_city || null,
+          address_zip: address.address_zip || null,
+          phone: address.phone || null,
+        } as any)
+        .eq('user_id', user!.id);
+
+      if (error) throw error;
+      alert('הכתובת עודכנה בהצלחה');
+    } catch (error: any) {
+      console.error('Error saving address:', error);
+      alert('שגיאה בשמירת הכתובת: ' + error.message);
     } finally {
       setSaving(false);
     }
@@ -462,6 +503,60 @@ export default function CreatorSettingsPage() {
                 className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
               >
                 {saving ? 'שומר...' : 'שמור קישורים חברתיים'}
+              </Button>
+            </div>
+          </Card>
+
+          {/* Address Section */}
+          <Card>
+            <h2 className="text-xl font-bold text-[#212529] mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined">home</span>
+              כתובת למשלוחים
+            </h2>
+            <p className="text-[#6c757d] text-sm mb-4">
+              הכתובת תשמש לקבלת מוצרים מקמפיינים שדורשים משלוח
+            </p>
+
+            <div className="space-y-4">
+              <Input
+                label="רחוב ומספר"
+                type="text"
+                value={address.address_street}
+                onChange={(e) => setAddress({ ...address, address_street: e.target.value })}
+                placeholder="רחוב הרצל 15, דירה 3"
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="עיר"
+                  type="text"
+                  value={address.address_city}
+                  onChange={(e) => setAddress({ ...address, address_city: e.target.value })}
+                  placeholder="תל אביב"
+                />
+                <Input
+                  label="מיקוד"
+                  type="text"
+                  value={address.address_zip}
+                  onChange={(e) => setAddress({ ...address, address_zip: e.target.value })}
+                  placeholder="6120101"
+                />
+              </div>
+
+              <Input
+                label="טלפון"
+                type="tel"
+                value={address.phone}
+                onChange={(e) => setAddress({ ...address, phone: e.target.value })}
+                placeholder="050-1234567"
+              />
+
+              <Button
+                onClick={handleSaveAddress}
+                disabled={saving}
+                className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
+              >
+                {saving ? 'שומר...' : 'שמור כתובת'}
               </Button>
             </div>
           </Card>

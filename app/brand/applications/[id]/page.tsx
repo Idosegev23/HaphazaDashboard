@@ -1,7 +1,7 @@
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -46,6 +46,8 @@ type PortfolioItem = {
 
 export default function ApplicationDetailPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
+  const fromCampaign = searchParams.get('from_campaign');
   const applicationId = params.id as string;
   const [application, setApplication] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,6 +71,7 @@ export default function ApplicationDetailPage() {
     { value: 'other', label: 'אחר' },
   ];
   const router = useRouter();
+  const backUrl = fromCampaign ? `/brand/campaigns/${fromCampaign}` : '/brand/applications';
 
   useEffect(() => {
     loadApplication();
@@ -364,7 +367,7 @@ export default function ApplicationDetailPage() {
       });
 
       alert('הבקשה נדחתה והמשפיען קיבל פידבק');
-      router.push('/brand/applications');
+      router.push(backUrl);
     } catch (error: any) {
       alert('שגיאה בדחייה: ' + error.message);
     } finally {
@@ -408,10 +411,10 @@ export default function ApplicationDetailPage() {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <button
-                onClick={() => router.push('/brand/applications')}
+                onClick={() => router.push(backUrl)}
                 className="text-[#6c757d] hover:text-[#f2cc0d] transition-colors"
               >
-                ← חזרה
+                ← {fromCampaign ? 'חזרה לקמפיין' : 'חזרה'}
               </button>
               <h1 className="text-2xl lg:text-3xl font-bold text-[#212529]">בקשת משפיען</h1>
             </div>

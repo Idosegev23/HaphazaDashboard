@@ -34,7 +34,9 @@
       "mcp__supabase__apply_migration",
       "mcp__supabase__execute_sql",
       "Bash(npm run build:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(npm install:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

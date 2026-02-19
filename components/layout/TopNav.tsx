@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
 import { useState } from 'react';
+import { NotificationBell } from './NotificationBell';
 
 interface TopNavProps {
   user: UserWithRole | null;
@@ -107,6 +108,9 @@ export function TopNav({ user }: TopNavProps) {
 
           {/* User Menu & Mobile Toggle */}
           <div className="flex items-center gap-4">
+            {/* Notifications */}
+            {user && <NotificationBell />}
+
             {/* User Info - Hidden on smallest screens */}
             <div className="hidden sm:flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#f8f9fa] flex items-center justify-center border-2 border-gold">

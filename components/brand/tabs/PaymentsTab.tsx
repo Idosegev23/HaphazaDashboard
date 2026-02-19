@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/Card';
+import JSZip from 'jszip';
 
 type PaymentsTabProps = {
   campaignId: string;
@@ -151,6 +152,102 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
   const filteredPayments =
     statusFilter === 'all' ? payments : payments.filter((p) => p.status === statusFilter);
 
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportZip = async () => {
+    setExporting(true);
+    try {
+      const zip = new JSZip();
+      const dateStr = new Date().toISOString().split('T')[0];
+
+      // Group payments by creator
+      const byCreator = new Map<string, Payment[]>();
+      for (const p of filteredPayments) {
+        const list = byCreator.get(p.creator_name) || [];
+        list.push(p);
+        byCreator.set(p.creator_name, list);
+      }
+
+      // Create index CSV
+      const BOM = '\uFEFF';
+      const indexHeaders = ['שם יוצר', 'משימה', 'סכום', 'סטטוס', 'תאריך יצירה', 'תאריך תשלום', 'אסמכתא', 'חשבונית'];
+      const indexRows = filteredPayments.map((p) => [
+        p.creator_name,
+        p.task_title,
+        p.amount.toString(),
+        statusLabels[p.status] || p.status,
+        new Date(p.created_at).toLocaleDateString('he-IL'),
+        p.paid_at ? new Date(p.paid_at).toLocaleDateString('he-IL') : '',
+        p.proof_url ? 'כן' : 'לא',
+        p.invoice_url ? 'כן' : 'לא',
+      ]);
+      const csvContent = BOM + [indexHeaders, ...indexRows].map((r) => r.map((c) => `"${c}"`).join(',')).join('\n');
+      zip.file('index.csv', csvContent);
+
+      // For each creator, create a folder with documents
+      for (const [creatorName, creatorPayments] of byCreator) {
+        const safeName = creatorName.replace(/[/\\?%*:|"<>]/g, '_');
+        const folder = zip.folder(safeName)!;
+
+        // Creator summary text
+        const totalAmount = creatorPayments.reduce((s, p) => s + (p.amount || 0), 0);
+        const summaryLines = [
+          `שם יוצר: ${creatorName}`,
+          `סה"כ תשלומים: ${creatorPayments.length}`,
+          `סכום כולל: ₪${totalAmount.toLocaleString()}`,
+          '',
+          '--- פירוט ---',
+          ...creatorPayments.map((p, i) =>
+            `${i + 1}. ${p.task_title} | ₪${p.amount.toLocaleString()} | ${statusLabels[p.status] || p.status} | ${new Date(p.created_at).toLocaleDateString('he-IL')}${p.paid_at ? ` | שולם: ${new Date(p.paid_at).toLocaleDateString('he-IL')}` : ''}`
+          ),
+        ];
+        folder.file('summary.txt', BOM + summaryLines.join('\n'));
+
+        // Download documents
+        for (const payment of creatorPayments) {
+          const taskSafe = payment.task_title.replace(/[/\\?%*:|"<>]/g, '_').substring(0, 40);
+
+          if (payment.proof_url) {
+            try {
+              const resp = await fetch(payment.proof_url);
+              if (resp.ok) {
+                const blob = await resp.blob();
+                const ext = payment.proof_url.split('.').pop()?.split('?')[0] || 'pdf';
+                folder.file(`proof_${taskSafe}.${ext}`, blob);
+              }
+            } catch {}
+          }
+
+          if (payment.invoice_url) {
+            try {
+              const resp = await fetch(payment.invoice_url);
+              if (resp.ok) {
+                const blob = await resp.blob();
+                const ext = payment.invoice_url.split('.').pop()?.split('?')[0] || 'pdf';
+                folder.file(`invoice_${taskSafe}.${ext}`, blob);
+              }
+            } catch {}
+          }
+        }
+      }
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `payments_export_${dateStr}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting:', error);
+      alert('שגיאה בייצוא הקבצים');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const totalAmount = filteredPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
   const paidAmount = payments
     .filter((p) => p.status === 'paid')
@@ -197,7 +294,24 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
             {statusFilter !== 'all' && ` (${statusLabels[statusFilter]})`}
           </p>
         </div>
-        <select
+        <div className="flex items-center gap-3">
+          {payments.length > 0 && (
+            <button
+              onClick={handleExportZip}
+              disabled={exporting}
+              className="px-4 py-2 bg-[#f2cc0d] text-black text-sm font-medium rounded-lg hover:bg-[#d4b00b] transition-colors flex items-center gap-2 disabled:opacity-50"
+            >
+              {exporting ? (
+                <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              )}
+              {exporting ? 'מייצא...' : 'ייצא ZIP עם מסמכים'}
+            </button>
+          )}
+          <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="px-4 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold"
@@ -212,6 +326,7 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
           <option value="paid">שולם ({payments.filter((p) => p.status === 'paid').length})</option>
           <option value="failed">נכשל ({payments.filter((p) => p.status === 'failed').length})</option>
         </select>
+        </div>
       </div>
 
       {/* Payments List */}

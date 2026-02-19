@@ -88,6 +88,7 @@ type CreatorDetailData = {
 type FilterOptions = {
   countries: string[];
   ageRanges: string[];
+  cities: string[];
 };
 
 export default function CreatorCatalogPage() {
@@ -119,7 +120,8 @@ export default function CreatorCatalogPage() {
   const [sortBy, setSortBy] = useState<'rating' | 'followers' | 'recent'>('recent');
 
   // Filter options from server
-  const [filterOptions, setFilterOptions] = useState<FilterOptions>({ countries: [], ageRanges: [] });
+  const [cityFilter, setCityFilter] = useState('all');
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({ countries: [], ageRanges: [], cities: [] });
 
   // Modal
   const [selectedCreator, setSelectedCreator] = useState<CatalogCreator | null>(null);
@@ -130,6 +132,12 @@ export default function CreatorCatalogPage() {
   const [creatorDetail, setCreatorDetail] = useState<CreatorDetailData | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
+
+  // Brand-only notes
+  const [brandNote, setBrandNote] = useState('');
+  const [brandNoteSaved, setBrandNoteSaved] = useState('');
+  const [savingNote, setSavingNote] = useState(false);
+  const [noteAuthor, setNoteAuthor] = useState<{ name: string; role: string } | null>(null);
 
   // Campaign invite
   const [showCampaignPicker, setShowCampaignPicker] = useState(false);
@@ -199,6 +207,7 @@ export default function CreatorCatalogPage() {
         p_tier: tierFilter !== 'all' ? tierFilter : null,
         p_gender: genderFilter !== 'all' ? genderFilter : null,
         p_age_range: ageFilter !== 'all' ? ageFilter : null,
+        p_city: cityFilter !== 'all' ? cityFilter : null,
         p_sort: sortBy,
         p_favorite_ids: showFavoritesOnly ? Array.from(favorites) : null,
       });
@@ -222,7 +231,7 @@ export default function CreatorCatalogPage() {
     };
 
     load();
-  }, [user?.id, debouncedSearch, nicheFilter, tierFilter, genderFilter, ageFilter, sortBy, favFilterKey]);
+  }, [user?.id, debouncedSearch, nicheFilter, tierFilter, genderFilter, ageFilter, cityFilter, sortBy, favFilterKey]);
 
   // Load more (next page) for infinite scroll
   const loadMore = useCallback(async () => {
@@ -239,6 +248,7 @@ export default function CreatorCatalogPage() {
       p_tier: tierFilter !== 'all' ? tierFilter : null,
       p_gender: genderFilter !== 'all' ? genderFilter : null,
       p_age_range: ageFilter !== 'all' ? ageFilter : null,
+      p_city: cityFilter !== 'all' ? cityFilter : null,
       p_sort: sortBy,
       p_favorite_ids: showFavoritesOnly ? Array.from(favorites) : null,
     });
@@ -261,7 +271,7 @@ export default function CreatorCatalogPage() {
     setHasMore(result.hasMore || false);
     offsetRef.current += newCreators.length;
     setLoadingMore(false);
-  }, [loadingMore, hasMore, debouncedSearch, nicheFilter, tierFilter, genderFilter, ageFilter, sortBy, showFavoritesOnly, favorites]);
+  }, [loadingMore, hasMore, debouncedSearch, nicheFilter, tierFilter, genderFilter, ageFilter, cityFilter, sortBy, showFavoritesOnly, favorites]);
 
   // IntersectionObserver for infinite scroll
   useEffect(() => {
@@ -301,18 +311,41 @@ export default function CreatorCatalogPage() {
     setLoadingPortfolio(true);
     setLoadingDetail(true);
     setCreatorDetail(null);
+    setBrandNote('');
+    setBrandNoteSaved('');
+    setNoteAuthor(null);
     document.body.style.overflow = 'hidden';
 
     const supabase = createClient();
 
-    // Fetch portfolio items and creator detail in parallel
-    const [portfolioRes, detailRes] = await Promise.all([
+    // For admins, fetch note by creator_id (any brand); for brands, fetch by brand_id
+    const isAdmin = ['admin', 'finance', 'support', 'content_ops'].includes(user?.role || '');
+    const noteQuery = user?.brand_id
+      ? supabase
+          .from('brand_creator_notes' as any)
+          .select('note, author_name, author_role')
+          .eq('brand_id', user.brand_id)
+          .eq('creator_id', creator.user_id)
+          .maybeSingle()
+      : isAdmin
+        ? supabase
+            .from('brand_creator_notes' as any)
+            .select('note, author_name, author_role')
+            .eq('creator_id', creator.user_id)
+            .order('updated_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+        : Promise.resolve({ data: null });
+
+    // Fetch portfolio items, creator detail, and brand note in parallel
+    const [portfolioRes, detailRes, noteRes] = await Promise.all([
       supabase
         .from('portfolio_items')
         .select('id, media_url, media_type, title, description, platform, external_link')
         .eq('creator_id', creator.user_id)
         .order('created_at', { ascending: false }),
       supabase.rpc('get_creator_profile_details' as any, { p_creator_id: creator.user_id }),
+      noteQuery,
     ]);
 
     setPortfolioItems((portfolioRes.data || []) as FullPortfolioItem[]);
@@ -322,6 +355,15 @@ export default function CreatorCatalogPage() {
       setCreatorDetail(detailRes.data as unknown as CreatorDetailData);
     }
     setLoadingDetail(false);
+
+    if (noteRes.data) {
+      const nd = noteRes.data as any;
+      setBrandNote(nd.note || '');
+      setBrandNoteSaved(nd.note || '');
+      if (nd.author_name) {
+        setNoteAuthor({ name: nd.author_name, role: nd.author_role || '' });
+      }
+    }
   };
 
   const closeModal = useCallback(() => {
@@ -425,18 +467,59 @@ export default function CreatorCatalogPage() {
     alert(`${selectedCreator.users_profiles?.display_name || 'המשפיענית'} הוזמנה בהצלחה לקמפיין "${campaign.title}"`);
   }, [selectedCreator, brandCampaigns]);
 
+  const handleSaveBrandNote = useCallback(async () => {
+    if (!selectedCreator || brandNote === brandNoteSaved) return;
+    const isAdmin = ['admin', 'finance', 'support', 'content_ops'].includes(user?.role || '');
+    // Need either brand_id or admin role
+    if (!user?.brand_id && !isAdmin) return;
+    setSavingNote(true);
+    const supabase = createClient();
+
+    const authorName = user?.profile?.display_name || (isAdmin ? 'אדמין' : 'מותג');
+    const authorRole = isAdmin ? 'admin' : 'brand';
+    // Use brand_id if available; for admins without brand_id use a placeholder
+    const brandId = user?.brand_id || '00000000-0000-0000-0000-000000000000';
+
+    if (brandNote.trim()) {
+      await supabase
+        .from('brand_creator_notes' as any)
+        .upsert({
+          brand_id: brandId,
+          creator_id: selectedCreator.user_id,
+          note: brandNote.trim(),
+          author_id: user?.id,
+          author_name: authorName,
+          author_role: authorRole,
+          updated_at: new Date().toISOString(),
+        } as any, { onConflict: 'brand_id,creator_id' });
+      setNoteAuthor({ name: authorName, role: authorRole });
+    } else {
+      // Delete note if empty
+      await supabase
+        .from('brand_creator_notes' as any)
+        .delete()
+        .eq('brand_id', brandId)
+        .eq('creator_id', selectedCreator.user_id);
+      setNoteAuthor(null);
+    }
+
+    setBrandNoteSaved(brandNote.trim());
+    setSavingNote(false);
+  }, [selectedCreator, user?.brand_id, user?.id, user?.role, user?.profile?.display_name, brandNote, brandNoteSaved]);
+
   const resetFilters = () => {
     setSearchInput('');
     setNicheFilter('all');
     setTierFilter('all');
     setGenderFilter('all');
     setAgeFilter('all');
+    setCityFilter('all');
     setSortBy('recent');
     setShowFavoritesOnly(false);
   };
 
   const hasActiveFilters = searchInput || nicheFilter !== 'all' || tierFilter !== 'all' ||
-    genderFilter !== 'all' || ageFilter !== 'all' || showFavoritesOnly;
+    genderFilter !== 'all' || ageFilter !== 'all' || cityFilter !== 'all' || showFavoritesOnly;
 
   if (loading && creators.length === 0) {
     return (
@@ -524,7 +607,7 @@ export default function CreatorCatalogPage() {
         {/* Filters Panel */}
         {showFilters && (
           <Card className="!rounded-2xl">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
               {/* Gender */}
               <div>
                 <label className="block text-xs font-medium text-[#6c757d] mb-1">מין</label>
@@ -551,6 +634,21 @@ export default function CreatorCatalogPage() {
                   <option value="all">הכל</option>
                   {filterOptions.ageRanges.map((a) => (
                     <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* City */}
+              <div>
+                <label className="block text-xs font-medium text-[#6c757d] mb-1">עיר</label>
+                <select
+                  value={cityFilter}
+                  onChange={(e) => setCityFilter(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
+                >
+                  <option value="all">כל הערים</option>
+                  {(filterOptions.cities || []).map((c) => (
+                    <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
               </div>
@@ -1199,6 +1297,44 @@ export default function CreatorCatalogPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Brand-only notes */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">הערות פנימיות</h4>
+                    <div className="flex items-center gap-2">
+                      {noteAuthor && brandNoteSaved && (
+                        <span className="text-[10px] text-[#adb5bd]">
+                          {noteAuthor.name} ({noteAuthor.role === 'admin' ? 'אדמין' : 'מותג'})
+                        </span>
+                      )}
+                      {brandNote !== brandNoteSaved && (
+                        <button
+                          onClick={handleSaveBrandNote}
+                          disabled={savingNote}
+                          className="text-xs font-medium text-[#f2cc0d] hover:text-[#d4b00b] transition-colors disabled:opacity-50"
+                        >
+                          {savingNote ? 'שומר...' : 'שמור'}
+                        </button>
+                      )}
+                      {brandNote === brandNoteSaved && brandNoteSaved && !noteAuthor && (
+                        <span className="text-[10px] text-[#adb5bd]">נשמר</span>
+                      )}
+                    </div>
+                  </div>
+                  <textarea
+                    value={brandNote}
+                    onChange={(e) => setBrandNote(e.target.value)}
+                    onBlur={() => {
+                      if (brandNote !== brandNoteSaved) handleSaveBrandNote();
+                    }}
+                    placeholder={['admin', 'finance', 'support', 'content_ops'].includes(user?.role || '')
+                      ? 'הוסף הערות פנימיות על היוצר (נראה למותגים ולאדמין)...'
+                      : 'הוסף הערות פנימיות על היוצר (נראה רק לצוות המותג)...'}
+                    rows={3}
+                    className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#e9ecef] rounded-xl text-sm text-[#212529] focus:outline-none focus:border-[#f2cc0d] resize-none placeholder-[#adb5bd]"
+                  />
+                </div>
               </div>
             </div>
           </div>

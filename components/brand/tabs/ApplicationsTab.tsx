@@ -152,7 +152,7 @@ export function ApplicationsTab({ campaignId }: ApplicationsTabProps) {
               : null;
 
             return (
-              <Link key={application.id} href={`/brand/applications/${application.id}`}>
+              <Link key={application.id} href={`/brand/applications/${application.id}?from_campaign=${campaignId}`}>
                 <Card hover className="relative">
                   <div className={`status-stripe ${statusColors[application.status || 'submitted']}`} />
                   <div className="pl-6">
