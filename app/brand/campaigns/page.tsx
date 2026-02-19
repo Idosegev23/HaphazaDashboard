@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/hooks/use-user';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/Card';
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
 import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 type Campaign = {
@@ -20,6 +18,13 @@ type Campaign = {
   deliverables: any;
   brief_url: string | null;
   brand_id: string;
+};
+
+const STATUS_CONFIG: Record<string, { label: string; dotColor: string }> = {
+  draft: { label: 'טיוטה', dotColor: '#f59e0b' },
+  open: { label: 'פתוח', dotColor: '#22c55e' },
+  closed: { label: 'כבוי', dotColor: '#ef4444' },
+  archived: { label: 'הסתיים', dotColor: '#6b7281' },
 };
 
 export default function BrandCampaignsPage() {
@@ -39,6 +44,7 @@ export default function BrandCampaignsPage() {
     if (userLoading) return;
     if (!user?.brand_id) return;
     loadCampaigns();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.brand_id, userLoading]);
 
   const loadCampaigns = async () => {
@@ -54,9 +60,9 @@ export default function BrandCampaignsPage() {
   };
 
   const handleDuplicate = async (campaign: Campaign, e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent link navigation
+    e.preventDefault();
     e.stopPropagation();
-    
+
     if (!confirm(`האם אתה בטוח שברצונך לשכפל את הקמפיין "${campaign.title}"?`)) {
       return;
     }
@@ -65,13 +71,11 @@ export default function BrandCampaignsPage() {
     const supabase = createClient();
 
     try {
-      // Get products for this campaign
       const { data: products } = await supabase
         .from('campaign_products')
         .select('name, sku, image_url, quantity')
         .eq('campaign_id', campaign.id);
 
-      // Create new campaign
       const { data: newCampaign, error: campaignError } = await supabase
         .from('campaigns')
         .insert({
@@ -90,7 +94,6 @@ export default function BrandCampaignsPage() {
 
       if (campaignError) throw campaignError;
 
-      // Duplicate products
       if (products && products.length > 0 && newCampaign) {
         const productsToInsert = products.map((p) => ({
           campaign_id: newCampaign.id,
@@ -99,7 +102,6 @@ export default function BrandCampaignsPage() {
           image_url: p.image_url,
           quantity: p.quantity,
         }));
-
         await supabase.from('campaign_products').insert(productsToInsert);
       }
 
@@ -113,96 +115,150 @@ export default function BrandCampaignsPage() {
     }
   };
 
-  const statusLabels: Record<string, string> = {
-    draft: 'טיוטה',
-    open: 'פתוח',
-    closed: 'סגור',
-    archived: 'בארכיון',
-  };
-
-  const statusColors: Record<string, string> = {
-    draft: 'text-gray-400',
-    open: 'text-green-400',
-    closed: 'text-blue-400',
-    archived: 'text-gray-500',
-  };
+  const initial = (user?.profile?.display_name || '?').charAt(0).toUpperCase();
 
   if (loading || userLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-[#212529] text-xl">טוען...</div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-[#f2cc0d] border-t-transparent rounded-full animate-spin" />
+          <div className="text-[#6b7281] text-lg">טוען קמפיינים...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-[#212529] mb-2">הקמפיינים שלי</h1>
-            <p className="text-muted">ניהול וניטור קמפיינים</p>
+    <div className="min-h-[calc(100vh-70px)] bg-[#f4f5f7] px-[19px] py-4 lg:px-10 lg:py-6">
+      <div className="max-w-[1152px] mx-auto space-y-5">
+
+        {/* Blue Hero Banner */}
+        <div className="bg-[#dbe4f5] rounded-2xl px-5 py-6 lg:px-8 flex items-center gap-4 relative overflow-hidden min-h-[228px] lg:min-h-[138px]">
+          {/* Avatar */}
+          <div className="w-[58px] h-[58px] rounded-full bg-[#8e33f5] flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-[31px] font-normal">{initial}</span>
           </div>
-          <Link href="/brand/campaigns/new">
-            <Button>קמפיין חדש +</Button>
+
+          {/* Title + subtitle */}
+          <div className="flex-1 min-w-0">
+            <h1 className="text-[36px] font-medium text-black leading-[32px]">הקמפיינים שלי</h1>
+            <p className="text-[#666] text-lg lg:text-base mt-2 lg:mt-1 leading-[12px]">ניהול וניטור קמפיינים</p>
+          </div>
+
+          {/* New campaign button */}
+          <Link
+            href="/brand/campaigns/new"
+            className="hidden lg:flex items-center gap-2 bg-[#e5f2d6] rounded-full px-[17px] py-3 text-black font-semibold text-base hover:brightness-95 transition-all flex-shrink-0"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            קמפיין חדש
           </Link>
         </div>
 
+        {/* Mobile new campaign button */}
+        <Link
+          href="/brand/campaigns/new"
+          className="flex lg:hidden items-center justify-center gap-2 bg-[#e5f2d6] rounded-full px-[17px] h-[46px] text-black font-semibold text-lg hover:brightness-95 transition-all w-full"
+        >
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          קמפיין חדש
+        </Link>
+
+        {/* Campaign Cards Grid */}
         {campaigns && campaigns.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {campaigns.map((campaign) => (
-              <div key={campaign.id} className="relative">
-                <Link href={`/brand/campaigns/${campaign.id}`}>
-                  <Card hover className="h-full">
-                    <div className="space-y-4">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-xl font-bold text-[#212529]">{campaign.title}</h3>
-                          <span className={`text-sm ${statusColors[campaign.status || 'draft']}`}>
-                            {statusLabels[campaign.status || 'draft']}
-                          </span>
-                        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {campaigns.map((campaign) => {
+              const status = STATUS_CONFIG[campaign.status || 'draft'] || STATUS_CONFIG.draft;
+              return (
+                <div key={campaign.id} className="relative group">
+                  <Link href={`/brand/campaigns/${campaign.id}`}>
+                    <div className="bg-white rounded-2xl px-[17px] py-4 flex flex-col gap-[10px] hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden h-[175px] lg:h-auto">
+                      {/* Status badge */}
+                      <div className="flex justify-end">
+                        <span className="inline-flex items-center gap-1 bg-white border border-[#dfdfdf] rounded-[20px] px-2 py-[3px]">
+                          <span
+                            className="w-4 h-4 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: status.dotColor }}
+                          />
+                          <span className="text-[#6b7281] text-base">{status.label}</span>
+                        </span>
+                      </div>
+
+                      {/* Title + subtitle */}
+                      <div className="text-right space-y-[3px] pb-[26px]">
+                        <h3 className="text-[22px] font-bold text-black leading-[32px]">{campaign.title}</h3>
                         {campaign.concept && (
-                          <p className="text-muted text-sm line-clamp-2">{campaign.concept}</p>
+                          <p className="text-[#666] text-lg lg:text-base leading-[12px] line-clamp-1">{campaign.concept}</p>
+                        )}
+                        {!campaign.concept && campaign.objective && (
+                          <p className="text-[#666] text-lg lg:text-base leading-[12px] line-clamp-1">{campaign.objective}</p>
+                        )}
+                        {!campaign.concept && !campaign.objective && (
+                          <p className="text-[#666] text-lg lg:text-base leading-[12px]">ניהול וניטור קמפיינים</p>
                         )}
                       </div>
 
-                      <div className="pt-4 border-t border-subtle">
-                        <div className="text-gold font-bold">
+                      {/* Price divider */}
+                      <div className="border-t border-[#dfdfdf] pt-2">
+                        <p className="text-right font-bold text-lg lg:text-base text-[#020202] leading-[27px]">
                           {campaign.fixed_price
-                            ? `₪${campaign.fixed_price.toLocaleString()}`
+                            ? `₪ ${campaign.fixed_price.toLocaleString()}`
                             : 'מחיר לא הוגדר'}
-                        </div>
+                        </p>
                       </div>
                     </div>
-                  </Card>
-                </Link>
-                
-                {/* Duplicate Button */}
-                <button
-                  onClick={(e) => handleDuplicate(campaign, e)}
-                  disabled={duplicating === campaign.id}
-                  className="absolute top-4 left-4 px-3 py-1.5 bg-surface border border-subtle text-[#212529] rounded-lg hover:bg-white/10 hover:border-gold transition-colors text-sm disabled:opacity-50"
-                  title="שכפל קמפיין"
-                >
-                  {duplicating === campaign.id ? '⏳' : ''}
-                </button>
-              </div>
-            ))}
+                  </Link>
+
+                  {/* Duplicate button - appears on hover */}
+                  <button
+                    onClick={(e) => handleDuplicate(campaign, e)}
+                    disabled={duplicating === campaign.id}
+                    className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 w-8 h-8 rounded-full bg-[#f4f5f7] border border-[#dfdfdf] flex items-center justify-center hover:bg-[#e9ecef] transition-all disabled:opacity-50"
+                    title="שכפל קמפיין"
+                  >
+                    {duplicating === campaign.id ? (
+                      <div className="w-4 h-4 border-2 border-[#6b7281] border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7281" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <Card>
-            <div className="text-center py-12">
-              <p className="text-muted mb-4">עדיין לא יצרת קמפיינים</p>
-              <Link href="/brand/campaigns/new">
-                <Button>צור את הקמפיין הראשון</Button>
-              </Link>
+          <div className="bg-white rounded-2xl px-6 py-16 text-center">
+            <div className="w-16 h-16 rounded-full bg-[#f4f5f7] flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-[#dfdfdf]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
             </div>
-          </Card>
+            <p className="text-[#6b7281] text-lg mb-2">עדיין לא יצרת קמפיינים</p>
+            <p className="text-[#adb5bd] text-sm mb-6">צור את הקמפיין הראשון שלך כדי להתחיל</p>
+            <Link
+              href="/brand/campaigns/new"
+              className="inline-flex items-center gap-2 bg-[#e5f2d6] rounded-full px-6 py-3 text-black font-semibold text-base hover:brightness-95 transition-all"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              צור קמפיין חדש
+            </Link>
+          </div>
         )}
       </div>
 
-      <TutorialPopup tutorialKey="brand_campaigns" />
+      <TutorialPopup
+        tutorialKey="brand_campaigns"
+        buttonClassName="bg-[#ef767a] text-white hover:brightness-90"
+      />
     </div>
   );
 }
