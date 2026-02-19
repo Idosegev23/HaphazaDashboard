@@ -30,6 +30,15 @@
     /* Fonts */
     --font-display: 'Manrope', ui-sans-serif, system-ui, sans-serif;
     --font-body: 'Heebo', 'Noto Sans Hebrew', ui-sans-serif, system-ui, sans-serif;
+    --font-assistant: 'Assistant', var(--font-body);
+
+    /* Brand Dashboard Colors */
+    --color-brand-green: #e5f2d6;
+    --color-brand-blue: #dbe4f5;
+    --color-brand-coral: #ef767a;
+    --color-brand-bg: #f4f5f7;
+    --color-brand-border: #dfdfdf;
+    --color-brand-muted: #6b7281;
     
     /* Border Radius */
     --radius-sm: 0.125rem;

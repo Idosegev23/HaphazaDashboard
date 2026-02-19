@@ -7,9 +7,10 @@ import { createClient } from '@/lib/supabase/client';
 
 interface TutorialPopupProps {
   tutorialKey: string;
+  buttonClassName?: string;
 }
 
-export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => {
+export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey, buttonClassName }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDismissed, setIsDismissed] = useState<boolean | null>(null); // null = loading
   const [dontShowAgain, setDontShowAgain] = useState(false);
@@ -98,12 +99,10 @@ export const TutorialPopup: React.FC<TutorialPopupProps> = ({ tutorialKey }) => 
       {!isOpen && isDismissed !== null && (
         <button
           onClick={handleOpen}
-          className="fixed bottom-6 left-6 z-40 flex items-center gap-2 
-            bg-white border-2 border-[#f2cc0d] text-[#f2cc0d] 
+          className={`fixed bottom-6 left-6 z-40 flex items-center gap-2
             rounded-full px-4 py-3 shadow-lg
-            hover:bg-[#f2cc0d] hover:text-[#121212] 
             transition-all duration-300 hover:scale-105
-            group"
+            group ${buttonClassName || 'bg-white border-2 border-[#f2cc0d] text-[#f2cc0d] hover:bg-[#f2cc0d] hover:text-[#121212]'}`}
           title="צפה במדריך"
         >
           <span className="text-sm font-bold">מדריך</span>

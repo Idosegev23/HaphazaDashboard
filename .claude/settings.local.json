@@ -36,7 +36,10 @@
       "Bash(npm run build:*)",
       "Bash(grep:*)",
       "Bash(find:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "mcp__figma__get_screenshot",
+      "mcp__figma__get_metadata",
+      "mcp__figma__get_design_context"
     ]
   },
   "enableAllProjectMcpServers": true,
