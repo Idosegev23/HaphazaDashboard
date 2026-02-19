@@ -139,16 +139,8 @@ export default function CreatorCatalogPage() {
   const loadCreators = async () => {
     const supabase = createClient();
 
-    // Load creators
-    const { data, error } = await supabase
-      .from('creators')
-      .select(`
-        user_id, bio, city, niches, tier, platforms, gender, country, age_range,
-        verified_at, created_at, occupations, portfolio_links, highlights,
-        users_profiles!creators_profile_fkey!inner(display_name, avatar_url, language),
-        creator_metrics(average_rating, total_tasks, approval_rate, on_time_rate, on_time_deliveries, late_deliveries, approved_tasks, rejected_tasks)
-      `)
-      .order('created_at', { ascending: false });
+    // Single RPC call returns all creators with profiles, metrics, and portfolio previews
+    const { data, error } = await supabase.rpc('get_creator_catalog' as any);
 
     if (error) {
       console.error('Error loading creators:', error);
@@ -156,40 +148,7 @@ export default function CreatorCatalogPage() {
       return;
     }
 
-    const creatorsData = (data || []) as unknown as CatalogCreator[];
-
-    // Load portfolio previews for all creators (batch)
-    if (creatorsData.length > 0) {
-      const creatorIds = creatorsData.map((c) => c.user_id);
-      const { data: portfolioData } = await supabase
-        .from('portfolio_items')
-        .select('id, creator_id, media_url, media_type, title')
-        .in('creator_id', creatorIds)
-        .order('created_at', { ascending: false });
-
-      if (portfolioData) {
-        // Group portfolio items by creator_id
-        const portfolioMap = new Map<string, PortfolioPreview[]>();
-        for (const item of portfolioData) {
-          const existing = portfolioMap.get((item as any).creator_id) || [];
-          if (existing.length < 6) {
-            existing.push({
-              id: item.id,
-              media_url: item.media_url,
-              media_type: item.media_type,
-              title: item.title,
-            });
-          }
-          portfolioMap.set((item as any).creator_id, existing);
-        }
-
-        // Attach portfolio previews to creators
-        for (const creator of creatorsData) {
-          creator.portfolio_preview = portfolioMap.get(creator.user_id) || [];
-        }
-      }
-    }
-
+    const creatorsData = ((data as any) || []) as CatalogCreator[];
     setCreators(creatorsData);
     setLoading(false);
   };
