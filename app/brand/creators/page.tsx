@@ -1,14 +1,12 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/hooks/use-user';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/Card';
 import {
   CreatorCard,
   CatalogCreator,
-  PortfolioPreview,
   StarRating,
   getTotalFollowers,
   formatFollowers,
@@ -539,82 +537,95 @@ export default function CreatorCatalogPage() {
     : null;
 
   return (
-    <div className="px-4 py-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-[#212529]">מאגר יוצרים</h1>
-            <p className="text-[#6c757d] text-sm mt-1">
+    <div className="min-h-[calc(100vh-70px)] bg-[#f4f5f7] px-4 py-6 lg:px-10">
+      <div className="max-w-[1440px] mx-auto space-y-6">
+        {/* Blue header banner */}
+        <div className="bg-[#dbe4f5] rounded-2xl px-6 py-5 lg:px-10">
+          {/* Title + count */}
+          <div className="text-right mb-4">
+            <h1 className="text-4xl font-medium text-black">מאגר יוצרים</h1>
+            <p className="text-[#666] text-base mt-1">
               {creators.length < totalCount
                 ? `מציג ${creators.length} מתוך ${totalCount} יוצרים`
                 : `${totalCount} יוצרים`}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            {/* Search */}
-            <div className="relative">
-              <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#868e96]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+
+          {/* Search + filter chips row */}
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Search bar */}
+            <div className="relative flex-1 max-w-[310px]">
+              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
                 type="text"
-                placeholder="חיפוש לפי שם, עיר, ביו..."
+                placeholder="חיפוש לפי שם, עיר, ביו"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="pr-10 pl-4 py-2.5 bg-white border border-[#dee2e6] rounded-xl text-[#212529] focus:outline-none focus:border-[#f2cc0d] focus:ring-2 focus:ring-[#f2cc0d]/20 w-64 text-sm transition-all"
+                className="w-full pr-4 pl-11 py-2.5 bg-white border border-[#dfdfdf] rounded-full text-base text-[#212529] focus:outline-none focus:border-[#999] transition-all placeholder:text-[#666]"
               />
             </div>
-            {/* Sort */}
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-3 py-2.5 bg-white border border-[#dee2e6] rounded-xl text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d] cursor-pointer"
-            >
-              <option value="recent">חדשים</option>
-              <option value="rating">דירוג</option>
-              <option value="followers">עוקבים</option>
-            </select>
-            {/* Favorites toggle */}
+
+            {/* Sort chip */}
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="appearance-none h-10 pl-8 pr-3 bg-white border border-[#dfdfdf] rounded-lg text-base text-[#666] focus:outline-none cursor-pointer"
+              >
+                <option value="recent">חדשים</option>
+                <option value="rating">דירוג</option>
+                <option value="followers">עוקבים</option>
+              </select>
+              <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-[#666] pointer-events-none rotate-180" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 10 6">
+                <path d="M1 1l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            {/* Favorites chip */}
             <button
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              className={`px-4 py-2.5 rounded-xl font-medium transition-all text-sm border ${
+              className={`h-10 px-3 rounded-lg font-normal transition-all text-base border flex items-center gap-2 ${
                 showFavoritesOnly
-                  ? 'bg-red-50 text-red-600 border-red-200 shadow-sm'
-                  : 'bg-white text-[#495057] border-[#dee2e6] hover:bg-[#f8f9fa]'
+                  ? 'bg-red-50 text-red-600 border-red-200'
+                  : 'bg-white text-[#666] border-[#dfdfdf] hover:bg-[#f8f9fa]'
               }`}
             >
-              {showFavoritesOnly ? '\u2764\uFE0F' : '\u2661'} מועדפים
-              {favorites.size > 0 && ` (${favorites.size})`}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill={showFavoritesOnly ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+              <span>חדשים</span>
             </button>
-            {/* Filter toggle */}
+
+            {/* Filter chip */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`px-4 py-2.5 rounded-xl font-medium transition-all text-sm border flex items-center gap-2 ${
+              className={`h-10 px-3 rounded-lg font-normal transition-all text-base border flex items-center gap-2 ${
                 hasActiveFilters && !showFavoritesOnly
-                  ? 'bg-[#f2cc0d] text-black border-[#f2cc0d] shadow-sm'
-                  : 'bg-white text-[#495057] border-[#dee2e6] hover:bg-[#f8f9fa]'
+                  ? 'bg-[#e5f2d6] text-[#333] border-[#c5deb5]'
+                  : 'bg-white text-[#666] border-[#dfdfdf] hover:bg-[#f8f9fa]'
               }`}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
               </svg>
-              {showFilters ? 'הסתר פילטרים' : 'פילטרים'}
+              <span>פילטרים</span>
             </button>
           </div>
         </div>
 
         {/* Filters Panel */}
         {showFilters && (
-          <Card className="!rounded-2xl">
+          <div className="bg-white rounded-2xl p-5 border border-[#dfdfdf]">
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
               {/* Gender */}
               <div>
-                <label className="block text-xs font-medium text-[#6c757d] mb-1">מין</label>
+                <label className="block text-xs font-medium text-[#6b7281] mb-1">מין</label>
                 <select
                   value={genderFilter}
                   onChange={(e) => setGenderFilter(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
+                  className="w-full px-3 py-2 bg-[#f4f5f7] border border-[#dfdfdf] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#999]"
                 >
                   <option value="all">הכל</option>
                   <option value="female">נקבה</option>
@@ -625,11 +636,11 @@ export default function CreatorCatalogPage() {
 
               {/* Age */}
               <div>
-                <label className="block text-xs font-medium text-[#6c757d] mb-1">גיל</label>
+                <label className="block text-xs font-medium text-[#6b7281] mb-1">גיל</label>
                 <select
                   value={ageFilter}
                   onChange={(e) => setAgeFilter(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
+                  className="w-full px-3 py-2 bg-[#f4f5f7] border border-[#dfdfdf] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#999]"
                 >
                   <option value="all">הכל</option>
                   {filterOptions.ageRanges.map((a) => (
@@ -640,11 +651,11 @@ export default function CreatorCatalogPage() {
 
               {/* City */}
               <div>
-                <label className="block text-xs font-medium text-[#6c757d] mb-1">עיר</label>
+                <label className="block text-xs font-medium text-[#6b7281] mb-1">עיר</label>
                 <select
                   value={cityFilter}
                   onChange={(e) => setCityFilter(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
+                  className="w-full px-3 py-2 bg-[#f4f5f7] border border-[#dfdfdf] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#999]"
                 >
                   <option value="all">כל הערים</option>
                   {(filterOptions.cities || []).map((c) => (
@@ -655,11 +666,11 @@ export default function CreatorCatalogPage() {
 
               {/* Niche / Category */}
               <div>
-                <label className="block text-xs font-medium text-[#6c757d] mb-1">קטגוריה</label>
+                <label className="block text-xs font-medium text-[#6b7281] mb-1">קטגוריה</label>
                 <select
                   value={nicheFilter}
                   onChange={(e) => setNicheFilter(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
+                  className="w-full px-3 py-2 bg-[#f4f5f7] border border-[#dfdfdf] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#999]"
                 >
                   <option value="all">הכל</option>
                   {NICHES.map((n) => (
@@ -670,11 +681,11 @@ export default function CreatorCatalogPage() {
 
               {/* Creator Type / Tier */}
               <div>
-                <label className="block text-xs font-medium text-[#6c757d] mb-1">סוג יוצר</label>
+                <label className="block text-xs font-medium text-[#6b7281] mb-1">סוג יוצר</label>
                 <select
                   value={tierFilter}
                   onChange={(e) => setTierFilter(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
+                  className="w-full px-3 py-2 bg-[#f4f5f7] border border-[#dfdfdf] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#999]"
                 >
                   <option value="all">הכל</option>
                   {TIERS.map((t) => (
@@ -685,22 +696,22 @@ export default function CreatorCatalogPage() {
             </div>
 
             {hasActiveFilters && (
-              <div className="mt-4 pt-3 border-t border-[#dee2e6]">
+              <div className="mt-4 pt-3 border-t border-[#dfdfdf]">
                 <button
                   onClick={resetFilters}
-                  className="text-sm text-[#6c757d] hover:text-[#212529] transition-colors"
+                  className="text-sm text-[#6b7281] hover:text-[#212529] transition-colors"
                 >
                   איפוס פילטרים
                 </button>
               </div>
             )}
-          </Card>
+          </div>
         )}
 
-        {/* Creator Grid - responsive content-first layout */}
+        {/* Creator Grid */}
         {creators.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {creators.map((creator) => (
                 <CreatorCard
                   key={creator.user_id}
