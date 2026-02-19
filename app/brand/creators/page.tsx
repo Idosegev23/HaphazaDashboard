@@ -744,6 +744,152 @@ export default function CreatorCatalogPage() {
                     ))}
                   </div>
                 )}
+
+                {/* === Below-media info (fills dead space) === */}
+                <div className="mt-4 space-y-4">
+                  {/* Platforms with profile links */}
+                  {sc.platforms && Object.keys(sc.platforms).length > 0 && (
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">רשתות חברתיות</h4>
+                        <span className="text-xs font-bold text-[#f2cc0d]">
+                          {formatFollowers(getTotalFollowers(sc.platforms))} עוקבים
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {Object.entries(sc.platforms).map(([name, data]) => {
+                          if (!data) return null;
+                          const handle = data.handle || data.username;
+                          const profileUrl = handle && PLATFORM_URLS[name] ? PLATFORM_URLS[name](handle) : null;
+                          const color = getPlatformColor(name);
+                          return (
+                            <a
+                              key={name}
+                              href={profileUrl || '#'}
+                              target={profileUrl ? '_blank' : undefined}
+                              rel={profileUrl ? 'noopener noreferrer' : undefined}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (!profileUrl) e.preventDefault();
+                              }}
+                              className={`flex items-center gap-2.5 py-2 px-3 rounded-xl border transition-all ${
+                                profileUrl
+                                  ? 'bg-white border-[#e9ecef] hover:border-[#f2cc0d] hover:shadow-sm cursor-pointer'
+                                  : 'bg-[#f8f9fa] border-[#f1f3f5] cursor-default'
+                              }`}
+                            >
+                              <div
+                                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                                style={{ backgroundColor: `${color}12` }}
+                              >
+                                <span style={{ color }}>
+                                  <PlatformIcon name={name} className="w-4.5 h-4.5" />
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-xs font-medium text-[#212529]">{name}</div>
+                                {handle && (
+                                  <div className="text-[10px] text-[#868e96] truncate">@{handle}</div>
+                                )}
+                              </div>
+                              {data.followers != null && (
+                                <span className="text-xs font-bold text-[#212529] flex-shrink-0">
+                                  {formatFollowers(data.followers)}
+                                </span>
+                              )}
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Info row - compact */}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-[#495057]">
+                    {(sc.city || sc.country) && (
+                      <div className="flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5 text-[#adb5bd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {[sc.city, sc.country].filter(Boolean).join(', ')}
+                      </div>
+                    )}
+                    {sc.age_range && (
+                      <div className="flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5 text-[#adb5bd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        {sc.age_range}{sc.gender && ` \u00B7 ${sc.gender === 'female' ? 'נקבה' : sc.gender === 'male' ? 'זכר' : 'אחר'}`}
+                      </div>
+                    )}
+                    {sc.users_profiles?.language && (
+                      <div className="flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5 text-[#adb5bd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                        </svg>
+                        {LANG_LABELS[sc.users_profiles.language] || sc.users_profiles.language}
+                      </div>
+                    )}
+                    {scJoinDate && (
+                      <div className="flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5 text-[#adb5bd]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        {scJoinDate}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Niches */}
+                  {sc.niches && sc.niches.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {sc.niches.map((niche) => (
+                        <span
+                          key={niche}
+                          className="px-2.5 py-1 bg-[#f2cc0d]/10 rounded-full text-xs font-medium text-[#946f00] border border-[#f2cc0d]/20"
+                        >
+                          {niche}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Highlights */}
+                  {sc.highlights && sc.highlights.length > 0 && (
+                    <div className="space-y-1.5">
+                      <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">נקודות חשובות</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                        {sc.highlights.map((point, idx) => (
+                          <div key={idx} className="flex items-start gap-1.5 text-xs text-[#495057]">
+                            <span className="text-[#f2cc0d] mt-0.5 flex-shrink-0">{'\u2726'}</span>
+                            <span>{point}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Portfolio Links */}
+                  {sc.portfolio_links && sc.portfolio_links.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {sc.portfolio_links.map((link, idx) => (
+                        <a
+                          key={idx}
+                          href={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 py-1.5 px-3 bg-[#f8f9fa] rounded-lg text-xs text-[#495057] hover:text-[#f2cc0d] transition-colors border border-[#e9ecef]"
+                        >
+                          <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          <span className="truncate max-w-[200px]">{link.replace(/^https?:\/\/(www\.)?/, '')}</span>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* RIGHT: Creator Info */}
@@ -911,163 +1057,6 @@ export default function CreatorCatalogPage() {
                           </div>
                           <p className="text-sm text-[#495057] leading-relaxed">&ldquo;{review.note}&rdquo;</p>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Niches */}
-                {sc.niches && sc.niches.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {sc.niches.map((niche) => (
-                      <span
-                        key={niche}
-                        className="px-2.5 py-1 bg-[#f2cc0d]/10 rounded-full text-xs font-medium text-[#946f00] border border-[#f2cc0d]/20"
-                      >
-                        {niche}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Info details */}
-                <div className="space-y-2 text-sm">
-                  {(sc.city || sc.country) && (
-                    <div className="flex items-center gap-2 text-[#495057]">
-                      <svg className="w-4 h-4 text-[#adb5bd] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      {[sc.city, sc.country].filter(Boolean).join(', ')}
-                    </div>
-                  )}
-                  {sc.age_range && (
-                    <div className="flex items-center gap-2 text-[#495057]">
-                      <svg className="w-4 h-4 text-[#adb5bd] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      גיל {sc.age_range}
-                      {sc.gender && (
-                        <span className="text-[#adb5bd]">
-                          {' \u00B7 '}{sc.gender === 'female' ? 'נקבה' : sc.gender === 'male' ? 'זכר' : 'אחר'}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {sc.users_profiles?.language && (
-                    <div className="flex items-center gap-2 text-[#495057]">
-                      <svg className="w-4 h-4 text-[#adb5bd] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                      </svg>
-                      {LANG_LABELS[sc.users_profiles.language] || sc.users_profiles.language}
-                    </div>
-                  )}
-                  {scJoinDate && (
-                    <div className="flex items-center gap-2 text-[#495057]">
-                      <svg className="w-4 h-4 text-[#adb5bd] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      הצטרפות: {scJoinDate}
-                    </div>
-                  )}
-                </div>
-
-                {/* Highlights / Key Points */}
-                {sc.highlights && sc.highlights.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">נקודות חשובות</h4>
-                    <div className="space-y-1.5">
-                      {sc.highlights.map((point, idx) => (
-                        <div key={idx} className="flex items-start gap-2 text-sm text-[#495057]">
-                          <span className="text-[#f2cc0d] mt-0.5 flex-shrink-0">{'\u2726'}</span>
-                          <span>{point}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Platforms with profile links */}
-                {sc.platforms && Object.keys(sc.platforms).length > 0 && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">רשתות חברתיות</h4>
-                      <span className="text-xs font-bold text-[#f2cc0d]">
-                        {formatFollowers(getTotalFollowers(sc.platforms))} עוקבים
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      {Object.entries(sc.platforms).map(([name, data]) => {
-                        if (!data) return null;
-                        const handle = data.handle || data.username;
-                        const profileUrl = handle && PLATFORM_URLS[name] ? PLATFORM_URLS[name](handle) : null;
-                        const color = getPlatformColor(name);
-                        return (
-                          <a
-                            key={name}
-                            href={profileUrl || '#'}
-                            target={profileUrl ? '_blank' : undefined}
-                            rel={profileUrl ? 'noopener noreferrer' : undefined}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (!profileUrl) e.preventDefault();
-                            }}
-                            className={`flex items-center gap-3 py-2.5 px-3 rounded-xl border transition-all ${
-                              profileUrl
-                                ? 'bg-white border-[#e9ecef] hover:border-[#f2cc0d] hover:shadow-sm cursor-pointer'
-                                : 'bg-[#f8f9fa] border-[#f1f3f5] cursor-default'
-                            }`}
-                          >
-                            <div
-                              className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                              style={{ backgroundColor: `${color}12` }}
-                            >
-                              <span style={{ color }}>
-                                <PlatformIcon name={name} className="w-5 h-5" />
-                              </span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-medium text-[#212529]">{name}</div>
-                              {handle && (
-                                <div className="text-xs text-[#868e96] truncate">@{handle}</div>
-                              )}
-                            </div>
-                            {data.followers != null && (
-                              <div className="text-left flex-shrink-0">
-                                <div className="text-sm font-bold text-[#212529]">{formatFollowers(data.followers)}</div>
-                                <div className="text-[10px] text-[#adb5bd]">עוקבים</div>
-                              </div>
-                            )}
-                            {profileUrl && (
-                              <svg className="w-4 h-4 text-[#dee2e6] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
-                            )}
-                          </a>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Portfolio Links */}
-                {sc.portfolio_links && sc.portfolio_links.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">קישורים לתיק עבודות</h4>
-                    <div className="space-y-1.5">
-                      {sc.portfolio_links.map((link, idx) => (
-                        <a
-                          key={idx}
-                          href={link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 py-2 px-3 bg-[#f8f9fa] rounded-lg text-sm text-[#495057] hover:text-[#f2cc0d] hover:bg-[#f8f9fa]/80 transition-colors"
-                        >
-                          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                          <span className="truncate">{link.replace(/^https?:\/\/(www\.)?/, '')}</span>
-                        </a>
                       ))}
                     </div>
                   </div>
