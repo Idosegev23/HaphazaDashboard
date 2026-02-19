@@ -12,9 +12,12 @@ import {
   StarRating,
   getTotalFollowers,
   formatFollowers,
-  PLATFORM_ICONS,
+  PlatformIcon,
+  getPlatformColor,
 } from '@/components/brand/CreatorCard';
 import { TierBadge, TierLevel } from '@/components/ui/TierBadge';
+
+const PAGE_SIZE = 24;
 
 const NICHES = [
   'אופנה', 'יופי וקוסמטיקה', 'כושר ובריאות', 'אוכל ומתכונים',
@@ -82,12 +85,24 @@ type CreatorDetailData = {
   };
 };
 
+type FilterOptions = {
+  countries: string[];
+  ageRanges: string[];
+};
+
 export default function CreatorCatalogPage() {
   const { user } = useUser();
   const router = useRouter();
 
+  // Creator data (paginated)
   const [creators, setCreators] = useState<CatalogCreator[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const offsetRef = useRef(0);
+  const loadVersionRef = useRef(0);
+
   const [showFilters, setShowFilters] = useState(false);
 
   // Favorites (stored in localStorage per brand user)
@@ -95,14 +110,16 @@ export default function CreatorCatalogPage() {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   // Filters
-  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [nicheFilter, setNicheFilter] = useState('all');
   const [tierFilter, setTierFilter] = useState('all');
   const [genderFilter, setGenderFilter] = useState('all');
-  const [countryFilter, setCountryFilter] = useState('all');
-  const [minRating, setMinRating] = useState('');
   const [ageFilter, setAgeFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'rating' | 'followers' | 'recent'>('recent');
+
+  // Filter options from server
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({ countries: [], ageRanges: [] });
 
   // Modal
   const [selectedCreator, setSelectedCreator] = useState<CatalogCreator | null>(null);
@@ -113,6 +130,9 @@ export default function CreatorCatalogPage() {
   const [creatorDetail, setCreatorDetail] = useState<CreatorDetailData | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
+
+  // Infinite scroll sentinel
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user && !['brand_manager', 'brand_user', 'admin'].includes(user.role || '')) {
@@ -132,26 +152,123 @@ export default function CreatorCatalogPage() {
     }
   }, [user?.id]);
 
+  // Load filter options (countries, age ranges) once
   useEffect(() => {
-    if (user?.id) loadCreators();
-  }, [user?.id]);
+    const loadFilterOptions = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.rpc('get_catalog_filter_options' as any);
+      if (data) setFilterOptions(data as unknown as FilterOptions);
+    };
+    loadFilterOptions();
+  }, []);
 
-  const loadCreators = async () => {
-    const supabase = createClient();
+  // Debounce search input (300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchInput), 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
-    // Single RPC call returns all creators with profiles, metrics, and portfolio previews
-    const { data, error } = await supabase.rpc('get_creator_catalog' as any);
+  // Favorites key: only trigger reload when favorites change AND showFavoritesOnly is on
+  const favFilterKey = showFavoritesOnly ? [...favorites].sort().join(',') : 'off';
 
-    if (error) {
-      console.error('Error loading creators:', error);
+  // Load page when filters change (reset to page 1)
+  useEffect(() => {
+    if (!user?.id) return;
+
+    loadVersionRef.current += 1;
+    const version = loadVersionRef.current;
+
+    const load = async () => {
+      setLoading(true);
+      offsetRef.current = 0;
+
+      const supabase = createClient();
+      const { data, error } = await supabase.rpc('get_creator_catalog_page' as any, {
+        p_limit: PAGE_SIZE,
+        p_offset: 0,
+        p_search: debouncedSearch || null,
+        p_niche: nicheFilter !== 'all' ? nicheFilter : null,
+        p_tier: tierFilter !== 'all' ? tierFilter : null,
+        p_gender: genderFilter !== 'all' ? genderFilter : null,
+        p_age_range: ageFilter !== 'all' ? ageFilter : null,
+        p_sort: sortBy,
+        p_favorite_ids: showFavoritesOnly ? Array.from(favorites) : null,
+      });
+
+      // Discard stale responses
+      if (version !== loadVersionRef.current) return;
+
+      if (error) {
+        console.error('Error loading creators:', error);
+        setLoading(false);
+        return;
+      }
+
+      const result = data as any;
+      const newCreators = (result.creators || []) as CatalogCreator[];
+      setCreators(newCreators);
+      setTotalCount(result.total || 0);
+      setHasMore(result.hasMore || false);
+      offsetRef.current = newCreators.length;
       setLoading(false);
+    };
+
+    load();
+  }, [user?.id, debouncedSearch, nicheFilter, tierFilter, genderFilter, ageFilter, sortBy, favFilterKey]);
+
+  // Load more (next page) for infinite scroll
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+
+    const currentVersion = loadVersionRef.current;
+    const supabase = createClient();
+    const { data, error } = await supabase.rpc('get_creator_catalog_page' as any, {
+      p_limit: PAGE_SIZE,
+      p_offset: offsetRef.current,
+      p_search: debouncedSearch || null,
+      p_niche: nicheFilter !== 'all' ? nicheFilter : null,
+      p_tier: tierFilter !== 'all' ? tierFilter : null,
+      p_gender: genderFilter !== 'all' ? genderFilter : null,
+      p_age_range: ageFilter !== 'all' ? ageFilter : null,
+      p_sort: sortBy,
+      p_favorite_ids: showFavoritesOnly ? Array.from(favorites) : null,
+    });
+
+    // Discard if filters changed while loading
+    if (currentVersion !== loadVersionRef.current) {
+      setLoadingMore(false);
       return;
     }
 
-    const creatorsData = ((data as any) || []) as CatalogCreator[];
-    setCreators(creatorsData);
-    setLoading(false);
-  };
+    if (error) {
+      console.error('Error loading more creators:', error);
+      setLoadingMore(false);
+      return;
+    }
+
+    const result = data as any;
+    const newCreators = (result.creators || []) as CatalogCreator[];
+    setCreators(prev => [...prev, ...newCreators]);
+    setHasMore(result.hasMore || false);
+    offsetRef.current += newCreators.length;
+    setLoadingMore(false);
+  }, [loadingMore, hasMore, debouncedSearch, nicheFilter, tierFilter, genderFilter, ageFilter, sortBy, showFavoritesOnly, favorites]);
+
+  // IntersectionObserver for infinite scroll
+  useEffect(() => {
+    if (!sentinelRef.current || !hasMore || loadingMore || loading) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { rootMargin: '400px' }
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [hasMore, loadingMore, loading, loadMore]);
 
   const toggleFavorite = useCallback((creatorId: string) => {
     setFavorites((prev) => {
@@ -217,89 +334,20 @@ export default function CreatorCatalogPage() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [modalOpen, closeModal]);
 
-  // Extract unique countries from data
-  const countries = useMemo(() => {
-    const set = new Set<string>();
-    creators.forEach((c) => c.country && set.add(c.country));
-    return Array.from(set).sort();
-  }, [creators]);
-
-  // Filter + Sort
-  const filteredCreators = useMemo(() => {
-    let result = creators.filter((c) => {
-      // Favorites only
-      if (showFavoritesOnly && !favorites.has(c.user_id)) return false;
-      // Search
-      if (search) {
-        const name = c.users_profiles?.display_name?.toLowerCase() || '';
-        if (!name.includes(search.toLowerCase())) return false;
-      }
-      // Niche
-      if (nicheFilter !== 'all') {
-        if (!c.niches?.includes(nicheFilter)) return false;
-      }
-      // Tier
-      if (tierFilter !== 'all') {
-        if ((c.tier || 'starter') !== tierFilter) return false;
-      }
-      // Gender
-      if (genderFilter !== 'all') {
-        if (c.gender !== genderFilter) return false;
-      }
-      // Country
-      if (countryFilter !== 'all') {
-        if (c.country !== countryFilter) return false;
-      }
-      // Min rating
-      if (minRating) {
-        const rating = c.creator_metrics?.[0]?.average_rating || 0;
-        if (rating < parseFloat(minRating)) return false;
-      }
-      // Age filter
-      if (ageFilter !== 'all' && c.age_range) {
-        if (c.age_range !== ageFilter) return false;
-      }
-      return true;
-    });
-
-    // Sort
-    result.sort((a, b) => {
-      if (sortBy === 'rating') {
-        return (b.creator_metrics?.[0]?.average_rating || 0) -
-          (a.creator_metrics?.[0]?.average_rating || 0);
-      }
-      if (sortBy === 'followers') {
-        return getTotalFollowers(b.platforms) - getTotalFollowers(a.platforms);
-      }
-      return 0; // 'recent' - already ordered by created_at desc
-    });
-
-    return result;
-  }, [creators, search, nicheFilter, tierFilter, genderFilter, countryFilter, minRating, ageFilter, sortBy, showFavoritesOnly, favorites]);
-
   const resetFilters = () => {
-    setSearch('');
+    setSearchInput('');
     setNicheFilter('all');
     setTierFilter('all');
     setGenderFilter('all');
-    setCountryFilter('all');
-    setMinRating('');
     setAgeFilter('all');
     setSortBy('recent');
     setShowFavoritesOnly(false);
   };
 
-  const hasActiveFilters = search || nicheFilter !== 'all' || tierFilter !== 'all' ||
-    genderFilter !== 'all' || countryFilter !== 'all' || minRating || ageFilter !== 'all' || showFavoritesOnly;
+  const hasActiveFilters = searchInput || nicheFilter !== 'all' || tierFilter !== 'all' ||
+    genderFilter !== 'all' || ageFilter !== 'all' || showFavoritesOnly;
 
-  // Extract unique age ranges
-  const ageRanges = useMemo(() => {
-    const set = new Set<string>();
-    creators.forEach((c) => c.age_range && set.add(c.age_range));
-    return Array.from(set).sort();
-  }, [creators]);
-
-  if (loading) {
+  if (loading && creators.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
@@ -324,9 +372,9 @@ export default function CreatorCatalogPage() {
           <div>
             <h1 className="text-3xl font-bold text-[#212529]">מאגר יוצרים</h1>
             <p className="text-[#6c757d] text-sm mt-1">
-              {showFavoritesOnly
-                ? `${filteredCreators.length} יוצרים מועדפים`
-                : `מציג ${filteredCreators.length} מתוך ${creators.length} יוצרים`}
+              {creators.length < totalCount
+                ? `מציג ${creators.length} מתוך ${totalCount} יוצרים`
+                : `${totalCount} יוצרים`}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -337,12 +385,22 @@ export default function CreatorCatalogPage() {
               </svg>
               <input
                 type="text"
-                placeholder="חיפוש לפי שם..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pr-10 pl-4 py-2.5 bg-white border border-[#dee2e6] rounded-xl text-[#212529] focus:outline-none focus:border-[#f2cc0d] focus:ring-2 focus:ring-[#f2cc0d]/20 w-52 text-sm transition-all"
+                placeholder="חיפוש לפי שם, עיר, ביו..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="pr-10 pl-4 py-2.5 bg-white border border-[#dee2e6] rounded-xl text-[#212529] focus:outline-none focus:border-[#f2cc0d] focus:ring-2 focus:ring-[#f2cc0d]/20 w-64 text-sm transition-all"
               />
             </div>
+            {/* Sort */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="px-3 py-2.5 bg-white border border-[#dee2e6] rounded-xl text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d] cursor-pointer"
+            >
+              <option value="recent">חדשים</option>
+              <option value="rating">דירוג</option>
+              <option value="followers">עוקבים</option>
+            </select>
             {/* Favorites toggle */}
             <button
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
@@ -375,40 +433,10 @@ export default function CreatorCatalogPage() {
         {/* Filters Panel */}
         {showFilters && (
           <Card className="!rounded-2xl">
-            <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {/* Niche */}
-              <div>
-                <label className="block text-xs font-medium text-[#6c757d] mb-1">קטגוריה</label>
-                <select
-                  value={nicheFilter}
-                  onChange={(e) => setNicheFilter(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
-                >
-                  <option value="all">הכל</option>
-                  {NICHES.map((n) => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Tier */}
-              <div>
-                <label className="block text-xs font-medium text-[#6c757d] mb-1">דרגה</label>
-                <select
-                  value={tierFilter}
-                  onChange={(e) => setTierFilter(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
-                >
-                  <option value="all">הכל</option>
-                  {TIERS.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </select>
-              </div>
-
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Gender */}
               <div>
-                <label className="block text-xs font-medium text-[#6c757d] mb-1">מגדר</label>
+                <label className="block text-xs font-medium text-[#6c757d] mb-1">מין</label>
                 <select
                   value={genderFilter}
                   onChange={(e) => setGenderFilter(e.target.value)}
@@ -430,54 +458,39 @@ export default function CreatorCatalogPage() {
                   className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
                 >
                   <option value="all">הכל</option>
-                  {ageRanges.map((a) => (
+                  {filterOptions.ageRanges.map((a) => (
                     <option key={a} value={a}>{a}</option>
                   ))}
                 </select>
               </div>
 
-              {/* Country */}
+              {/* Niche / Category */}
               <div>
-                <label className="block text-xs font-medium text-[#6c757d] mb-1">מדינה</label>
+                <label className="block text-xs font-medium text-[#6c757d] mb-1">קטגוריה</label>
                 <select
-                  value={countryFilter}
-                  onChange={(e) => setCountryFilter(e.target.value)}
+                  value={nicheFilter}
+                  onChange={(e) => setNicheFilter(e.target.value)}
                   className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
                 >
                   <option value="all">הכל</option>
-                  {countries.map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                  {NICHES.map((n) => (
+                    <option key={n} value={n}>{n}</option>
                   ))}
                 </select>
               </div>
 
-              {/* Min Rating */}
+              {/* Creator Type / Tier */}
               <div>
-                <label className="block text-xs font-medium text-[#6c757d] mb-1">דירוג מינימלי</label>
+                <label className="block text-xs font-medium text-[#6c757d] mb-1">סוג יוצר</label>
                 <select
-                  value={minRating}
-                  onChange={(e) => setMinRating(e.target.value)}
+                  value={tierFilter}
+                  onChange={(e) => setTierFilter(e.target.value)}
                   className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
                 >
-                  <option value="">הכל</option>
-                  <option value="4.5">4.5+</option>
-                  <option value="4">4+</option>
-                  <option value="3.5">3.5+</option>
-                  <option value="3">3+</option>
-                </select>
-              </div>
-
-              {/* Sort */}
-              <div>
-                <label className="block text-xs font-medium text-[#6c757d] mb-1">מיון</label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="w-full px-3 py-2 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
-                >
-                  <option value="recent">חדשים</option>
-                  <option value="rating">דירוג</option>
-                  <option value="followers">עוקבים</option>
+                  <option value="all">הכל</option>
+                  {TIERS.map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -496,19 +509,41 @@ export default function CreatorCatalogPage() {
         )}
 
         {/* Creator Grid - responsive content-first layout */}
-        {filteredCreators.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
-            {filteredCreators.map((creator) => (
-              <CreatorCard
-                key={creator.user_id}
-                creator={creator}
-                onClick={() => openCreatorModal(creator)}
-                isFavorite={favorites.has(creator.user_id)}
-                onToggleFavorite={() => toggleFavorite(creator.user_id)}
-              />
-            ))}
-          </div>
-        ) : (
+        {creators.length > 0 ? (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
+              {creators.map((creator) => (
+                <CreatorCard
+                  key={creator.user_id}
+                  creator={creator}
+                  onClick={() => openCreatorModal(creator)}
+                  isFavorite={favorites.has(creator.user_id)}
+                  onToggleFavorite={() => toggleFavorite(creator.user_id)}
+                />
+              ))}
+            </div>
+
+            {/* Infinite scroll sentinel */}
+            <div ref={sentinelRef} className="h-1" />
+
+            {/* Loading more indicator */}
+            {loadingMore && (
+              <div className="flex justify-center py-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 border-4 border-[#f2cc0d] border-t-transparent rounded-full animate-spin" />
+                  <span className="text-[#6c757d] text-sm">טוען עוד יוצרים...</span>
+                </div>
+              </div>
+            )}
+
+            {/* End of list */}
+            {!hasMore && !loading && creators.length > 0 && creators.length >= PAGE_SIZE && (
+              <div className="text-center py-6">
+                <p className="text-[#adb5bd] text-sm">הוצגו כל {totalCount} היוצרים</p>
+              </div>
+            )}
+          </>
+        ) : !loading ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-20 h-20 rounded-full bg-[#f8f9fa] flex items-center justify-center mb-4">
               <svg className="w-10 h-10 text-[#dee2e6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -530,7 +565,7 @@ export default function CreatorCatalogPage() {
                 : ''}
             </p>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Creator Profile Modal */}
@@ -954,52 +989,63 @@ export default function CreatorCatalogPage() {
 
                 {/* Platforms with profile links */}
                 {sc.platforms && Object.keys(sc.platforms).length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">פלטפורמות ופרופילים</h4>
-                    <div className="space-y-1.5">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-medium text-[#868e96] uppercase tracking-wide">רשתות חברתיות</h4>
+                      <span className="text-xs font-bold text-[#f2cc0d]">
+                        {formatFollowers(getTotalFollowers(sc.platforms))} עוקבים
+                      </span>
+                    </div>
+                    <div className="space-y-2">
                       {Object.entries(sc.platforms).map(([name, data]) => {
                         if (!data) return null;
                         const handle = data.handle || data.username;
                         const profileUrl = handle && PLATFORM_URLS[name] ? PLATFORM_URLS[name](handle) : null;
+                        const color = getPlatformColor(name);
                         return (
-                          <div
+                          <a
                             key={name}
-                            className="flex items-center justify-between py-2 px-3 bg-[#f8f9fa] rounded-lg text-sm"
+                            href={profileUrl || '#'}
+                            target={profileUrl ? '_blank' : undefined}
+                            rel={profileUrl ? 'noopener noreferrer' : undefined}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!profileUrl) e.preventDefault();
+                            }}
+                            className={`flex items-center gap-3 py-2.5 px-3 rounded-xl border transition-all ${
+                              profileUrl
+                                ? 'bg-white border-[#e9ecef] hover:border-[#f2cc0d] hover:shadow-sm cursor-pointer'
+                                : 'bg-[#f8f9fa] border-[#f1f3f5] cursor-default'
+                            }`}
                           >
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span className="font-bold text-[#212529] text-xs w-5 flex-shrink-0">
-                                {PLATFORM_ICONS[name] || name}
+                            <div
+                              className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                              style={{ backgroundColor: `${color}12` }}
+                            >
+                              <span style={{ color }}>
+                                <PlatformIcon name={name} className="w-5 h-5" />
                               </span>
-                              {profileUrl ? (
-                                <a
-                                  href={profileUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="text-[#495057] hover:text-[#f2cc0d] transition-colors truncate flex items-center gap-1"
-                                >
-                                  @{handle}
-                                  <svg className="w-3 h-3 flex-shrink-0 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                  </svg>
-                                </a>
-                              ) : (
-                                <span className="text-[#495057]">{name}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-medium text-[#212529]">{name}</div>
+                              {handle && (
+                                <div className="text-xs text-[#868e96] truncate">@{handle}</div>
                               )}
                             </div>
                             {data.followers != null && (
-                              <span className="font-bold text-[#212529] text-sm flex-shrink-0">
-                                {formatFollowers(data.followers)}
-                              </span>
+                              <div className="text-left flex-shrink-0">
+                                <div className="text-sm font-bold text-[#212529]">{formatFollowers(data.followers)}</div>
+                                <div className="text-[10px] text-[#adb5bd]">עוקבים</div>
+                              </div>
                             )}
-                          </div>
+                            {profileUrl && (
+                              <svg className="w-4 h-4 text-[#dee2e6] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              </svg>
+                            )}
+                          </a>
                         );
                       })}
-                    </div>
-                    <div className="text-left">
-                      <span className="text-sm font-bold text-[#f2cc0d]">
-                        {formatFollowers(getTotalFollowers(sc.platforms))} עוקבים
-                      </span>
                     </div>
                   </div>
                 )}
