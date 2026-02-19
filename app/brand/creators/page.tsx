@@ -579,42 +579,42 @@ export default function CreatorCatalogPage() {
     : null;
 
   return (
-    <div className="min-h-[calc(100vh-70px)] bg-[#f4f5f7] px-4 py-6 lg:px-10">
-      <div className="max-w-[1440px] mx-auto space-y-6">
+    <div className="min-h-[calc(100vh-70px)] bg-[#f4f5f7] px-[19px] py-4 lg:px-10 lg:py-6">
+      <div className="max-w-[1440px] mx-auto space-y-4 lg:space-y-6">
         {/* Blue header banner */}
-        <div className="bg-[#dbe4f5] rounded-2xl px-6 py-5 lg:px-10">
+        <div className="bg-[#dbe4f5] rounded-2xl px-4 py-4 lg:px-10 lg:py-5">
           {/* Title + count */}
-          <div className="text-right mb-4">
-            <h1 className="text-4xl font-medium text-black">מאגר יוצרים</h1>
-            <p className="text-[#666] text-base mt-1">
+          <div className="text-right mb-3 lg:mb-4">
+            <h1 className="text-2xl lg:text-4xl font-medium text-black">מאגר יוצרים</h1>
+            <p className="text-[#666] text-sm lg:text-base mt-1">
               {creators.length < totalCount
                 ? `מציג ${creators.length} מתוך ${totalCount} יוצרים`
                 : `${totalCount} יוצרים`}
             </p>
           </div>
 
-          {/* Search + filter chips row */}
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* Search bar */}
-            <div className="relative flex-1 max-w-[310px]">
-              <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="חיפוש לפי שם, עיר, ביו"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pr-4 pl-11 py-2.5 bg-white border border-[#dfdfdf] rounded-full text-base text-[#212529] focus:outline-none focus:border-[#999] transition-all placeholder:text-[#666]"
-              />
-            </div>
+          {/* Search bar - full width on mobile */}
+          <div className="relative w-full lg:max-w-[310px] mb-3 lg:mb-0">
+            <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666]" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="חיפוש לפי שם, עיר, ביו"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="w-full pr-4 pl-11 h-[46px] bg-white border border-[#dfdfdf] rounded-full text-base text-[#212529] focus:outline-none focus:border-[#999] transition-all placeholder:text-[#666]"
+            />
+          </div>
 
+          {/* Filter chips row - 3 chips always in a row */}
+          <div className="flex items-center gap-2 lg:gap-3">
             {/* Sort chip */}
-            <div className="relative">
+            <div className="relative flex-1 lg:flex-none">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="appearance-none h-10 pl-8 pr-3 bg-white border border-[#dfdfdf] rounded-lg text-base text-[#666] focus:outline-none cursor-pointer"
+                className="appearance-none w-full lg:w-auto h-[46px] lg:h-10 pl-8 pr-3 bg-white border border-[#dfdfdf] rounded-lg text-sm lg:text-base text-[#666] focus:outline-none cursor-pointer"
               >
                 <option value="recent">חדשים</option>
                 <option value="rating">דירוג</option>
@@ -628,7 +628,7 @@ export default function CreatorCatalogPage() {
             {/* Favorites chip */}
             <button
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              className={`h-10 px-3 rounded-lg font-normal transition-all text-base border flex items-center gap-2 ${
+              className={`flex-1 lg:flex-none h-[46px] lg:h-10 px-3 rounded-lg font-normal transition-all text-sm lg:text-base border flex items-center justify-center lg:justify-start gap-2 ${
                 showFavoritesOnly
                   ? 'bg-red-50 text-red-600 border-red-200'
                   : 'bg-white text-[#666] border-[#dfdfdf] hover:bg-[#f8f9fa]'
@@ -637,13 +637,13 @@ export default function CreatorCatalogPage() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill={showFavoritesOnly ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
-              <span>חדשים</span>
+              <span>מועדפים</span>
             </button>
 
             {/* Filter chip */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`h-10 px-3 rounded-lg font-normal transition-all text-base border flex items-center gap-2 ${
+              className={`flex-1 lg:flex-none h-[46px] lg:h-10 px-3 rounded-lg font-normal transition-all text-sm lg:text-base border flex items-center justify-center lg:justify-start gap-2 ${
                 hasActiveFilters && !showFavoritesOnly
                   ? 'bg-[#e5f2d6] text-[#333] border-[#c5deb5]'
                   : 'bg-white text-[#666] border-[#dfdfdf] hover:bg-[#f8f9fa]'
@@ -659,8 +659,8 @@ export default function CreatorCatalogPage() {
 
         {/* Filters Panel */}
         {showFilters && (
-          <div className="bg-white rounded-2xl p-5 border border-[#dfdfdf]">
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="bg-white rounded-2xl p-4 lg:p-5 border border-[#dfdfdf]">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4">
               {/* Gender */}
               <div>
                 <label className="block text-xs font-medium text-[#6b7281] mb-1">מין</label>
@@ -753,7 +753,7 @@ export default function CreatorCatalogPage() {
         {/* Creator Grid */}
         {creators.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-5">
               {creators.map((creator) => (
                 <CreatorCard
                   key={creator.user_id}
@@ -822,7 +822,7 @@ export default function CreatorCatalogPage() {
           {/* Modal */}
           <div
             ref={modalRef}
-            className="relative z-10 w-[95vw] max-w-[1400px] h-[calc(100vh-1.5rem)] max-h-[900px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            className="relative z-10 w-full h-full lg:w-[95vw] lg:max-w-[1400px] lg:h-[calc(100vh-1.5rem)] lg:max-h-[900px] bg-white lg:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Close button */}
             <button
