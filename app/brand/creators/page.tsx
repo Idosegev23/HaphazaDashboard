@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/hooks/use-user';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   CreatorCard,
   CatalogCreator,
@@ -92,6 +92,7 @@ type FilterOptions = {
 export default function CreatorCatalogPage() {
   const { user } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Creator data (paginated)
   const [creators, setCreators] = useState<CatalogCreator[]>([]);
@@ -148,11 +149,52 @@ export default function CreatorCatalogPage() {
   // Infinite scroll sentinel
   const sentinelRef = useRef<HTMLDivElement>(null);
 
+  // Track whether we already handled the deep-link open param
+  const openHandledRef = useRef(false);
+
   useEffect(() => {
     if (user && !['brand_manager', 'brand_user', 'admin'].includes(user.role || '')) {
       router.push('/');
     }
   }, [user, router]);
+
+  // Auto-open a creator modal when navigated with ?open=<user_id>
+  useEffect(() => {
+    if (openHandledRef.current || loading || !user?.id) return;
+    const openId = searchParams.get('open');
+    if (!openId) return;
+
+    openHandledRef.current = true;
+
+    // First check if this creator is already in the loaded list
+    const found = creators.find((c) => c.user_id === openId);
+    if (found) {
+      openCreatorModal(found);
+      return;
+    }
+
+    // Otherwise fetch minimal creator data to open the modal
+    const fetchAndOpen = async () => {
+      const supabase = createClient();
+      const { data } = await (supabase as any)
+        .from('creators')
+        .select(`
+          user_id, bio, city, niches, tier, platforms, gender, country, age_range,
+          verified_at, created_at, occupations, portfolio_links, highlights,
+          users_profiles:user_id(display_name, avatar_url, language),
+          creator_metrics(average_rating, total_tasks, approval_rate, on_time_rate, on_time_deliveries, late_deliveries, approved_tasks, rejected_tasks)
+        `)
+        .eq('user_id', openId)
+        .maybeSingle();
+
+      if (data) {
+        openCreatorModal(data as unknown as CatalogCreator);
+      }
+    };
+
+    fetchAndOpen();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, user?.id, searchParams, creators]);
 
   // Load favorites from localStorage
   useEffect(() => {
