@@ -68,6 +68,41 @@ export default function CampaignPage() {
     deadline: '',
   });
 
+  // Deliverables
+  const [deliverables, setDeliverables] = useState<Record<string, number>>({
+    instagram_story: 0,
+    instagram_reel: 0,
+    instagram_post: 0,
+    tiktok_video: 0,
+    ugc_video: 0,
+    photo: 0,
+  });
+
+  const DELIVERABLE_LABELS: Record<string, string> = {
+    instagram_story: 'Instagram Story',
+    instagram_reel: 'Instagram Reel',
+    instagram_post: 'Instagram Post',
+    tiktok_video: 'TikTok Video',
+    ugc_video: 'UGC Video',
+    photo: 'Photo (תמונה)',
+  };
+
+  const DELIVERABLE_DESCRIPTIONS: Record<string, string> = {
+    instagram_story: 'סטורי באינסטגרם - 24 שעות, אנכי',
+    instagram_reel: 'רילס באינסטגרם - סרטון קצר',
+    instagram_post: 'פוסט באינסטגרם - תמונה או קרוסלה',
+    tiktok_video: 'סרטון בטיקטוק',
+    ugc_video: 'סרטון UGC - תוכן למותג ללא פרסום',
+    photo: 'תמונה - צילום מקצועי למותג',
+  };
+
+  const updateDeliverable = (key: string, change: number) => {
+    setDeliverables(prev => ({
+      ...prev,
+      [key]: Math.max(0, (prev[key] || 0) + change)
+    }));
+  };
+
   const [showProductForm, setShowProductForm] = useState(false);
   const [productForm, setProductForm] = useState({
     name: '',
@@ -120,6 +155,13 @@ export default function CampaignPage() {
       fixedPrice: data.fixed_price?.toString() || '',
       deadline: data.deadline || '',
     });
+    // Load deliverables from campaign data
+    if (data.deliverables && typeof data.deliverables === 'object') {
+      setDeliverables(prev => ({
+        ...prev,
+        ...(data.deliverables as Record<string, number>),
+      }));
+    }
     setLoading(false);
   };
 
@@ -148,6 +190,7 @@ export default function CampaignPage() {
           concept: formData.concept,
           fixed_price: formData.fixedPrice ? Number(formData.fixedPrice) : null,
           deadline: formData.deadline || null,
+          deliverables: deliverables as any,
         })
         .eq('id', campaignId);
 
@@ -460,6 +503,56 @@ export default function CampaignPage() {
                   value={formData.deadline}
                   onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                 />
+
+                {/* Deliverables Section */}
+                <div className="border border-[#dee2e6] rounded-lg p-5 bg-[#f8f9fa]">
+                  <h3 className="text-lg font-bold text-[#212529] mb-1">תמהיל תוצרים</h3>
+                  <p className="text-[#6c757d] text-sm mb-4">כמות התוצרים מכל סוג שעל המשפיען לספק</p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {Object.entries(DELIVERABLE_LABELS).map(([key, label]) => (
+                      <div key={key} className="flex items-center justify-between p-3 bg-white rounded-lg border border-[#dee2e6]">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[#212529] font-medium text-sm">{label}</div>
+                          <div className="text-[#868e96] text-xs">{DELIVERABLE_DESCRIPTIONS[key]}</div>
+                        </div>
+                        <div className="flex items-center gap-2 mr-3">
+                          <button
+                            type="button"
+                            onClick={() => updateDeliverable(key, -1)}
+                            className="w-7 h-7 rounded-full bg-[#f8f9fa] text-[#212529] hover:bg-[#e9ecef] flex items-center justify-center text-lg font-bold"
+                          >
+                            -
+                          </button>
+                          <span className="text-lg font-bold text-[#f2cc0d] w-6 text-center">
+                            {deliverables[key] || 0}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateDeliverable(key, 1)}
+                            className="w-7 h-7 rounded-full bg-[#f2cc0d] text-black hover:bg-[#d4b00b] flex items-center justify-center text-lg font-bold"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {Object.values(deliverables).some(v => v > 0) && (
+                    <div className="mt-3 pt-3 border-t border-[#dee2e6]">
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(deliverables)
+                          .filter(([, v]) => v > 0)
+                          .map(([key, count]) => (
+                            <span key={key} className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#f2cc0d]/15 text-[#212529] rounded-full text-xs font-medium">
+                              {count}x {DELIVERABLE_LABELS[key]}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 <div className="flex gap-4 pt-4">
                   <Button onClick={handleSave} disabled={saving}>

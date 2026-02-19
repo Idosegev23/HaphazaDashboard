@@ -131,6 +131,14 @@ export default function CreatorCatalogPage() {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
+  // Campaign invite
+  const [showCampaignPicker, setShowCampaignPicker] = useState(false);
+  const [brandCampaigns, setBrandCampaigns] = useState<Array<{
+    id: string; title: string; status: string; fixed_price: number | null; deadline: string | null;
+  }>>([]);
+  const [loadingCampaigns, setLoadingCampaigns] = useState(false);
+  const [invitingCampaignId, setInvitingCampaignId] = useState<string | null>(null);
+
   // Infinite scroll sentinel
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -322,17 +330,100 @@ export default function CreatorCatalogPage() {
     setPortfolioItems([]);
     setActiveMediaIndex(0);
     setCreatorDetail(null);
+    setShowCampaignPicker(false);
+    setBrandCampaigns([]);
     document.body.style.overflow = '';
   }, []);
 
-  // Close modal on Escape
+  // Close modal on Escape (campaign picker first, then main modal)
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && modalOpen) closeModal();
+      if (e.key === 'Escape') {
+        if (showCampaignPicker) {
+          setShowCampaignPicker(false);
+        } else if (modalOpen) {
+          closeModal();
+        }
+      }
     };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [modalOpen, closeModal]);
+  }, [modalOpen, showCampaignPicker, closeModal]);
+
+  // Campaign invite functions
+  const handleOpenCampaignPicker = useCallback(async () => {
+    if (!user?.brand_id) return;
+    setShowCampaignPicker(true);
+    setLoadingCampaigns(true);
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('campaigns')
+      .select('id, title, status, fixed_price, deadline')
+      .eq('brand_id', user.brand_id)
+      .in('status', ['draft', 'open'])
+      .order('created_at', { ascending: false });
+    setBrandCampaigns((data as any) || []);
+    setLoadingCampaigns(false);
+  }, [user?.brand_id]);
+
+  const handleInviteToCampaign = useCallback(async (campaignId: string) => {
+    if (!selectedCreator) return;
+    setInvitingCampaignId(campaignId);
+    const supabase = createClient();
+    const creatorId = selectedCreator.user_id;
+
+    // Check if already assigned
+    const { count } = await supabase
+      .from('tasks')
+      .select('*', { count: 'exact', head: true })
+      .eq('campaign_id', campaignId)
+      .eq('creator_id', creatorId);
+
+    if (count && count > 0) {
+      alert('המשפיענית כבר משויכת לקמפיין הזה');
+      setInvitingCampaignId(null);
+      return;
+    }
+
+    const campaign = brandCampaigns.find(c => c.id === campaignId);
+    if (!campaign) { setInvitingCampaignId(null); return; }
+
+    // Create task
+    const { error: taskError } = await supabase
+      .from('tasks')
+      .insert({
+        campaign_id: campaignId,
+        creator_id: creatorId,
+        title: `משימה לקמפיין ${campaign.title}`,
+        status: 'selected' as any,
+        due_at: campaign.deadline || null,
+        payment_amount: campaign.fixed_price,
+      });
+
+    if (taskError) {
+      alert('שגיאה בהזמנה: ' + taskError.message);
+      setInvitingCampaignId(null);
+      return;
+    }
+
+    // Check for products → create shipment
+    const { count: productsCount } = await supabase
+      .from('campaign_products')
+      .select('*', { count: 'exact', head: true })
+      .eq('campaign_id', campaignId);
+
+    if (productsCount && productsCount > 0) {
+      await supabase.from('shipment_requests').insert({
+        campaign_id: campaignId,
+        creator_id: creatorId,
+        status: 'waiting_address' as any,
+      });
+    }
+
+    setInvitingCampaignId(null);
+    setShowCampaignPicker(false);
+    alert(`${selectedCreator.users_profiles?.display_name || 'המשפיענית'} הוזמנה בהצלחה לקמפיין "${campaign.title}"`);
+  }, [selectedCreator, brandCampaigns]);
 
   const resetFilters = () => {
     setSearchInput('');
@@ -935,6 +1026,17 @@ export default function CreatorCatalogPage() {
                   </div>
                 </div>
 
+                {/* Invite to Campaign Button */}
+                <button
+                  onClick={handleOpenCampaignPicker}
+                  className="w-full px-4 py-2.5 bg-[#f2cc0d] text-black rounded-xl font-semibold hover:bg-[#e6bb00] transition-all flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  הזמן לקמפיין
+                </button>
+
                 {/* Bio */}
                 {sc.bio && (
                   <p className="text-[#495057] text-sm leading-relaxed whitespace-pre-wrap">{sc.bio}</p>
@@ -1100,6 +1202,90 @@ export default function CreatorCatalogPage() {
               </div>
             </div>
           </div>
+
+          {/* Campaign Picker Popup */}
+          {showCampaignPicker && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center">
+              <div
+                className="absolute inset-0 bg-black/40"
+                onClick={() => setShowCampaignPicker(false)}
+              />
+              <div className="relative z-30 bg-white rounded-2xl shadow-2xl w-[90%] max-w-md max-h-[70vh] flex flex-col overflow-hidden">
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-4 border-b border-[#dee2e6]">
+                  <h3 className="text-lg font-bold text-[#212529]">בחר קמפיין להזמנה</h3>
+                  <button
+                    onClick={() => setShowCampaignPicker(false)}
+                    className="w-8 h-8 rounded-full bg-[#f8f9fa] flex items-center justify-center hover:bg-[#e9ecef] transition-colors"
+                  >
+                    <svg className="w-4 h-4 text-[#495057]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Campaign list */}
+                <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                  {loadingCampaigns ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="w-8 h-8 border-3 border-[#f2cc0d] border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  ) : brandCampaigns.length === 0 ? (
+                    <div className="text-center py-12 px-4">
+                      <svg className="w-12 h-12 mx-auto text-[#dee2e6] mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                      <p className="text-[#868e96] text-sm">אין קמפיינים פתוחים.</p>
+                      <p className="text-[#adb5bd] text-xs mt-1">צור קמפיין חדש כדי להזמין משפיענים.</p>
+                    </div>
+                  ) : (
+                    brandCampaigns.map(campaign => (
+                      <div
+                        key={campaign.id}
+                        className="border border-[#dee2e6] rounded-xl p-4 hover:border-[#f2cc0d] hover:bg-[#fffdf0] transition-all"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-[#212529] text-sm truncate">{campaign.title}</h4>
+                            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                                campaign.status === 'open'
+                                  ? 'bg-emerald-50 text-emerald-700'
+                                  : 'bg-[#f8f9fa] text-[#868e96]'
+                              }`}>
+                                {campaign.status === 'open' ? 'פתוח' : 'טיוטה'}
+                              </span>
+                              {campaign.fixed_price && (
+                                <span className="text-[11px] text-[#495057]">
+                                  {'\u20AA'}{campaign.fixed_price.toLocaleString()}
+                                </span>
+                              )}
+                              {campaign.deadline && (
+                                <span className="text-[11px] text-[#868e96]">
+                                  עד {new Date(campaign.deadline).toLocaleDateString('he-IL')}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleInviteToCampaign(campaign.id)}
+                            disabled={invitingCampaignId === campaign.id}
+                            className="flex-shrink-0 px-3 py-1.5 bg-[#f2cc0d] text-black rounded-lg text-sm font-medium hover:bg-[#e6bb00] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {invitingCampaignId === campaign.id ? (
+                              <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                            ) : (
+                              'הזמן'
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

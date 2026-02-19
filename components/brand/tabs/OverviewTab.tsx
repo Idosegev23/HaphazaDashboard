@@ -143,6 +143,33 @@ export function OverviewTab({ campaignId, campaign, onTabChange }: OverviewTabPr
             </div>
           )}
         </div>
+
+        {/* Deliverables summary */}
+        {campaign.deliverables && typeof campaign.deliverables === 'object' &&
+         Object.entries(campaign.deliverables as Record<string, number>).some(([, v]) => v > 0) && (
+          <div className="mt-4 pt-4 border-t border-[#dee2e6]">
+            <span className="text-[#6c757d] text-sm block mb-2">תמהיל תוצרים נדרש</span>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(campaign.deliverables as Record<string, number>)
+                .filter(([, v]) => v > 0)
+                .map(([key, count]) => {
+                  const labels: Record<string, string> = {
+                    instagram_story: 'Instagram Story',
+                    instagram_reel: 'Instagram Reel',
+                    instagram_post: 'Instagram Post',
+                    tiktok_video: 'TikTok Video',
+                    ugc_video: 'UGC Video',
+                    photo: 'Photo',
+                  };
+                  return (
+                    <span key={key} className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#f2cc0d]/15 text-[#212529] rounded-full text-sm font-medium">
+                      {count}x {labels[key] || key}
+                    </span>
+                  );
+                })}
+            </div>
+          </div>
+        )}
       </Card>
 
       {/* Stats Grid */}
