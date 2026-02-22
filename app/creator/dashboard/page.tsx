@@ -41,6 +41,14 @@ type CreatorMetrics = {
   average_rating: number;
 };
 
+type RatingBreakdown = {
+  quality: number;
+  communication: number;
+  on_time: number;
+  revision: number;
+  totalRatings: number;
+} | null;
+
 type CreatorInfo = {
   tier: string | null;
 };
@@ -56,6 +64,7 @@ export default function CreatorDashboardPage() {
   const [openRevisions, setOpenRevisions] = useState<RevisionRequest[]>([]);
   const [metrics, setMetrics] = useState<CreatorMetrics | null>(null);
   const [creatorInfo, setCreatorInfo] = useState<CreatorInfo | null>(null);
+  const [ratingBreakdown, setRatingBreakdown] = useState<RatingBreakdown>(null);
   const [loading, setLoading] = useState(true);
   const [showTierGuide, setShowTierGuide] = useState(false);
   const router = useRouter();
@@ -164,6 +173,14 @@ export default function CreatorDashboardPage() {
       .select('tier')
       .eq('user_id', authUser.id)
       .single();
+
+    // Get rating breakdown (C2)
+    const { data: detailData } = await supabase.rpc('get_creator_profile_details' as any, {
+      p_creator_id: authUser.id,
+    });
+    if (detailData && (detailData as any).ratingBreakdown) {
+      setRatingBreakdown((detailData as any).ratingBreakdown);
+    }
 
     setTasksCount(tasksCountData || 0);
     setPendingPaymentsCount(pendingPaymentsCountData || 0);
@@ -282,6 +299,35 @@ export default function CreatorDashboardPage() {
                 </div>
               </div>
             </div>
+          </Card>
+        )}
+
+        {/* Rating Breakdown (C2) */}
+        {ratingBreakdown && ratingBreakdown.totalRatings > 0 && (
+          <Card className="mb-8">
+            <h2 className="text-xl font-bold text-[#212529] mb-4">פירוט דירוגים</h2>
+            <div className="space-y-3">
+              {[
+                { label: 'איכות', value: ratingBreakdown.quality },
+                { label: 'תקשורת', value: ratingBreakdown.communication },
+                { label: 'עמידה בזמנים', value: ratingBreakdown.on_time },
+                { label: 'תיקונים', value: ratingBreakdown.revision },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center gap-3">
+                  <span className="text-sm text-[#6c757d] w-28 text-right flex-shrink-0">{item.label}</span>
+                  <div className="flex-1 h-2.5 bg-[#f1f3f5] rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#f2cc0d] rounded-full transition-all"
+                      style={{ width: `${(item.value / 5) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-sm font-bold text-[#212529] w-10 text-left">{item.value.toFixed(1)}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-[#adb5bd] mt-3">
+              מבוסס על {ratingBreakdown.totalRatings} דירוגים
+            </p>
           </Card>
         )}
 

@@ -42,7 +42,7 @@ export function NotificationBell() {
 
   const loadUnreadCount = async () => {
     const supabase = createClient();
-    const { data } = await supabase.rpc('get_unread_notification_count' as any);
+    const { data } = await supabase.rpc('get_unread_notification_count');
     if (typeof data === 'number') {
       setUnreadCount(data);
     }
@@ -52,12 +52,12 @@ export function NotificationBell() {
     setLoading(true);
     const supabase = createClient();
     const { data } = await supabase
-      .from('notifications' as any)
+      .from('notifications')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(10);
 
-    setNotifications((data as any) || []);
+    setNotifications((data || []) as Notification[]);
     setLoading(false);
   };
 
@@ -70,7 +70,7 @@ export function NotificationBell() {
 
   const handleMarkAllRead = async () => {
     const supabase = createClient();
-    await supabase.rpc('mark_notifications_read' as any);
+    await supabase.rpc('mark_notifications_read');
     setUnreadCount(0);
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   };
@@ -170,6 +170,15 @@ export function NotificationBell() {
               })
             )}
           </div>
+
+          {/* Link to full notifications page */}
+          <Link
+            href="/creator/notifications"
+            onClick={() => setShowDropdown(false)}
+            className="block px-4 py-2.5 text-center text-xs font-medium text-[#f2cc0d] hover:text-[#d4b00b] hover:bg-[#f8f9fa] border-t border-[#dee2e6] transition-colors"
+          >
+            ראה את כל ההתראות
+          </Link>
         </div>
       )}
     </div>

@@ -39,6 +39,8 @@ export function ContentTab({ campaignId }: ContentTabProps) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [viewingContent, setViewingContent] = useState<{ url: string; type: string } | null>(null);
   const [processing, setProcessing] = useState<string | null>(null);
+  const [maxRevisions, setMaxRevisions] = useState<number>(2);
+  const [taskRejectionCounts, setTaskRejectionCounts] = useState<Record<string, number>>({});
 
   // Rejection modal state
   const [rejectingUploadId, setRejectingUploadId] = useState<string | null>(null);
@@ -51,6 +53,16 @@ export function ContentTab({ campaignId }: ContentTabProps) {
 
   const loadContent = async () => {
     const supabase = createClient();
+
+    // Fetch campaign max_revisions
+    const { data: campaignData } = await supabase
+      .from('campaigns')
+      .select('max_revisions')
+      .eq('id', campaignId)
+      .single();
+    if (campaignData) {
+      setMaxRevisions((campaignData as any).max_revisions ?? 2);
+    }
 
     // Get tasks for this campaign
     const { data: tasksData } = await supabase
@@ -96,6 +108,15 @@ export function ContentTab({ campaignId }: ContentTabProps) {
         };
       })
     );
+
+    // Compute rejection counts per task
+    const rejCounts: Record<string, number> = {};
+    for (const u of enriched) {
+      if (u.status === 'rejected') {
+        rejCounts[u.task_id] = (rejCounts[u.task_id] || 0) + 1;
+      }
+    }
+    setTaskRejectionCounts(rejCounts);
 
     setUploads(enriched);
     setLoading(false);
@@ -326,6 +347,13 @@ export function ContentTab({ campaignId }: ContentTabProps) {
                       </div>
                     )}
 
+                    {/* Revision count badge */}
+                    {taskRejectionCounts[upload.task_id] > 0 && (
+                      <div className="text-xs text-[#6c757d] mb-1">
+                        סבב {(taskRejectionCounts[upload.task_id] || 0) + 1} מתוך {maxRevisions}
+                      </div>
+                    )}
+
                     {/* Action Buttons */}
                     <div className="flex flex-col gap-2 mt-2">
                       {upload.status === 'pending' && (
@@ -337,6 +365,11 @@ export function ContentTab({ campaignId }: ContentTabProps) {
                           >
                             {processing === upload.id ? '...' : '✅ אשר'}
                           </button>
+                          {(taskRejectionCounts[upload.task_id] || 0) >= maxRevisions ? (
+                            <div className="w-full px-3 py-2 bg-[#f8f9fa] text-[#6c757d] text-sm text-center rounded-lg border border-[#dee2e6]">
+                              הגעת למקסימום תיקונים ({maxRevisions})
+                            </div>
+                          ) : (
                           <button
                             onClick={() => openRejectModal(upload.id)}
                             disabled={processing === upload.id}
@@ -344,6 +377,7 @@ export function ContentTab({ campaignId }: ContentTabProps) {
                           >
                             {processing === upload.id ? '...' : '❌ דחה'}
                           </button>
+                          )}
                         </>
                       )}
                       

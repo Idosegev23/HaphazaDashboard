@@ -31,6 +31,16 @@ const CARRIERS: { value: string; label: string; trackUrl: (num: string) => strin
   { value: 'other', label: 'אחר', trackUrl: () => '' },
 ];
 
+const CARRIER_VALIDATION: Record<string, { regex: RegExp; hint: string } | null> = {
+  israel_post: { regex: /^(RR|RL|EE|CP|CX)\d{9}IL$/i, hint: 'פורמט: XX000000000IL (לדוגמה RR123456789IL)' },
+  ups: { regex: /^1Z[A-Z0-9]{16}$/i, hint: 'פורמט: 1Z + 16 תווים (לדוגמה 1Z999AA10123456784)' },
+  dhl: { regex: /^(\d{10}|\d{20})$/, hint: '10 או 20 ספרות' },
+  fedex: { regex: /^(\d{12}|\d{15}|\d{20})$/, hint: '12, 15 או 20 ספרות' },
+  hfd: null,
+  mahirli: null,
+  other: null,
+};
+
 export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +48,7 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
   const [trackingInput, setTrackingInput] = useState('');
   const [carrierInput, setCarrierInput] = useState('israel_post');
   const [savingTracking, setSavingTracking] = useState(false);
+  const [trackingError, setTrackingError] = useState('');
 
   useEffect(() => {
     loadShipments();
@@ -182,7 +193,7 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
                         <div className="flex items-center gap-2">
                           <select
                             value={carrierInput}
-                            onChange={(e) => setCarrierInput(e.target.value)}
+                            onChange={(e) => { setCarrierInput(e.target.value); setTrackingError(''); }}
                             className="px-3 py-1.5 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-sm text-[#212529] focus:outline-none focus:border-[#f2cc0d]"
                           >
                             {CARRIERS.map((c) => (
@@ -192,19 +203,30 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
                           <input
                             type="text"
                             value={trackingInput}
-                            onChange={(e) => setTrackingInput(e.target.value)}
+                            onChange={(e) => { setTrackingInput(e.target.value); setTrackingError(''); }}
                             placeholder="הזן מספר מעקב..."
                             className="flex-1 px-3 py-1.5 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-sm text-[#212529] focus:outline-none focus:border-[#f2cc0d]"
                             autoFocus
                           />
                         </div>
+                        {trackingError && (
+                          <p className="text-red-500 text-xs">{trackingError}</p>
+                        )}
                         <div className="flex items-center gap-2">
                           <button
                             onClick={async () => {
+                              // Validate tracking number
+                              if (trackingInput) {
+                                const rule = CARRIER_VALIDATION[carrierInput];
+                                if (rule && !rule.regex.test(trackingInput.trim())) {
+                                  setTrackingError(`מספר מעקב לא תקין. ${rule.hint}`);
+                                  return;
+                                }
+                              }
                               setSavingTracking(true);
                               const supabase = createClient();
                               const updates: any = {
-                                tracking_number: trackingInput || null,
+                                tracking_number: trackingInput.trim() || null,
                                 carrier: carrierInput || null,
                               };
                               if (trackingInput && shipment.status === 'address_received') {
@@ -213,6 +235,7 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
                               await supabase.from('shipment_requests').update(updates).eq('id', shipment.id);
                               setSavingTracking(false);
                               setEditingTracking(null);
+                              setTrackingError('');
                               loadShipments();
                             }}
                             disabled={savingTracking}

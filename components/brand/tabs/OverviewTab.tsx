@@ -163,6 +163,49 @@ export function OverviewTab({ campaignId, campaign, onTabChange }: OverviewTabPr
               {campaign.requires_sponsored_approval !== false ? 'נדרש' : 'לא נדרש'}
             </div>
           </div>
+          {campaign.submission_deadline && (
+            <div>
+              <span className="text-[#6c757d] text-sm">דדליין הגשה סופי</span>
+              <div className="text-[#212529] font-medium">
+                {new Date(campaign.submission_deadline).toLocaleDateString('he-IL')}
+              </div>
+            </div>
+          )}
+          {campaign.go_live_date && (
+            <div>
+              <span className="text-[#6c757d] text-sm">תאריך Go-Live</span>
+              <div className="text-[#212529] font-medium">
+                {new Date(campaign.go_live_date).toLocaleDateString('he-IL')}
+              </div>
+            </div>
+          )}
+          {campaign.max_revisions && (
+            <div>
+              <span className="text-[#6c757d] text-sm">מקס׳ תיקונים</span>
+              <div className="text-[#212529] font-medium">{campaign.max_revisions}</div>
+            </div>
+          )}
+          {campaign.platforms && campaign.platforms.length > 0 && (
+            <div>
+              <span className="text-[#6c757d] text-sm">פלטפורמות</span>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {campaign.platforms.map((p: string) => (
+                  <span key={p} className="px-2 py-0.5 bg-[#f2cc0d]/15 text-[#212529] rounded-full text-xs font-medium capitalize">{p}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          {campaign.content_period_type && campaign.content_period_type !== 'campaign_dates' && (
+            <div>
+              <span className="text-[#6c757d] text-sm">תקופת פרסום</span>
+              <div className="text-[#212529] font-medium">
+                {campaign.content_period_type === 'calendar_month' ? 'חודש קלנדרי' :
+                 campaign.publish_start && campaign.publish_end
+                   ? `${new Date(campaign.publish_start).toLocaleDateString('he-IL')} - ${new Date(campaign.publish_end).toLocaleDateString('he-IL')}`
+                   : 'טווח מותאם אישית'}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Deliverables summary */}
@@ -190,11 +233,23 @@ export function OverviewTab({ campaignId, campaign, onTabChange }: OverviewTabPr
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(deliverables)
                       .filter(([k, v]) => k !== '_options' && typeof v === 'number' && v > 0)
-                      .map(([key, count]) => (
-                        <span key={key} className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#f2cc0d]/15 text-[#212529] rounded-full text-sm font-medium">
-                          {count}x {labels[key] || key}
-                        </span>
-                      ))}
+                      .map(([key, count]) => {
+                        const details = (campaign.deliverable_details as Record<string, { due_date?: string; notes?: string }> | null)?.[key];
+                        return (
+                          <div key={key} className="inline-flex flex-col">
+                            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#f2cc0d]/15 text-[#212529] rounded-full text-sm font-medium">
+                              {count}x {labels[key] || key}
+                            </span>
+                            {details && (details.due_date || details.notes) && (
+                              <span className="text-[10px] text-[#6c757d] mt-0.5 px-1">
+                                {details.due_date && `עד ${new Date(details.due_date).toLocaleDateString('he-IL')}`}
+                                {details.due_date && details.notes && ' · '}
+                                {details.notes}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
                   </div>
                 </>
               )}

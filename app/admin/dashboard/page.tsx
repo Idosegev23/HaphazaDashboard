@@ -82,6 +82,10 @@ export default async function AdminDashboardPage() {
     .select('*', { count: 'exact', head: true })
     .eq('is_blocked', true);
 
+  // Pending creators count
+  const { data: pendingData } = await supabase.rpc('get_pending_creators_count');
+  const pendingCreatorsCount = pendingData || 0;
+
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -187,6 +191,23 @@ export default async function AdminDashboardPage() {
             <Link href="/admin/payments">
               <div className="mt-4 text-sm text-red-600 hover:underline">צפה בכל התשלומים הממתינים →</div>
             </Link>
+          </Card>
+        )}
+
+        {/* Pending Creators Alert */}
+        {pendingCreatorsCount > 0 && (
+          <Card className="bg-orange-50 border-l-4 border-orange-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-[#212529]">👤 משפיענים ממתינים לאישור</h3>
+                <p className="text-sm text-[#6c757d]">{pendingCreatorsCount} משפיענים חדשים ממתינים לאישור</p>
+              </div>
+              <Link href="/admin/users?status=pending_approval">
+                <button className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600">
+                  אשר עכשיו
+                </button>
+              </Link>
+            </div>
           </Card>
         )}
 

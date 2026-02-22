@@ -17,6 +17,7 @@ type UserProfile = {
   role: string;
   is_blocked: boolean | null;
   created_at: string;
+  creator_status?: string | null;
   creators?: {
     user_id: string;
     niches: string[] | null;
@@ -88,6 +89,7 @@ export default function AdminUsersPage() {
       role: user.role,
       is_blocked: user.is_blocked,
       created_at: user.created_at,
+      creator_status: user.creator_status || null,
       creators: user.creator_id ? {
         user_id: user.creator_id,
         niches: user.creator_niches,
@@ -131,6 +133,8 @@ export default function AdminUsersPage() {
       filtered = filtered.filter(u => !u.is_blocked);
     } else if (statusFilter === 'verified') {
       filtered = filtered.filter(u => u.creators?.verified_at || u.brands?.verified_at);
+    } else if (statusFilter === 'pending_approval') {
+      filtered = filtered.filter(u => u.creator_status === 'pending_approval');
     }
 
     setFilteredUsers(filtered);
@@ -244,6 +248,83 @@ export default function AdminUsersPage() {
     }
   };
 
+  // E3: Predefined creator rejection reasons (5 Hebrew)
+  const CREATOR_REJECTION_REASONS = [
+    'לא מתאים לפרופיל הקמפיינים שלנו',
+    'קהל עוקבים לא רלוונטי',
+    'איכות תוכן לא מספקת',
+    'חוסר זמינות בתקופת הקמפיין',
+    'נתונים/פרטים לא מלאים בפרופיל',
+  ];
+
+  // E2: Rejection modal state
+  const [rejectingCreatorId, setRejectingCreatorId] = useState<string | null>(null);
+  const [creatorRejectionReason, setCreatorRejectionReason] = useState(CREATOR_REJECTION_REASONS[0]);
+  const [creatorRejectionNotes, setCreatorRejectionNotes] = useState('');
+
+  const handleCreatorApproval = async (userId: string, action: 'approve' | 'reject') => {
+    if (action === 'reject') {
+      setRejectingCreatorId(userId);
+      setCreatorRejectionReason(CREATOR_REJECTION_REASONS[0]);
+      setCreatorRejectionNotes('');
+      return;
+    }
+
+    setProcessing(userId);
+    const supabase = createClient();
+
+    try {
+      const { data, error } = await supabase.rpc('admin_review_creator', {
+        p_creator_user_id: userId,
+        p_action: action,
+        p_reason: undefined,
+      });
+
+      if (error) throw error;
+      const result = data as any;
+      if (result && !result.success) throw new Error(result.error);
+
+      alert('המשפיען אושר בהצלחה!');
+      loadUsers();
+    } catch (error: any) {
+      console.error('Error reviewing creator:', error);
+      alert('שגיאה: ' + error.message);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  const handleConfirmRejectCreator = async () => {
+    if (!rejectingCreatorId) return;
+    const reason = creatorRejectionNotes
+      ? `${creatorRejectionReason}: ${creatorRejectionNotes}`
+      : creatorRejectionReason;
+
+    setProcessing(rejectingCreatorId);
+    const supabase = createClient();
+
+    try {
+      const { data, error } = await supabase.rpc('admin_review_creator', {
+        p_creator_user_id: rejectingCreatorId,
+        p_action: 'reject',
+        p_reason: reason,
+      });
+
+      if (error) throw error;
+      const result = data as any;
+      if (result && !result.success) throw new Error(result.error);
+
+      setRejectingCreatorId(null);
+      alert('המשפיען נדחה.');
+      loadUsers();
+    } catch (error: any) {
+      console.error('Error rejecting creator:', error);
+      alert('שגיאה: ' + error.message);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
   const toggleUserSelection = (userId: string) => {
     const newSelected = new Set(selectedUsers);
     if (newSelected.has(userId)) {
@@ -294,6 +375,7 @@ export default function AdminUsersPage() {
     { value: 'active', label: 'פעילים' },
     { value: 'blocked', label: 'חסומים' },
     { value: 'verified', label: 'מאומתים' },
+    { value: 'pending_approval', label: 'ממתינים לאישור' },
   ];
 
   return (
@@ -346,7 +428,7 @@ export default function AdminUsersPage() {
       <div className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Stats */}
-          <div className="grid md:grid-cols-4 gap-4 mb-6">
+          <div className="grid md:grid-cols-5 gap-4 mb-6">
             <Card className="p-4">
               <div className="text-[#6c757d] text-xs mb-1">סה״כ משתמשים</div>
               <div className="text-2xl font-bold text-[#f2cc0d]">{users.length}</div>
@@ -361,6 +443,12 @@ export default function AdminUsersPage() {
               <div className="text-[#6c757d] text-xs mb-1">מותגים</div>
               <div className="text-2xl font-bold text-[#f2cc0d]">
                 {users.filter(u => u.brands).length}
+              </div>
+            </Card>
+            <Card className="p-4">
+              <div className="text-[#6c757d] text-xs mb-1">ממתינים לאישור</div>
+              <div className="text-2xl font-bold text-orange-500">
+                {users.filter(u => u.creator_status === 'pending_approval').length}
               </div>
             </Card>
             <Card className="p-4">
@@ -438,11 +526,16 @@ export default function AdminUsersPage() {
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        {userProfile.is_blocked ? (
-                          <span className="px-2 py-1 bg-red-500 text-white text-xs rounded-full">חסום</span>
-                        ) : (
-                          <span className="px-2 py-1 bg-green-500 text-white text-xs rounded-full">פעיל</span>
-                        )}
+                        <div className="flex flex-col gap-1">
+                          {userProfile.is_blocked ? (
+                            <span className="px-2 py-1 bg-red-500 text-white text-xs rounded-full inline-block w-fit">חסום</span>
+                          ) : (
+                            <span className="px-2 py-1 bg-green-500 text-white text-xs rounded-full inline-block w-fit">פעיל</span>
+                          )}
+                          {userProfile.creator_status === 'pending_approval' && (
+                            <span className="px-2 py-1 bg-orange-500 text-white text-xs rounded-full inline-block w-fit">ממתין לאישור</span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-sm text-[#6c757d]">
                         {userProfile.created_at ? new Date(userProfile.created_at).toLocaleDateString('he-IL') : '-'}
@@ -463,6 +556,25 @@ export default function AdminUsersPage() {
                             >
                               אמת
                             </button>
+                          )}
+
+                          {userProfile.creator_status === 'pending_approval' && (
+                            <>
+                              <button
+                                onClick={() => handleCreatorApproval(userProfile.user_id, 'approve')}
+                                disabled={processing === userProfile.user_id}
+                                className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 disabled:opacity-50"
+                              >
+                                אשר
+                              </button>
+                              <button
+                                onClick={() => handleCreatorApproval(userProfile.user_id, 'reject')}
+                                disabled={processing === userProfile.user_id}
+                                className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 disabled:opacity-50"
+                              >
+                                דחה
+                              </button>
+                            </>
                           )}
                           
                           <button
@@ -491,6 +603,59 @@ export default function AdminUsersPage() {
           </Card>
         </div>
       </div>
+
+      {/* Creator Rejection Modal (E2/E3) */}
+      {rejectingCreatorId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setRejectingCreatorId(null)}
+          />
+          <div className="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+            <h3 className="text-lg font-bold text-[#212529]">דחיית משפיען</h3>
+
+            <div>
+              <label className="block text-sm font-medium text-[#6c757d] mb-1.5">סיבת הדחייה</label>
+              <select
+                value={creatorRejectionReason}
+                onChange={(e) => setCreatorRejectionReason(e.target.value)}
+                className="w-full px-3 py-2.5 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-[#f2cc0d]"
+              >
+                {CREATOR_REJECTION_REASONS.map((r) => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[#6c757d] mb-1.5">הערות נוספות (אופציונלי)</label>
+              <textarea
+                value={creatorRejectionNotes}
+                onChange={(e) => setCreatorRejectionNotes(e.target.value)}
+                placeholder="פרט את סיבת הדחייה..."
+                rows={3}
+                className="w-full px-3 py-2.5 bg-[#f8f9fa] border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-[#f2cc0d] resize-none"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={handleConfirmRejectCreator}
+                disabled={processing === rejectingCreatorId}
+                className="flex-1 px-4 py-2.5 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                {processing === rejectingCreatorId ? 'שולח...' : 'דחה משפיען'}
+              </button>
+              <button
+                onClick={() => setRejectingCreatorId(null)}
+                className="px-4 py-2.5 bg-[#f8f9fa] text-[#6c757d] rounded-lg font-medium hover:bg-[#e9ecef] transition-colors border border-[#dee2e6]"
+              >
+                ביטול
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Bulk Actions Bar */}
       {showBulkActions && (

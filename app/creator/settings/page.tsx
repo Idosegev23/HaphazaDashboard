@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { TutorialPopup } from '@/components/ui/TutorialPopup';
+import { subscribeToPush, unsubscribeFromPush } from '@/lib/push/client';
 
 type Platform = {
   username: string;
@@ -41,11 +42,20 @@ export default function CreatorSettingsPage() {
     facebook: { username: '', followers: 0 },
   });
 
+  const [dateOfBirth, setDateOfBirth] = useState('');
+
   const [address, setAddress] = useState({
     address_street: '',
     address_city: '',
     address_zip: '',
     phone: '',
+  });
+
+  const [notifPrefs, setNotifPrefs] = useState({
+    in_app: true,
+    push: false,
+    email: false,
+    whatsapp: false,
   });
 
   useEffect(() => {
@@ -63,24 +73,33 @@ export default function CreatorSettingsPage() {
   const loadProfile = async () => {
     const supabase = createClient();
 
-    // Load user profile
-    const { data: profileData } = await supabase
+    // Load user profile + notification preferences
+    const { data: profileRaw } = await supabase
       .from('users_profiles')
-      .select('display_name, avatar_url')
+      .select('display_name, avatar_url, notification_preferences')
       .eq('user_id', user!.id)
       .single();
 
-    if (profileData) {
+    if (profileRaw) {
       setProfile({
-        display_name: profileData.display_name || '',
-        avatar_url: profileData.avatar_url || '',
+        display_name: profileRaw.display_name || '',
+        avatar_url: profileRaw.avatar_url || '',
       });
+      const prefs = profileRaw.notification_preferences as { channels?: string[] } | null;
+      if (prefs && prefs.channels) {
+        setNotifPrefs({
+          in_app: true, // always on
+          push: prefs.channels.includes('push'),
+          email: prefs.channels.includes('email'),
+          whatsapp: false, // always disabled for now
+        });
+      }
     }
 
-    // Load creator platforms and address
+    // Load creator platforms, address, and date_of_birth
     const { data: creatorData } = await supabase
       .from('creators')
-      .select('platforms, address_street, address_city, address_zip, phone')
+      .select('platforms, address_street, address_city, address_zip, phone, date_of_birth')
       .eq('user_id', user!.id)
       .single();
 
@@ -101,6 +120,7 @@ export default function CreatorSettingsPage() {
         address_zip: cd.address_zip || '',
         phone: cd.phone || '',
       });
+      setDateOfBirth(cd.date_of_birth || '');
     }
 
     setLoading(false);
@@ -186,6 +206,28 @@ export default function CreatorSettingsPage() {
     }
   };
 
+  const handleSaveDateOfBirth = async () => {
+    setSaving(true);
+    const supabase = createClient();
+
+    try {
+      const { error } = await supabase
+        .from('creators')
+        .update({
+          date_of_birth: dateOfBirth || null,
+        } as any)
+        .eq('user_id', user!.id);
+
+      if (error) throw error;
+      alert('תאריך הלידה עודכן בהצלחה');
+    } catch (error: any) {
+      console.error('Error saving date of birth:', error);
+      alert('שגיאה בשמירת תאריך הלידה: ' + error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSavePlatforms = async () => {
     setSaving(true);
     const supabase = createClient();
@@ -215,6 +257,32 @@ export default function CreatorSettingsPage() {
     } catch (error: any) {
       console.error('Error saving platforms:', error);
       alert(` שגיאה בשמירת הפלטפורמות: ${error.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveNotifPrefs = async () => {
+    setSaving(true);
+    const supabase = createClient();
+
+    try {
+      const channels = ['in_app'];
+      if (notifPrefs.push) channels.push('push');
+      if (notifPrefs.email) channels.push('email');
+
+      const { error } = await supabase
+        .from('users_profiles')
+        .update({
+          notification_preferences: { channels } as any,
+        })
+        .eq('user_id', user!.id);
+
+      if (error) throw error;
+      alert('העדפות ההתראות עודכנו בהצלחה');
+    } catch (error: any) {
+      console.error('Error saving notification preferences:', error);
+      alert('שגיאה בשמירה: ' + error.message);
     } finally {
       setSaving(false);
     }
@@ -325,6 +393,34 @@ export default function CreatorSettingsPage() {
                 className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
               >
                 {saving ? 'שומר...' : 'שמור פרופיל'}
+              </Button>
+            </div>
+          </Card>
+
+          {/* Date of Birth Section */}
+          <Card>
+            <h2 className="text-xl font-bold text-[#212529] mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined">cake</span>
+              תאריך לידה
+            </h2>
+            <p className="text-[#6c757d] text-sm mb-4">
+              תאריך הלידה שלך משמש להצגת הגיל שלך בקטלוג היוצרים
+            </p>
+
+            <div className="space-y-4">
+              <Input
+                label="תאריך לידה"
+                type="date"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+              />
+
+              <Button
+                onClick={handleSaveDateOfBirth}
+                disabled={saving}
+                className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
+              >
+                {saving ? 'שומר...' : 'שמור תאריך לידה'}
               </Button>
             </div>
           </Card>
@@ -503,6 +599,96 @@ export default function CreatorSettingsPage() {
                 className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
               >
                 {saving ? 'שומר...' : 'שמור קישורים חברתיים'}
+              </Button>
+            </div>
+          </Card>
+
+          {/* Notification Preferences Section */}
+          <Card>
+            <h2 className="text-xl font-bold text-[#212529] mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined">notifications</span>
+              העדפות התראות
+            </h2>
+            <p className="text-[#6c757d] text-sm mb-4">
+              בחר את ערוצי ההתראות המועדפים עליך
+            </p>
+
+            <div className="space-y-3">
+              {/* In-App - always on */}
+              <div className="flex items-center justify-between p-3 bg-[#f8f9fa] rounded-lg border border-[#dee2e6]">
+                <div>
+                  <span className="text-[#212529] font-medium">התראות במערכת</span>
+                  <p className="text-[#6c757d] text-xs">תמיד פעיל</p>
+                </div>
+                <div className="relative w-12 h-6 rounded-full bg-[#f2cc0d] cursor-not-allowed opacity-70">
+                  <span className="absolute top-0.5 right-0.5 w-5 h-5 bg-white rounded-full shadow" />
+                </div>
+              </div>
+
+              {/* Push */}
+              <div className="flex items-center justify-between p-3 bg-[#f8f9fa] rounded-lg border border-[#dee2e6]">
+                <div>
+                  <span className="text-[#212529] font-medium">התראות Push</span>
+                  <p className="text-[#6c757d] text-xs">קבל התראות ישירות לדפדפן</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!notifPrefs.push) {
+                      const ok = await subscribeToPush();
+                      if (ok) setNotifPrefs({ ...notifPrefs, push: true });
+                      else alert('לא ניתן להפעיל התראות Push. ודא שאישרת התראות בדפדפן.');
+                    } else {
+                      await unsubscribeFromPush();
+                      setNotifPrefs({ ...notifPrefs, push: false });
+                    }
+                  }}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${
+                    notifPrefs.push ? 'bg-[#f2cc0d]' : 'bg-[#dee2e6]'
+                  }`}
+                >
+                  <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                    notifPrefs.push ? 'right-0.5' : 'left-0.5'
+                  }`} />
+                </button>
+              </div>
+
+              {/* Email */}
+              <div className="flex items-center justify-between p-3 bg-[#f8f9fa] rounded-lg border border-[#dee2e6]">
+                <div>
+                  <span className="text-[#212529] font-medium">התראות אימייל</span>
+                  <p className="text-[#6c757d] text-xs">קבל עדכונים חשובים למייל</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setNotifPrefs({ ...notifPrefs, email: !notifPrefs.email })}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${
+                    notifPrefs.email ? 'bg-[#f2cc0d]' : 'bg-[#dee2e6]'
+                  }`}
+                >
+                  <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                    notifPrefs.email ? 'right-0.5' : 'left-0.5'
+                  }`} />
+                </button>
+              </div>
+
+              {/* WhatsApp - coming soon */}
+              <div className="flex items-center justify-between p-3 bg-[#f8f9fa] rounded-lg border border-[#dee2e6] opacity-60">
+                <div>
+                  <span className="text-[#212529] font-medium">WhatsApp</span>
+                  <p className="text-[#6c757d] text-xs">בקרוב</p>
+                </div>
+                <div className="relative w-12 h-6 rounded-full bg-[#dee2e6] cursor-not-allowed">
+                  <span className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow" />
+                </div>
+              </div>
+
+              <Button
+                onClick={handleSaveNotifPrefs}
+                disabled={saving}
+                className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
+              >
+                {saving ? 'שומר...' : 'שמור העדפות'}
               </Button>
             </div>
           </Card>

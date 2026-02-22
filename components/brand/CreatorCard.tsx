@@ -19,6 +19,7 @@ export type CatalogCreator = {
   gender: string | null;
   country: string | null;
   age_range: string | null;
+  date_of_birth: string | null;
   verified_at: string | null;
   created_at: string | null;
   occupations: string[] | null;
@@ -60,10 +61,13 @@ export function formatFollowers(count: number): string {
   return count.toString();
 }
 
-export function StarRating({ rating }: { rating: number | null }) {
+export function StarRating({ rating, showTooltip = false }: { rating: number | null; showTooltip?: boolean }) {
   const stars = Math.round((rating || 0) * 2) / 2;
   return (
-    <div className="flex items-center gap-1">
+    <div
+      className="flex items-center gap-1 relative group"
+      title={showTooltip ? 'ממוצע: איכות, תקשורת, עמידה בזמנים, תיקונים' : undefined}
+    >
       {[1, 2, 3, 4, 5].map((i) => (
         <span
           key={i}
@@ -74,6 +78,12 @@ export function StarRating({ rating }: { rating: number | null }) {
       ))}
       {rating !== null && (
         <span className="text-xs text-[#6c757d] mr-1">{rating.toFixed(1)}</span>
+      )}
+      {showTooltip && (
+        <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-[#212529] text-white text-[10px] rounded-lg px-3 py-2 z-50 text-center leading-relaxed pointer-events-none">
+          ממוצע של 4 קריטריונים: איכות, תקשורת, עמידה בזמנים, תיקונים
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#212529]" />
+        </div>
       )}
     </div>
   );

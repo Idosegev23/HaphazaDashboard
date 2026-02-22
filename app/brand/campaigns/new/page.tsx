@@ -20,7 +20,16 @@ export default function NewCampaignPage() {
     isBarter: false,
     barterDescription: '',
     requiresSponsoredApproval: true,
+    contentPeriodType: 'campaign_dates' as 'calendar_month' | 'campaign_dates' | 'custom',
+    publishStart: '',
+    publishEnd: '',
+    maxRevisions: '2',
+    submissionDeadline: '',
+    goLiveDate: '',
+    platforms: [] as string[],
+    revisionDeadlines: [] as Array<{ round: number; deadline: string }>,
   });
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   // Deliverables state
   const [deliverables, setDeliverables] = useState({
@@ -32,6 +41,16 @@ export default function NewCampaignPage() {
     ugc_video: 0,
     photo: 0,
   });
+
+  // H1: Per-deliverable due date & notes
+  const [deliverableDetails, setDeliverableDetails] = useState<Record<string, { due_date: string; notes: string }>>({});
+
+  const updateDeliverableDetail = (key: string, field: 'due_date' | 'notes', value: string) => {
+    setDeliverableDetails(prev => ({
+      ...prev,
+      [key]: { ...prev[key] || { due_date: '', notes: '' }, [field]: value },
+    }));
+  };
 
   // Deliverable options (OR choices) - creator picks ONE of these
   const [deliverableOptions, setDeliverableOptions] = useState<Array<Array<{ type: string; count: number }>>>([]);
@@ -147,8 +166,50 @@ export default function NewCampaignPage() {
     setUser({ ...authUser, brand_id: membership?.entity_id });
   };
 
+  // A1: Auto-set deadline from end_date
+  const handleEndDateChange = (value: string) => {
+    const updates: any = { endDate: value };
+    if (value && !formData.deadline) {
+      updates.deadline = value;
+    }
+    setFormData({ ...formData, ...updates });
+    if (value) setValidationErrors(prev => { const n = { ...prev }; delete n.endDate; return n; });
+  };
+
+  const handleStartDateChange = (value: string) => {
+    setFormData({ ...formData, startDate: value });
+    if (value) setValidationErrors(prev => { const n = { ...prev }; delete n.startDate; return n; });
+  };
+
+  const PLATFORM_OPTIONS = [
+    { value: 'instagram', label: 'Instagram' },
+    { value: 'tiktok', label: 'TikTok' },
+    { value: 'youtube', label: 'YouTube' },
+    { value: 'facebook', label: 'Facebook' },
+  ];
+
+  const togglePlatform = (platform: string) => {
+    setFormData(prev => ({
+      ...prev,
+      platforms: prev.platforms.includes(platform)
+        ? prev.platforms.filter(p => p !== platform)
+        : [...prev.platforms, platform],
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // A3: Mandatory start/end dates validation
+    const errors: Record<string, string> = {};
+    if (!formData.startDate) errors.startDate = 'תאריך התחלה הוא שדה חובה';
+    if (!formData.endDate) errors.endDate = 'תאריך סיום הוא שדה חובה';
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+    setValidationErrors({});
+
     setLoading(true);
 
     const supabase = createClient();
@@ -189,13 +250,22 @@ export default function NewCampaignPage() {
           fixed_price: formData.isBarter ? null : (formData.fixedPrice ? Number(formData.fixedPrice) : null),
           currency: 'ILS',
           deadline: formData.deadline || null,
-          start_date: formData.startDate || null,
-          end_date: formData.endDate || null,
+          start_date: formData.startDate,
+          end_date: formData.endDate,
           is_barter: formData.isBarter,
           barter_description: formData.isBarter ? formData.barterDescription : null,
           requires_sponsored_approval: formData.requiresSponsoredApproval,
+          content_period_type: formData.contentPeriodType,
+          publish_start: formData.contentPeriodType === 'custom' && formData.publishStart ? formData.publishStart : null,
+          publish_end: formData.contentPeriodType === 'custom' && formData.publishEnd ? formData.publishEnd : null,
+          max_revisions: parseInt(formData.maxRevisions) || 2,
+          submission_deadline: formData.submissionDeadline || null,
+          go_live_date: formData.goLiveDate || null,
+          platforms: formData.platforms.length > 0 ? formData.platforms : null,
+          revision_deadlines: formData.revisionDeadlines.length > 0 ? formData.revisionDeadlines : null,
           status: 'draft',
           deliverables: { ...deliverables, _options: deliverableOptions.length > 0 ? deliverableOptions : undefined },
+          deliverable_details: Object.keys(deliverableDetails).length > 0 ? deliverableDetails : null,
           brief_url: briefUrls.length > 0 ? briefUrls[0] : null,
           brief_urls: briefUrls.length > 0 ? briefUrls : null,
         } as any)
@@ -321,26 +391,142 @@ export default function NewCampaignPage() {
               />
             )}
 
-            {/* Campaign Dates */}
+            {/* Campaign Dates - A3: mandatory validation */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Input
-                label="תאריך התחלה"
-                type="date"
-                value={formData.startDate}
-                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-              />
-              <Input
-                label="תאריך סיום"
-                type="date"
-                value={formData.endDate}
-                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-              />
+              <div>
+                <Input
+                  label="תאריך התחלה *"
+                  type="date"
+                  value={formData.startDate}
+                  onChange={(e) => handleStartDateChange(e.target.value)}
+                  required
+                />
+                {validationErrors.startDate && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.startDate}</p>
+                )}
+              </div>
+              <div>
+                <Input
+                  label="תאריך סיום *"
+                  type="date"
+                  value={formData.endDate}
+                  onChange={(e) => handleEndDateChange(e.target.value)}
+                  required
+                />
+                {validationErrors.endDate && (
+                  <p className="text-red-500 text-xs mt-1">{validationErrors.endDate}</p>
+                )}
+              </div>
               <Input
                 label="דדליין להגשת תוכן"
                 type="date"
                 value={formData.deadline}
                 onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
               />
+            </div>
+
+            {/* A5: Platform Selection */}
+            <div className="bg-[#f8f9fa] p-4 rounded-lg border border-[#dee2e6]">
+              <label className="block text-sm font-medium text-[#212529] mb-2">פלטפורמות נדרשות</label>
+              <p className="text-[#6c757d] text-xs mb-3">באילו פלטפורמות המשפיען צריך לפרסם?</p>
+              <div className="flex flex-wrap gap-2">
+                {PLATFORM_OPTIONS.map((p) => (
+                  <button
+                    key={p.value}
+                    type="button"
+                    onClick={() => togglePlatform(p.value)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      formData.platforms.includes(p.value)
+                        ? 'bg-[#f2cc0d] text-black'
+                        : 'bg-white border border-[#dee2e6] text-[#6c757d] hover:border-[#f2cc0d]'
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Submission deadline, Go-live date, Max revisions */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Input
+                label="דדליין הגשה סופי"
+                type="date"
+                value={formData.submissionDeadline}
+                onChange={(e) => setFormData({ ...formData, submissionDeadline: e.target.value })}
+              />
+              <Input
+                label="תאריך Go-Live"
+                type="date"
+                value={formData.goLiveDate}
+                onChange={(e) => setFormData({ ...formData, goLiveDate: e.target.value })}
+              />
+              <Input
+                label="מקסימום סבבי תיקונים"
+                type="number"
+                value={formData.maxRevisions}
+                onChange={(e) => setFormData({ ...formData, maxRevisions: e.target.value })}
+                placeholder="2"
+              />
+            </div>
+
+            {/* B1: Per-revision deadlines */}
+            {parseInt(formData.maxRevisions) > 0 && (
+              <div className="bg-[#f8f9fa] p-4 rounded-lg border border-[#dee2e6]">
+                <label className="block text-sm font-medium text-[#212529] mb-2">דדליינים לסבבי תיקונים</label>
+                <p className="text-[#6c757d] text-xs mb-3">הגדר דדליין לכל סבב תיקון (אופציונלי)</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {Array.from({ length: Math.min(parseInt(formData.maxRevisions) || 2, 5) }, (_, i) => {
+                    const existing = formData.revisionDeadlines.find(d => d.round === i + 1);
+                    return (
+                      <Input
+                        key={i}
+                        label={`דדליין סבב ${i + 1}`}
+                        type="date"
+                        value={existing?.deadline || ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFormData(prev => {
+                            const deadlines = prev.revisionDeadlines.filter(d => d.round !== i + 1);
+                            if (val) deadlines.push({ round: i + 1, deadline: val });
+                            return { ...prev, revisionDeadlines: deadlines };
+                          });
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Content Period Type */}
+            <div className="bg-[#f8f9fa] p-4 rounded-lg border border-[#dee2e6]">
+              <label className="block text-sm font-medium text-[#212529] mb-2">תקופת פרסום תוכן</label>
+              <select
+                value={formData.contentPeriodType}
+                onChange={(e) => setFormData({ ...formData, contentPeriodType: e.target.value as any })}
+                className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
+              >
+                <option value="campaign_dates">תאריכי הקמפיין</option>
+                <option value="calendar_month">חודש קלנדרי</option>
+                <option value="custom">טווח מותאם אישית</option>
+              </select>
+              {formData.contentPeriodType === 'custom' && (
+                <div className="grid grid-cols-2 gap-4 mt-3">
+                  <Input
+                    label="תחילת פרסום"
+                    type="date"
+                    value={formData.publishStart}
+                    onChange={(e) => setFormData({ ...formData, publishStart: e.target.value })}
+                  />
+                  <Input
+                    label="סוף פרסום"
+                    type="date"
+                    value={formData.publishEnd}
+                    onChange={(e) => setFormData({ ...formData, publishEnd: e.target.value })}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Sponsored Content Approval */}
@@ -458,6 +644,25 @@ export default function NewCampaignPage() {
                         </button>
                       </div>
                     </div>
+                    {/* H1: Per-deliverable details */}
+                    {deliverables[key as keyof typeof deliverables] > 0 && (
+                      <div className="flex gap-2 mt-2 pt-2 border-t border-[#f1f3f5]">
+                        <input
+                          type="date"
+                          value={deliverableDetails[key]?.due_date || ''}
+                          onChange={(e) => updateDeliverableDetail(key, 'due_date', e.target.value)}
+                          className="flex-1 px-2 py-1 text-xs border border-[#dee2e6] rounded bg-[#f8f9fa] text-[#212529]"
+                          placeholder="תאריך יעד"
+                        />
+                        <input
+                          type="text"
+                          value={deliverableDetails[key]?.notes || ''}
+                          onChange={(e) => updateDeliverableDetail(key, 'notes', e.target.value)}
+                          className="flex-1 px-2 py-1 text-xs border border-[#dee2e6] rounded bg-[#f8f9fa] text-[#212529]"
+                          placeholder="הערות..."
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

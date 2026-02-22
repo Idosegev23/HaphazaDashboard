@@ -420,15 +420,21 @@ export type Database = {
           brief_url: string | null
           brief_urls: string[] | null
           concept: string | null
+          content_period_type: string | null
           created_at: string | null
           currency: string | null
           deadline: string | null
           deliverables: Json | null
           description: string | null
           fixed_price: number | null
+          go_live_date: string | null
           id: string
+          max_revisions: number | null
           objective: string | null
+          publish_end: string | null
+          publish_start: string | null
           status: Database["public"]["Enums"]["campaign_status"] | null
+          submission_deadline: string | null
           title: string
           updated_at: string | null
         }
@@ -438,15 +444,21 @@ export type Database = {
           brief_url?: string | null
           brief_urls?: string[] | null
           concept?: string | null
+          content_period_type?: string | null
           created_at?: string | null
           currency?: string | null
           deadline?: string | null
           deliverables?: Json | null
           description?: string | null
           fixed_price?: number | null
+          go_live_date?: string | null
           id?: string
+          max_revisions?: number | null
           objective?: string | null
+          publish_end?: string | null
+          publish_start?: string | null
           status?: Database["public"]["Enums"]["campaign_status"] | null
+          submission_deadline?: string | null
           title: string
           updated_at?: string | null
         }
@@ -456,15 +468,21 @@ export type Database = {
           brief_url?: string | null
           brief_urls?: string[] | null
           concept?: string | null
+          content_period_type?: string | null
           created_at?: string | null
           currency?: string | null
           deadline?: string | null
           deliverables?: Json | null
           description?: string | null
           fixed_price?: number | null
+          go_live_date?: string | null
           id?: string
+          max_revisions?: number | null
           objective?: string | null
+          publish_end?: string | null
+          publish_start?: string | null
           status?: Database["public"]["Enums"]["campaign_status"] | null
+          submission_deadline?: string | null
           title?: string
           updated_at?: string | null
         }
@@ -546,6 +564,7 @@ export type Database = {
           occupations: string[] | null
           platforms: Json | null
           portfolio_links: string[] | null
+          status: string | null
           tier: string | null
           updated_at: string | null
           user_id: string
@@ -561,6 +580,7 @@ export type Database = {
           occupations?: string[] | null
           platforms?: Json | null
           portfolio_links?: string[] | null
+          status?: string | null
           tier?: string | null
           updated_at?: string | null
           user_id: string
@@ -576,6 +596,7 @@ export type Database = {
           occupations?: string[] | null
           platforms?: Json | null
           portfolio_links?: string[] | null
+          status?: string | null
           tier?: string | null
           updated_at?: string | null
           user_id?: string
@@ -1736,6 +1757,9 @@ export type Database = {
           created_at: string | null
           id: string
           meta: Json | null
+          rejection_notes: string | null
+          rejection_reason: string | null
+          revision_number: number | null
           status: string | null
           storage_path: string
           task_id: string
@@ -1744,6 +1768,9 @@ export type Database = {
           created_at?: string | null
           id?: string
           meta?: Json | null
+          rejection_notes?: string | null
+          rejection_reason?: string | null
+          revision_number?: number | null
           status?: string | null
           storage_path: string
           task_id: string
@@ -1752,6 +1779,9 @@ export type Database = {
           created_at?: string | null
           id?: string
           meta?: Json | null
+          rejection_notes?: string | null
+          rejection_reason?: string | null
+          revision_number?: number | null
           status?: string | null
           storage_path?: string
           task_id?: string
@@ -1766,6 +1796,85 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          read: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          read?: boolean | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          read?: boolean | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string | null
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       users_profiles: {
         Row: {
           avatar_url: string | null
@@ -1774,6 +1883,7 @@ export type Database = {
           email: string
           is_blocked: boolean | null
           language: Database["public"]["Enums"]["language_code"] | null
+          notification_preferences: Json | null
           updated_at: string | null
           user_id: string
         }
@@ -1784,6 +1894,7 @@ export type Database = {
           email: string
           is_blocked?: boolean | null
           language?: Database["public"]["Enums"]["language_code"] | null
+          notification_preferences?: Json | null
           updated_at?: string | null
           user_id: string
         }
@@ -1794,6 +1905,7 @@ export type Database = {
           email?: string
           is_blocked?: boolean | null
           language?: Database["public"]["Enums"]["language_code"] | null
+          notification_preferences?: Json | null
           updated_at?: string | null
           user_id?: string
         }
@@ -1859,6 +1971,14 @@ export type Database = {
         Args: { p_campaign_id: string; p_creator_id: string }
         Returns: Json
       }
+      admin_review_creator: {
+        Args: {
+          p_creator_user_id: string
+          p_action: string
+          p_reason?: string
+        }
+        Returns: Json
+      }
       get_admin_users: {
         Args: never
         Returns: {
@@ -1869,6 +1989,7 @@ export type Database = {
           created_at: string
           creator_id: string
           creator_niches: string[]
+          creator_status: string
           creator_tier: string
           creator_verified_at: string
           display_name: string
@@ -1877,6 +1998,14 @@ export type Database = {
           role: string
           user_id: string
         }[]
+      }
+      get_pending_creators_count: {
+        Args: never
+        Returns: number
+      }
+      get_unread_notification_count: {
+        Args: never
+        Returns: number
       }
       get_users_list: {
         Args: never
@@ -1899,6 +2028,10 @@ export type Database = {
           p_metadata?: Json
         }
         Returns: string
+      }
+      mark_notifications_read: {
+        Args: never
+        Returns: undefined
       }
       mark_payment_paid: {
         Args: { p_invoice_url?: string; p_payment_id: string }

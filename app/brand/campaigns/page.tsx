@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/hooks/use-user';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
@@ -30,9 +30,14 @@ const STATUS_CONFIG: Record<string, { label: string; dotColor: string }> = {
 export default function BrandCampaignsPage() {
   const { user, loading: userLoading } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [duplicating, setDuplicating] = useState<string | null>(null);
+
+  // A2: Filter state from URL params
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'all');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
 
   useEffect(() => {
     if (user && !['brand_manager', 'brand_user'].includes(user.role || '')) {
@@ -58,6 +63,26 @@ export default function BrandCampaignsPage() {
     setCampaigns((data as any) || []);
     setLoading(false);
   };
+
+  // A2: Sync filters to URL params
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (statusFilter !== 'all') params.set('status', statusFilter);
+    if (searchQuery) params.set('q', searchQuery);
+    const paramStr = params.toString();
+    const newUrl = paramStr ? `?${paramStr}` : window.location.pathname;
+    window.history.replaceState(null, '', newUrl);
+  }, [statusFilter, searchQuery]);
+
+  // A2: Filtered campaigns
+  const filteredCampaigns = campaigns.filter(c => {
+    if (statusFilter !== 'all' && (c.status || 'draft') !== statusFilter) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      if (!(c.title?.toLowerCase().includes(q) || c.concept?.toLowerCase().includes(q) || c.objective?.toLowerCase().includes(q))) return false;
+    }
+    return true;
+  });
 
   const handleDuplicate = async (campaign: Campaign, e: React.MouseEvent) => {
     e.preventDefault();
@@ -168,10 +193,35 @@ export default function BrandCampaignsPage() {
           קמפיין חדש
         </Link>
 
+        {/* A2: Filters */}
+        {campaigns.length > 0 && (
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="חיפוש לפי שם קמפיין..."
+              className="flex-1 min-w-[200px] px-4 py-2 bg-white border border-[#dfdfdf] rounded-xl text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d] transition-colors"
+            />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 bg-white border border-[#dfdfdf] rounded-xl text-[#212529] text-sm focus:outline-none focus:border-[#f2cc0d]"
+            >
+              <option value="all">כל הסטטוסים ({campaigns.length})</option>
+              {Object.entries(STATUS_CONFIG).map(([key, val]) => (
+                <option key={key} value={key}>
+                  {val.label} ({campaigns.filter(c => (c.status || 'draft') === key).length})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {/* Campaign Cards Grid */}
-        {campaigns && campaigns.length > 0 ? (
+        {filteredCampaigns.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {campaigns.map((campaign) => {
+            {filteredCampaigns.map((campaign) => {
               const status = STATUS_CONFIG[campaign.status || 'draft'] || STATUS_CONFIG.draft;
               return (
                 <div key={campaign.id} className="relative group">

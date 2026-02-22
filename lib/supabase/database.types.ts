@@ -406,21 +406,110 @@ export type Database = {
           },
         ]
       }
+      brand_creator_notes: {
+        Row: {
+          id: string
+          brand_id: string
+          creator_id: string
+          note: string
+          author_id: string | null
+          author_name: string | null
+          author_role: string | null
+          brand_name: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          brand_id: string
+          creator_id: string
+          note?: string
+          author_id?: string | null
+          author_name?: string | null
+          author_role?: string | null
+          brand_name?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          brand_id?: string
+          creator_id?: string
+          note?: string
+          author_id?: string | null
+          author_name?: string | null
+          author_role?: string | null
+          brand_name?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      campaign_messages: {
+        Row: {
+          id: string
+          campaign_id: string
+          sender_id: string
+          sender_role: string
+          message: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          campaign_id: string
+          sender_id: string
+          sender_role: string
+          message: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          campaign_id?: string
+          sender_id?: string
+          sender_role?: string
+          message?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_messages_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
           brand_id: string
           brief: string | null
           brief_url: string | null
+          brief_urls: string[] | null
           concept: string | null
+          content_period_type: string | null
           created_at: string | null
           currency: string | null
           deadline: string | null
           deliverables: Json | null
+          deliverable_details: Json | null
           description: string | null
+          end_date: string | null
           fixed_price: number | null
+          go_live_date: string | null
           id: string
+          is_barter: boolean | null
+          barter_description: string | null
+          max_revisions: number | null
           objective: string | null
+          platforms: string[] | null
+          publish_start: string | null
+          publish_end: string | null
+          requires_sponsored_approval: boolean | null
+          revision_deadlines: Json | null
+          start_date: string | null
           status: Database["public"]["Enums"]["campaign_status"] | null
+          submission_deadline: string | null
           title: string
           updated_at: string | null
         }
@@ -428,16 +517,31 @@ export type Database = {
           brand_id: string
           brief?: string | null
           brief_url?: string | null
+          brief_urls?: string[] | null
           concept?: string | null
+          content_period_type?: string | null
           created_at?: string | null
           currency?: string | null
           deadline?: string | null
           deliverables?: Json | null
+          deliverable_details?: Json | null
           description?: string | null
+          end_date?: string | null
           fixed_price?: number | null
+          go_live_date?: string | null
           id?: string
+          is_barter?: boolean | null
+          barter_description?: string | null
+          max_revisions?: number | null
           objective?: string | null
+          platforms?: string[] | null
+          publish_start?: string | null
+          publish_end?: string | null
+          requires_sponsored_approval?: boolean | null
+          revision_deadlines?: Json | null
+          start_date?: string | null
           status?: Database["public"]["Enums"]["campaign_status"] | null
+          submission_deadline?: string | null
           title: string
           updated_at?: string | null
         }
@@ -445,16 +549,31 @@ export type Database = {
           brand_id?: string
           brief?: string | null
           brief_url?: string | null
+          brief_urls?: string[] | null
           concept?: string | null
+          content_period_type?: string | null
           created_at?: string | null
           currency?: string | null
           deadline?: string | null
           deliverables?: Json | null
+          deliverable_details?: Json | null
           description?: string | null
+          end_date?: string | null
           fixed_price?: number | null
+          go_live_date?: string | null
           id?: string
+          is_barter?: boolean | null
+          barter_description?: string | null
+          max_revisions?: number | null
           objective?: string | null
+          platforms?: string[] | null
+          publish_start?: string | null
+          publish_end?: string | null
+          requires_sponsored_approval?: boolean | null
+          revision_deadlines?: Json | null
+          start_date?: string | null
           status?: Database["public"]["Enums"]["campaign_status"] | null
+          submission_deadline?: string | null
           title?: string
           updated_at?: string | null
         }
@@ -525,12 +644,17 @@ export type Database = {
           city: string | null
           country: string | null
           created_at: string | null
+          date_of_birth: string | null
           gender: string | null
+          highlights: string[] | null
           is_inventory: boolean | null
           niches: string[] | null
           occupations: string[] | null
           platforms: Json | null
           portfolio_links: string[] | null
+          rejection_notes: string | null
+          rejection_reason: string | null
+          status: string | null
           tier: string | null
           updated_at: string | null
           user_id: string
@@ -542,12 +666,17 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string | null
+          date_of_birth?: string | null
           gender?: string | null
+          highlights?: string[] | null
           is_inventory?: boolean | null
           niches?: string[] | null
           occupations?: string[] | null
           platforms?: Json | null
           portfolio_links?: string[] | null
+          rejection_notes?: string | null
+          rejection_reason?: string | null
+          status?: string | null
           tier?: string | null
           updated_at?: string | null
           user_id: string
@@ -559,12 +688,17 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string | null
+          date_of_birth?: string | null
           gender?: string | null
+          highlights?: string[] | null
           is_inventory?: boolean | null
           niches?: string[] | null
           occupations?: string[] | null
           platforms?: Json | null
           portfolio_links?: string[] | null
+          rejection_notes?: string | null
+          rejection_reason?: string | null
+          status?: string | null
           tier?: string | null
           updated_at?: string | null
           user_id?: string

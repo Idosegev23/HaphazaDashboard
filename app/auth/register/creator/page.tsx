@@ -403,8 +403,8 @@ export default function CreatorRegisterPage() {
 
       console.log("Redirecting to dashboard...");
 
-      // 8. Redirect עם window.location
-      window.location.href = "/creator/dashboard";
+      // 8. Redirect עם window.location - to pending approval page
+      window.location.href = "/creator/pending-approval";
     } catch (err: any) {
       console.error("Registration error:", err);
       setError(err.message || "שגיאה בהרשמה");
