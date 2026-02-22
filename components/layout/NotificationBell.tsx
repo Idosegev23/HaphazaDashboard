@@ -92,6 +92,7 @@ export function NotificationBell() {
       case 'campaign': return `/brand/campaigns/${n.entity_id}`;
       case 'application': return `/brand/applications/${n.entity_id}`;
       case 'task': return `/creator/tasks/${n.entity_id}`;
+      case 'dispute': return `/admin/disputes`;
       default: return null;
     }
   };

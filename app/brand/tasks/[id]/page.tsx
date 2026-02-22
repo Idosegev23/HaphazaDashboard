@@ -84,6 +84,22 @@ export default function BrandTaskDetailPage() {
   const [communicationScore, setCommunicationScore] = useState(0);
   const [ratingNote, setRatingNote] = useState('');
 
+  // Dispute state
+  type DisputeRecord = { id: string; reason: string; status: string; category: string | null; created_at: string; resolution_note: string | null; resolved_at: string | null };
+  const [showDisputeForm, setShowDisputeForm] = useState(false);
+  const [disputeCategory, setDisputeCategory] = useState('');
+  const [disputeReason, setDisputeReason] = useState('');
+  const [activeDispute, setActiveDispute] = useState<DisputeRecord | null>(null);
+  const [disputeHistory, setDisputeHistory] = useState<DisputeRecord[]>([]);
+
+  const BRAND_DISPUTE_CATEGORIES = [
+    { value: 'content_quality', label: 'איכות תוכן לא עומדת בסטנדרט' },
+    { value: 'missed_deadline', label: 'אי-עמידה בדדליין' },
+    { value: 'brief_not_followed', label: 'לא עקב/ה אחרי הבריף' },
+    { value: 'unprofessional_behavior', label: 'התנהלות לא מקצועית' },
+    { value: 'other', label: 'אחר' },
+  ];
+
   useEffect(() => {
     if (user && !['brand_manager', 'brand_user'].includes(user.role || '')) {
       router.push('/');
@@ -197,6 +213,18 @@ export default function BrandTaskDetailPage() {
       setRevisions(revisionsData as RevisionRequest[]);
     }
 
+    // Load disputes
+    const { data: disputesData } = await supabase
+      .from('disputes')
+      .select('id, reason, status, category, resolution_note, created_at, resolved_at')
+      .eq('task_id', taskId)
+      .order('created_at', { ascending: false });
+
+    if (disputesData) {
+      setDisputeHistory(disputesData as any as DisputeRecord[]);
+      setActiveDispute((disputesData as any[]).find((d: any) => d.status === 'open') as DisputeRecord || null);
+    }
+
     setLoading(false);
   };
 
@@ -217,9 +245,17 @@ export default function BrandTaskDetailPage() {
       })
       .subscribe();
 
+    const disputesChannel = supabase
+      .channel(`disputes-${taskId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'disputes', filter: `task_id=eq.${taskId}` }, () => {
+        loadTaskData();
+      })
+      .subscribe();
+
     return () => {
       taskChannel.unsubscribe();
       uploadsChannel.unsubscribe();
+      disputesChannel.unsubscribe();
     };
   };
 
@@ -387,6 +423,42 @@ export default function BrandTaskDetailPage() {
     );
   };
 
+  const handleRaiseDispute = async () => {
+    if (!disputeCategory) {
+      alert('יש לבחור סיבה למחלוקת');
+      return;
+    }
+    if (!disputeReason.trim() || disputeReason.length < 10) {
+      alert('יש להזין פירוט (לפחות 10 תווים)');
+      return;
+    }
+    if (!confirm('פתיחת מחלוקת תקפיא את המשימה עד לטיפול האדמין. להמשיך?')) {
+      return;
+    }
+    setProcessing(true);
+    const supabase = createClient();
+    try {
+      const { data, error } = await supabase.rpc('raise_dispute' as any, {
+        p_task_id: taskId,
+        p_reason: disputeReason,
+        p_category: disputeCategory,
+      });
+      if (error) throw error;
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
+      if (!result.success) throw new Error(result.error);
+      alert('המחלוקת נפתחה בהצלחה. המשימה הוקפאה עד לטיפול.');
+      setShowDisputeForm(false);
+      setDisputeCategory('');
+      setDisputeReason('');
+      loadTaskData();
+    } catch (error: any) {
+      console.error('Dispute error:', error);
+      alert('שגיאה בפתיחת מחלוקת: ' + error.message);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const getFileUrl = async (path: string) => {
     const supabase = createClient();
     const { data } = supabase.storage.from('task-uploads').getPublicUrl(path);
@@ -446,6 +518,7 @@ export default function BrandTaskDetailPage() {
     needs_edits: 'דרוש תיקון',
     approved: 'אושר',
     paid: 'שולם',
+    disputed: 'במחלוקת',
   };
 
   const statusColors: Record<string, string> = {
@@ -455,9 +528,11 @@ export default function BrandTaskDetailPage() {
     needs_edits: 'bg-orange-500',
     approved: 'bg-green-500',
     paid: 'bg-green-700',
+    disputed: 'bg-red-500',
   };
 
-  const canReview = task.status === 'uploaded';
+  const canReview = task.status === 'uploaded' && !activeDispute;
+  const canDispute = ['needs_edits', 'uploaded', 'approved', 'in_production'].includes(task.status) && !activeDispute;
 
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
@@ -483,30 +558,111 @@ export default function BrandTaskDetailPage() {
               )}
             </div>
           </div>
-          {canReview && (
-            <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
+            {canReview && (
+              <>
+                <Button
+                  onClick={() => setShowRevisionForm(!showRevisionForm)}
+                  disabled={processing}
+                  className="bg-orange-600 hover:bg-orange-700"
+                >
+                  בקש תיקונים
+                </Button>
+                <Button
+                  onClick={handleApprove}
+                  disabled={processing}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  אשר תוכן
+                </Button>
+              </>
+            )}
+            {canDispute && (
               <Button
-                onClick={() => setShowRevisionForm(!showRevisionForm)}
+                onClick={() => setShowDisputeForm(!showDisputeForm)}
                 disabled={processing}
-                className="bg-orange-600 hover:bg-orange-700"
+                className="bg-red-600 hover:bg-red-700"
               >
-                בקש תיקונים
+                פתח מחלוקת
               </Button>
-              <Button
-                onClick={handleApprove}
-                disabled={processing}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                אשר תוכן
-              </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
         <div className="max-w-4xl mx-auto space-y-6">
+          {/* Active Dispute Banner */}
+          {activeDispute && (
+            <Card className="border-2 border-red-500 bg-red-50">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">⚠️</span>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-red-700 mb-1">משימה מוקפאת - מחלוקת פעילה</h3>
+                  <p className="text-[#212529] mb-2">{activeDispute.reason}</p>
+                  {activeDispute.category && (
+                    <span className="inline-block px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full mb-2">
+                      {BRAND_DISPUTE_CATEGORIES.find(c => c.value === activeDispute.category)?.label || activeDispute.category}
+                    </span>
+                  )}
+                  <p className="text-xs text-[#6c757d]">
+                    נפתחה: {new Date(activeDispute.created_at).toLocaleDateString('he-IL')} {new Date(activeDispute.created_at).toLocaleTimeString('he-IL')}
+                    {' · '}ממתינה לטיפול האדמין
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Dispute Form */}
+          {showDisputeForm && canDispute && (
+            <Card className="border-2 border-red-500">
+              <h2 className="text-xl font-bold text-[#212529] mb-4">פתיחת מחלוקת</h2>
+              <p className="text-[#6c757d] mb-4">פתיחת מחלוקת תקפיא את המשימה עד שהאדמין יטפל בנושא.</p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">סיבת המחלוקת *</label>
+                  <select
+                    value={disputeCategory}
+                    onChange={(e) => setDisputeCategory(e.target.value)}
+                    className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-red-500 transition-colors"
+                  >
+                    <option value="">בחר סיבה...</option>
+                    {BRAND_DISPUTE_CATEGORIES.map((cat) => (
+                      <option key={cat.value} value={cat.value}>{cat.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">פירוט (חובה, לפחות 10 תווים) *</label>
+                  <textarea
+                    value={disputeReason}
+                    onChange={(e) => setDisputeReason(e.target.value)}
+                    placeholder="תאר/י את הבעיה בפירוט..."
+                    rows={4}
+                    className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-red-500 transition-colors"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleRaiseDispute}
+                    disabled={processing || !disputeCategory || disputeReason.length < 10}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    {processing ? 'שולח...' : 'שלח מחלוקת'}
+                  </Button>
+                  <Button
+                    onClick={() => { setShowDisputeForm(false); setDisputeCategory(''); setDisputeReason(''); }}
+                    className="bg-[#f8f9fa] hover:bg-[#e9ecef]"
+                  >
+                    ביטול
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* Creator Details */}
           {task.creators && (
             <Card className="border border-[#f2cc0d]">
@@ -927,6 +1083,40 @@ export default function BrandTaskDetailPage() {
                     <p className="text-[#212529] mb-2">{revision.note}</p>
                     <span className="text-xs text-[#6c757d]">
                       {new Date(revision.created_at).toLocaleDateString('he-IL')} {new Date(revision.created_at).toLocaleTimeString('he-IL')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* Dispute History */}
+          {disputeHistory.length > 0 && (
+            <Card>
+              <h2 className="text-xl font-bold text-[#212529] mb-4">היסטוריית מחלוקות</h2>
+              <div className="space-y-3">
+                {disputeHistory.map((dispute) => (
+                  <div key={dispute.id} className={`rounded-lg p-4 border ${dispute.status === 'open' ? 'bg-red-50 border-red-300' : 'bg-[#f8f9fa] border-[#dee2e6]'}`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`px-2 py-1 text-xs rounded-full ${dispute.status === 'open' ? 'bg-red-500 text-white' : 'bg-green-500 text-[#212529]'}`}>
+                        {dispute.status === 'open' ? 'פתוחה' : 'נפתרה'}
+                      </span>
+                      {dispute.category && (
+                        <span className="px-2 py-1 bg-[#f8f9fa] border border-[#dee2e6] text-[#6c757d] text-xs rounded-full">
+                          {BRAND_DISPUTE_CATEGORIES.find(c => c.value === dispute.category)?.label || dispute.category}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[#212529] mb-2">{dispute.reason}</p>
+                    {dispute.resolution_note && (
+                      <div className="bg-green-50 border border-green-200 rounded p-2 mb-2">
+                        <span className="text-xs text-green-700 font-medium">פתרון: </span>
+                        <span className="text-sm text-[#212529]">{dispute.resolution_note}</span>
+                      </div>
+                    )}
+                    <span className="text-xs text-[#6c757d]">
+                      {new Date(dispute.created_at).toLocaleDateString('he-IL')} {new Date(dispute.created_at).toLocaleTimeString('he-IL')}
+                      {dispute.resolved_at && ` · נפתרה: ${new Date(dispute.resolved_at).toLocaleDateString('he-IL')}`}
                     </span>
                   </div>
                 ))}

@@ -171,6 +171,55 @@ export default function AdminDisputesPage() {
 
       if (taskError) throw taskError;
 
+      // Send notifications to creator and brand members
+      const dispute = disputes.find(d => d.id === disputeId);
+      if (dispute?.tasks) {
+        const actionLabel = newTaskStatus === 'approved' ? 'התוכן אושר' : 'נדרשים תיקונים';
+
+        // Get task details for creator_id and brand_id
+        const { data: taskDetails } = await supabase
+          .from('tasks')
+          .select('creator_id, campaigns(brand_id)')
+          .eq('id', taskId)
+          .single();
+
+        if (taskDetails) {
+          // Notify creator
+          await supabase.from('notifications').insert({
+            user_id: taskDetails.creator_id,
+            type: 'dispute_resolved',
+            title: 'המחלוקת נפתרה',
+            body: `המחלוקת על "${dispute.tasks.title}" נפתרה - ${actionLabel}`,
+            entity_type: 'task',
+            entity_id: taskId,
+          });
+
+          // Notify brand members
+          const brandId = (taskDetails.campaigns as any)?.brand_id;
+          if (brandId) {
+            const { data: brandMembers } = await supabase
+              .from('memberships')
+              .select('user_id')
+              .eq('entity_id', brandId)
+              .eq('entity_type', 'brand')
+              .eq('is_active', true);
+
+            if (brandMembers) {
+              await supabase.from('notifications').insert(
+                brandMembers.map((m: any) => ({
+                  user_id: m.user_id,
+                  type: 'dispute_resolved',
+                  title: 'המחלוקת נפתרה',
+                  body: `המחלוקת על "${dispute.tasks!.title}" נפתרה - ${actionLabel}`,
+                  entity_type: 'task',
+                  entity_id: taskId,
+                }))
+              );
+            }
+          }
+        }
+      }
+
       // Audit log
       await supabase.rpc('log_audit', {
         p_entity: 'dispute',

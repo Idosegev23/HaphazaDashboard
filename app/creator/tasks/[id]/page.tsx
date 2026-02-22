@@ -78,6 +78,22 @@ export default function CreatorTaskDetailPage() {
   const [selectedDeliverableType, setSelectedDeliverableType] = useState<string>('');
   const [deletingUpload, setDeletingUpload] = useState<string | null>(null);
 
+  // Dispute state
+  type DisputeRecord = { id: string; reason: string; status: string; category: string | null; created_at: string; resolution_note: string | null; resolved_at: string | null };
+  const [showDisputeForm, setShowDisputeForm] = useState(false);
+  const [disputeCategory, setDisputeCategory] = useState('');
+  const [disputeReason, setDisputeReason] = useState('');
+  const [activeDispute, setActiveDispute] = useState<DisputeRecord | null>(null);
+  const [disputeHistory, setDisputeHistory] = useState<DisputeRecord[]>([]);
+
+  const CREATOR_DISPUTE_CATEGORIES = [
+    { value: 'content_rejected_unfairly', label: 'איכות התוכן נדחתה שלא בצדק' },
+    { value: 'payment_issue', label: 'בעיית תשלום' },
+    { value: 'brief_changed', label: 'הבריף השתנה אחרי תחילת עבודה' },
+    { value: 'unprofessional_behavior', label: 'התנהלות לא מקצועית' },
+    { value: 'other', label: 'אחר' },
+  ];
+
   const DELIVERABLE_LABELS: Record<string, string> = {
     instagram_story: 'Instagram Story',
     instagram_reel: 'Instagram Reel',
@@ -162,6 +178,18 @@ export default function CreatorTaskDetailPage() {
       setRevisions(revisionsData as RevisionRequest[]);
     }
 
+    // Load disputes
+    const { data: disputesData } = await supabase
+      .from('disputes')
+      .select('id, reason, status, category, resolution_note, created_at, resolved_at')
+      .eq('task_id', taskId)
+      .order('created_at', { ascending: false });
+
+    if (disputesData) {
+      setDisputeHistory(disputesData as any as DisputeRecord[]);
+      setActiveDispute((disputesData as any[]).find((d: any) => d.status === 'open') as DisputeRecord || null);
+    }
+
     setLoading(false);
   };
 
@@ -192,10 +220,19 @@ export default function CreatorTaskDetailPage() {
       })
       .subscribe();
 
+    // Subscribe to disputes
+    const disputesChannel = supabase
+      .channel(`disputes-${taskId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'disputes', filter: `task_id=eq.${taskId}` }, () => {
+        loadTaskData();
+      })
+      .subscribe();
+
     return () => {
       taskChannel.unsubscribe();
       uploadsChannel.unsubscribe();
       revisionsChannel.unsubscribe();
+      disputesChannel.unsubscribe();
     };
   };
 
@@ -427,6 +464,7 @@ export default function CreatorTaskDetailPage() {
     needs_edits: 'דרוש תיקון',
     approved: 'אושר',
     paid: 'שולם',
+    disputed: 'במחלוקת',
   };
 
   const statusColors: Record<string, string> = {
@@ -436,11 +474,13 @@ export default function CreatorTaskDetailPage() {
     needs_edits: 'bg-orange-500',
     approved: 'bg-green-500',
     paid: 'bg-green-700',
+    disputed: 'bg-red-500',
   };
 
   const canStartWork = task.status === 'selected' && (!task.requires_product || shipmentStatus === 'delivered');
-  const canUpload = task.status === 'in_production' || task.status === 'needs_edits';
+  const canUpload = (task.status === 'in_production' || task.status === 'needs_edits') && !activeDispute;
   const isBlocked = task.requires_product && task.status === 'selected' && shipmentStatus !== 'delivered';
+  const canDispute = ['needs_edits', 'uploaded', 'approved', 'in_production'].includes(task.status) && !activeDispute;
   
   const getShipmentStatusMessage = () => {
     if (!shipmentStatus) return 'המותג עדיין לא יצר בקשת משלוח.';
@@ -500,6 +540,44 @@ export default function CreatorTaskDetailPage() {
     }
   };
 
+  const handleRaiseDispute = async () => {
+    if (!disputeCategory) {
+      alert('יש לבחור סיבת מחלוקת');
+      return;
+    }
+    if (!disputeReason.trim() || disputeReason.length < 10) {
+      alert('יש להזין פירוט (לפחות 10 תווים)');
+      return;
+    }
+    if (!confirm('האם אתה בטוח שברצונך לפתוח מחלוקת?\nהמשימה תוקפא עד שצוות המערכת יפתור את הנושא.')) {
+      return;
+    }
+    setProcessing(true);
+    const supabase = createClient();
+    try {
+      const categoryLabel = CREATOR_DISPUTE_CATEGORIES.find(c => c.value === disputeCategory)?.label || disputeCategory;
+      const fullReason = `${categoryLabel}: ${disputeReason}`;
+      const { data, error } = await supabase.rpc('raise_dispute' as any, {
+        p_task_id: taskId,
+        p_reason: fullReason,
+        p_category: disputeCategory,
+      });
+      if (error) throw error;
+      const result = data as any;
+      if (result && !result.success) throw new Error(result.error);
+
+      alert('המחלוקת נפתחה בהצלחה. צוות המערכת יטפל בנושא בהקדם.');
+      setShowDisputeForm(false);
+      setDisputeCategory('');
+      setDisputeReason('');
+      loadTaskData();
+    } catch (error: any) {
+      alert('שגיאה בפתיחת מחלוקת: ' + error.message);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const getFileUrl = (storagePath: string) => {
     const supabase = createClient();
     const { data } = supabase.storage.from('task-uploads').getPublicUrl(storagePath);
@@ -542,15 +620,26 @@ export default function CreatorTaskDetailPage() {
               )}
             </div>
           </div>
-          {canStartWork && (
-            <Button
-              onClick={handleStartWork}
-              disabled={processing}
-              className="bg-[#f2cc0d] text-black hover:bg-[#d4b50c]"
-            >
-              {processing ? 'מעבד...' : 'התחל עבודה'}
-            </Button>
-          )}
+          <div className="flex items-center gap-3">
+            {canStartWork && (
+              <Button
+                onClick={handleStartWork}
+                disabled={processing}
+                className="bg-[#f2cc0d] text-black hover:bg-[#d4b50c]"
+              >
+                {processing ? 'מעבד...' : 'התחל עבודה'}
+              </Button>
+            )}
+            {canDispute && (
+              <Button
+                onClick={() => setShowDisputeForm(!showDisputeForm)}
+                disabled={processing}
+                className="bg-red-500 text-white hover:bg-red-600"
+              >
+                פתח מחלוקת
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -586,6 +675,73 @@ export default function CreatorTaskDetailPage() {
                     className="bg-[#f2cc0d] text-black hover:bg-[#d4b50c] font-bold text-base"
                   >
                     {shipmentStatus === 'waiting_address' ? 'הזן כתובת עכשיו →' : 'עבור לדף משלוחים →'}
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Active Dispute Banner */}
+          {task.status === 'disputed' && activeDispute && (
+            <Card className="border-2 border-red-500 bg-red-50">
+              <h3 className="text-xl font-bold text-[#212529] mb-2">המשימה במחלוקת</h3>
+              <p className="text-[#6c757d] mb-3 leading-relaxed">
+                המשימה הוקפאה עד שצוות המערכת יפתור את המחלוקת. לא ניתן לבצע פעולות נוספות.
+              </p>
+              <div className="bg-white rounded-lg p-4 border border-red-200">
+                <div className="text-sm text-[#6c757d] mb-1">סיבת המחלוקת:</div>
+                <div className="text-[#212529] font-medium">{activeDispute.reason}</div>
+                <div className="text-xs text-[#6c757d] mt-2">
+                  נפתח: {new Date(activeDispute.created_at).toLocaleDateString('he-IL')}
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Dispute Form */}
+          {showDisputeForm && canDispute && (
+            <Card className="border-2 border-red-500">
+              <h2 className="text-xl font-bold text-[#212529] mb-2">פתיחת מחלוקת</h2>
+              <p className="text-[#6c757d] mb-4 text-sm">
+                פתח/י מחלוקת אם את/ה לא מסכים/ה עם ההחלטה. המשימה תוקפא עד שצוות המערכת יפתור את הנושא.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">סיבה *</label>
+                  <select
+                    value={disputeCategory}
+                    onChange={(e) => setDisputeCategory(e.target.value)}
+                    className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-[#f2cc0d]"
+                  >
+                    <option value="">-- בחר סיבה --</option>
+                    {CREATOR_DISPUTE_CATEGORIES.map((c) => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">פירוט (חובה) *</label>
+                  <textarea
+                    value={disputeReason}
+                    onChange={(e) => setDisputeReason(e.target.value)}
+                    placeholder="הסבר/י בפירוט מה הבעיה..."
+                    rows={4}
+                    className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-[#f2cc0d]"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleRaiseDispute}
+                    disabled={processing || !disputeCategory || !disputeReason.trim() || disputeReason.length < 10}
+                    className="bg-red-500 text-white hover:bg-red-600"
+                  >
+                    {processing ? 'שולח...' : 'שלח מחלוקת'}
+                  </Button>
+                  <Button
+                    onClick={() => { setShowDisputeForm(false); setDisputeCategory(''); setDisputeReason(''); }}
+                    className="bg-[#f8f9fa] hover:bg-[#e9ecef]"
+                  >
+                    ביטול
                   </Button>
                 </div>
               </div>
@@ -960,6 +1116,38 @@ export default function CreatorTaskDetailPage() {
                     </div>
                   );
                 })}
+              </div>
+            </Card>
+          )}
+          {/* Dispute History */}
+          {disputeHistory.length > 0 && (
+            <Card>
+              <h2 className="text-xl font-bold text-[#212529] mb-4">היסטוריית מחלוקות</h2>
+              <div className="space-y-3">
+                {disputeHistory.map((dispute) => (
+                  <div key={dispute.id} className={`bg-[#f8f9fa] rounded-lg p-4 border ${dispute.status === 'open' ? 'border-red-500' : 'border-green-500'}`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`px-2 py-1 text-xs rounded-full font-bold text-white ${dispute.status === 'open' ? 'bg-red-500' : 'bg-green-500'}`}>
+                        {dispute.status === 'open' ? 'פתוח' : 'נפתר'}
+                      </span>
+                      <span className="text-xs text-[#6c757d]">
+                        {new Date(dispute.created_at).toLocaleDateString('he-IL')}
+                      </span>
+                    </div>
+                    <p className="text-[#212529] mb-2">{dispute.reason}</p>
+                    {dispute.resolution_note && (
+                      <div className="bg-white rounded-lg p-3 mt-2 border border-[#dee2e6]">
+                        <div className="text-sm text-[#6c757d] mb-1">פתרון:</div>
+                        <p className="text-[#212529] text-sm">{dispute.resolution_note}</p>
+                        {dispute.resolved_at && (
+                          <span className="text-xs text-[#6c757d]">
+                            נפתר: {new Date(dispute.resolved_at).toLocaleDateString('he-IL')}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </Card>
           )}

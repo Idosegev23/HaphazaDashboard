@@ -86,6 +86,10 @@ export default async function AdminDashboardPage() {
   const { data: pendingData } = await supabase.rpc('get_pending_creators_count');
   const pendingCreatorsCount = pendingData || 0;
 
+  // Open disputes count
+  const { data: openDisputesData } = await supabase.rpc('get_open_disputes_count' as any);
+  const openDisputesCount = openDisputesData || 0;
+
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -191,6 +195,23 @@ export default async function AdminDashboardPage() {
             <Link href="/admin/payments">
               <div className="mt-4 text-sm text-red-600 hover:underline">צפה בכל התשלומים הממתינים →</div>
             </Link>
+          </Card>
+        )}
+
+        {/* Open Disputes Alert */}
+        {openDisputesCount > 0 && (
+          <Card className="bg-red-50 border-l-4 border-red-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-red-700">⚖️ מחלוקות פתוחות</h3>
+                <p className="text-sm text-[#6c757d]">{openDisputesCount} מחלוקות ממתינות לטיפול - משימות מוקפאות</p>
+              </div>
+              <Link href="/admin/disputes">
+                <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                  טפל עכשיו
+                </button>
+              </Link>
+            </div>
           </Card>
         )}
 

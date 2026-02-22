@@ -23,7 +23,7 @@ export default function CreatorTasksPage() {
   const { user } = useUser();
   const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [selectedFilter, setSelectedFilter] = useState<string | 'all'>('all');
+  const [expandedStatuses, setExpandedStatuses] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (user && user.role !== 'creator') {
@@ -59,6 +59,7 @@ export default function CreatorTasksPage() {
     needs_edits: tasks.filter((t) => t.status === 'needs_edits'),
     approved: tasks.filter((t) => t.status === 'approved'),
     paid: tasks.filter((t) => t.status === 'paid'),
+    disputed: tasks.filter((t) => t.status === 'disputed'),
   };
 
   const statusLabels: Record<string, string> = {
@@ -68,6 +69,7 @@ export default function CreatorTasksPage() {
     needs_edits: 'דרוש עריכה',
     approved: 'אושר',
     paid: 'שולם',
+    disputed: 'במחלוקת',
   };
 
   const statusColors: Record<string, string> = {
@@ -77,9 +79,25 @@ export default function CreatorTasksPage() {
     needs_edits: 'bg-red-500',
     approved: 'bg-green-500',
     paid: 'bg-[#f2cc0d]',
+    disputed: 'bg-red-600',
   };
 
-  const filteredTasks = selectedFilter === 'all' ? tasks : tasksByStatus[selectedFilter as keyof typeof tasksByStatus];
+  // Auto-expand statuses that have tasks (on first load)
+  useEffect(() => {
+    if (tasks.length > 0 && Object.keys(expandedStatuses).length === 0) {
+      const initial: Record<string, boolean> = {};
+      Object.entries(tasksByStatus).forEach(([status, statusTasks]) => {
+        initial[status] = statusTasks.length > 0;
+      });
+      setExpandedStatuses(initial);
+    }
+  }, [tasks]);
+
+  const toggleStatus = (status: string) => {
+    setExpandedStatuses(prev => ({ ...prev, [status]: !prev[status] }));
+  };
+
+  const isOverdue = (dueAt: string) => new Date(dueAt) < new Date();
 
   return (
     <div className="flex flex-col h-[calc(100vh-72px)]">
@@ -87,36 +105,6 @@ export default function CreatorTasksPage() {
       <div className="px-4 py-6 lg:px-8 border-b border-[#dee2e6]">
         <h1 className="text-2xl lg:text-3xl font-bold text-[#212529] mb-2">🎬 העבודות שלי</h1>
         <p className="text-[#6c757d]">יצירת תוכן, העלאה ותיקונים</p>
-      </div>
-
-      {/* Mobile Filter - Show only on mobile */}
-      <div className="lg:hidden px-4 py-4 border-b border-[#dee2e6] overflow-x-auto">
-        <div className="flex gap-2">
-          <button
-            onClick={() => setSelectedFilter('all')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-              selectedFilter === 'all'
-                ? 'bg-[#f2cc0d] text-[#121212]'
-                : 'bg-[#f8f9fa] text-[#6c757d] hover:bg-[#e9ecef]'
-            }`}
-          >
-            הכל ({tasks.length})
-          </button>
-          {Object.entries(tasksByStatus).map(([status, statusTasks]) => (
-            <button
-              key={status}
-              onClick={() => setSelectedFilter(status)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2 ${
-                selectedFilter === status
-                  ? 'bg-[#f2cc0d] text-[#121212]'
-                  : 'bg-[#f8f9fa] text-[#6c757d] hover:bg-[#e9ecef]'
-              }`}
-            >
-              <div className={`w-2 h-2 rounded-full ${statusColors[status]}`} />
-              {statusLabels[status]} ({statusTasks.length})
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Desktop Kanban Board - Hidden on mobile */}
@@ -169,50 +157,83 @@ export default function CreatorTasksPage() {
         </div>
       </div>
 
-      {/* Mobile List View */}
+      {/* Mobile Accordion View */}
       <div className="lg:hidden flex-1 overflow-y-auto px-4 py-4">
-        <div className="space-y-3">
-          {filteredTasks.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-[#6c757d] text-lg mb-2">אין משימות</div>
-              <div className="text-[#6c757d] text-sm opacity-70">
-                {selectedFilter === 'all' ? 'אין לך משימות כרגע' : `אין משימות בסטטוס "${statusLabels[selectedFilter]}"`}
-              </div>
-            </div>
-          ) : (
-            filteredTasks.map((task) => (
-              <Card 
-                key={task.id} 
-                hover 
-                className="relative cursor-pointer"
-                onClick={() => router.push(`/creator/tasks/${task.id}`)}
-              >
-                <div className={`absolute top-0 right-0 w-1 h-full ${statusColors[task.status]}`} />
-                <div className="pr-4">
-                  {/* Status Badge */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className={`w-2 h-2 rounded-full ${statusColors[task.status]}`} />
-                    <span className="text-xs text-[#6c757d] font-medium">
-                      {statusLabels[task.status]}
-                    </span>
-                  </div>
-                  
-                  <h4 className="text-[#212529] font-medium mb-2 text-lg">{task.title}</h4>
-                  <div className="text-sm text-[#6c757d] mb-2">
-                    {task.campaigns?.title}
-                  </div>
-                  <div className="text-xs text-[#6c757d]">{task.campaigns?.brands?.name}</div>
-                  {task.due_at && (
-                    <div className="text-xs text-[#f2cc0d] mt-3 flex items-center gap-1">
-                      <span>📅</span>
-                      <span>יעד: {new Date(task.due_at).toLocaleDateString('he-IL')}</span>
+        {tasks.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-[#6c757d] text-lg mb-2">אין משימות</div>
+            <div className="text-[#6c757d] text-sm opacity-70">אין לך משימות כרגע</div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {Object.entries(tasksByStatus).map(([status, statusTasks]) => {
+              const hasItems = statusTasks.length > 0;
+              const isExpanded = expandedStatuses[status];
+
+              return (
+                <div key={status} className="rounded-xl border border-[#dee2e6] overflow-hidden bg-white">
+                  {/* Accordion Header */}
+                  <button
+                    onClick={() => hasItems && toggleStatus(status)}
+                    className={`w-full flex items-center justify-between px-4 py-3 ${
+                      hasItems ? 'cursor-pointer active:bg-[#f1f3f5]' : 'cursor-default opacity-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-3 h-3 rounded-full ${statusColors[status]}`} />
+                      <span className="text-[#212529] font-bold text-sm">{statusLabels[status]}</span>
+                      <span className="text-[#6c757d] text-xs">({statusTasks.length})</span>
+                    </div>
+                    {hasItems && (
+                      <svg
+                        className={`w-4 h-4 text-[#6c757d] transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* Accordion Content */}
+                  {isExpanded && hasItems && (
+                    <div className="border-t border-[#dee2e6]">
+                      {statusTasks.map((task, idx) => (
+                        <div
+                          key={task.id}
+                          onClick={() => router.push(`/creator/tasks/${task.id}`)}
+                          className={`relative flex items-center px-4 py-3 cursor-pointer active:bg-[#f8f9fa] ${
+                            idx < statusTasks.length - 1 ? 'border-b border-[#f1f3f5]' : ''
+                          }`}
+                        >
+                          <div className={`absolute top-0 right-0 w-1 h-full ${statusColors[status]}`} />
+                          <div className="flex-1 pr-3 min-w-0">
+                            <h4 className="text-[#212529] font-medium text-sm truncate">{task.title}</h4>
+                            <div className="flex items-center gap-1.5 mt-1 text-xs text-[#6c757d]">
+                              <span className="truncate">{task.campaigns?.title}</span>
+                              {task.campaigns?.brands?.name && (
+                                <>
+                                  <span>·</span>
+                                  <span className="truncate">{task.campaigns.brands.name}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          {task.due_at && (
+                            <div className={`flex-shrink-0 text-xs font-medium flex items-center gap-1 ${
+                              isOverdue(task.due_at) ? 'text-red-500' : 'text-[#f2cc0d]'
+                            }`}>
+                              <span>{new Date(task.due_at).toLocaleDateString('he-IL')}</span>
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
-              </Card>
-            ))
-          )}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
