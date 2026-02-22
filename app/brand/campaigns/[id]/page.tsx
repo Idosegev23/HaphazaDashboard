@@ -72,6 +72,7 @@ export default function CampaignPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
+  const [showPublishConfirm, setShowPublishConfirm] = useState(false);
 
   // Form data for editing
   const [formData, setFormData] = useState({
@@ -356,23 +357,20 @@ export default function CampaignPage() {
   };
 
   const handlePublish = async () => {
-    if (!confirm('האם לפרסם את הקמפיין? לאחר הפרסום הוא יהיה גלוי למשפיענים.')) {
-      return;
-    }
-
+    setShowPublishConfirm(false);
     setSaving(true);
     const supabase = createClient();
 
     try {
       const { error } = await supabase
         .from('campaigns')
-        .update({ status: 'open' as any }) // 'open' means published and accepting applications
+        .update({ status: 'open' as any })
         .eq('id', campaignId);
 
       if (error) throw error;
 
-      alert(' הקמפיין פורסם בהצלחה!\n\nהקמפיין כעת פתוח ומקבל מועמדויות ממשפיענים.\nתוכל/י לעקוב אחר הבקשות בטאב "משפיענים".');
-      
+      alert('הקמפיין פורסם בהצלחה!\n\nהקמפיין כעת פתוח ומקבל מועמדויות ממשפיענים.\nתוכל/י לעקוב אחר הבקשות בטאב "משפיענים".');
+
       loadCampaign();
       setActiveTab('overview');
     } catch (error: any) {
@@ -555,7 +553,7 @@ export default function CampaignPage() {
               >
                 ← חזרה לקמפיינים
               </Button>
-              <div>
+              <div className="flex-1">
                 <h1 className="text-2xl font-bold text-[#212529]">{campaign.title}</h1>
                 <div className="flex items-center gap-3 mt-1">
                   <span
@@ -570,6 +568,15 @@ export default function CampaignPage() {
                   )}
                 </div>
               </div>
+              {campaign.status === 'draft' && (
+                <Button
+                  onClick={() => setShowPublishConfirm(true)}
+                  disabled={saving}
+                  className="bg-green-500 text-white hover:bg-green-600 font-bold px-6 py-2.5 text-base shadow-lg"
+                >
+                  פרסם קמפיין
+                </Button>
+              )}
             </div>
           </div>
 
@@ -1002,15 +1009,15 @@ export default function CampaignPage() {
 
                 <div className="flex gap-4 pt-4">
                   <Button onClick={handleSave} disabled={saving}>
-                    {saving ? 'שומר...' : ' שמור שינויים'}
+                    {saving ? 'שומר...' : 'שמור שינויים'}
                   </Button>
                   {campaign.status === 'draft' && (
                     <Button
-                      onClick={handlePublish}
+                      onClick={() => setShowPublishConfirm(true)}
                       disabled={saving}
-                      className="bg-[#f2cc0d] text-black hover:bg-[#d4b00b]"
+                      className="bg-green-500 text-white hover:bg-green-600 font-bold"
                     >
-                       פרסם קמפיין
+                      פרסם קמפיין
                     </Button>
                   )}
                 </div>
@@ -1237,6 +1244,65 @@ export default function CampaignPage() {
       </div>
 
       <TutorialPopup tutorialKey="brand_campaign_detail" />
+
+      {/* Publish Confirmation Modal */}
+      {showPublishConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-[#212529] mb-2">פרסום הקמפיין</h3>
+              <p className="text-[#6c757d] text-sm leading-relaxed">
+                לאחר הפרסום, הקמפיין יהיה <strong>גלוי למשפיענים</strong> בקטלוג ויוכלו להגיש מועמדות.
+              </p>
+            </div>
+
+            <div className="bg-[#f8f9fa] rounded-lg p-4 space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-[#6c757d]">שם הקמפיין</span>
+                <span className="text-[#212529] font-medium">{campaign.title}</span>
+              </div>
+              {formData.startDate && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[#6c757d]">תאריכים</span>
+                  <span className="text-[#212529] font-medium">
+                    {new Date(formData.startDate).toLocaleDateString('he-IL')}
+                    {formData.endDate && ` - ${new Date(formData.endDate).toLocaleDateString('he-IL')}`}
+                  </span>
+                </div>
+              )}
+              {Object.values(deliverables).some(v => v > 0) && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[#6c757d]">תוצרים</span>
+                  <span className="text-[#212529] font-medium">
+                    {Object.values(deliverables).reduce((sum, v) => sum + v, 0)} פריטים
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowPublishConfirm(false)}
+                className="flex-1 px-4 py-3 bg-[#f8f9fa] text-[#6c757d] rounded-xl font-medium hover:bg-[#e9ecef] transition-colors"
+              >
+                ביטול
+              </button>
+              <button
+                onClick={handlePublish}
+                disabled={saving}
+                className="flex-1 px-4 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-colors disabled:opacity-50"
+              >
+                {saving ? 'מפרסם...' : 'אישור פרסום'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
