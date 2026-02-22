@@ -46,26 +46,49 @@ export default async function BrandDashboardPage() {
       .eq('status', 'submitted'),
   ]);
 
-  // Get creators who worked with this brand (for network visualization)
-  const { data: brandCreators } = await supabase
-    .from('applications')
-    .select('user_id, profiles:user_id(display_name, avatar_url), campaigns!inner(brand_id)')
+  // Get top creators for network visualization
+  // First: creators who worked with this brand
+  const { data: brandCreatorIds } = await supabase
+    .from('tasks')
+    .select('creator_id, campaigns!inner(brand_id)')
     .eq('campaigns.brand_id', user.brand_id!)
-    .eq('status', 'approved')
-    .limit(10);
+    .limit(20);
 
-  const creators = (brandCreators || [])
-    .map((app: any) => ({
-      user_id: app.user_id,
-      display_name: app.profiles?.display_name || '',
-      avatar_url: app.profiles?.avatar_url || null,
+  const workedIds = [...new Set((brandCreatorIds || []).map((t: any) => t.creator_id).filter(Boolean))];
+
+  // Fetch creator details (brand's creators first, then top from catalog to fill up to 10)
+  const { data: creatorsData } = await supabase
+    .from('creators')
+    .select(`
+      user_id, niches, tier, platforms, total_followers,
+      users_profiles!inner(display_name, avatar_url),
+      creator_metrics(average_rating, total_tasks)
+    `)
+    .eq('status', 'approved')
+    .order('total_followers', { ascending: false, nullsFirst: false })
+    .limit(20);
+
+  // Sort: brand's own creators first, then by followers
+  const creators = (creatorsData || [])
+    .map((c: any) => ({
+      user_id: c.user_id,
+      display_name: c.users_profiles?.display_name || '',
+      avatar_url: c.users_profiles?.avatar_url || null,
+      niches: c.niches || [],
+      tier: c.tier || 'starter',
+      total_followers: c.total_followers || 0,
+      average_rating: c.creator_metrics?.[0]?.average_rating || null,
+      total_tasks: c.creator_metrics?.[0]?.total_tasks || 0,
+      is_brand_creator: workedIds.includes(c.user_id),
     }))
     .filter((c: any) => c.display_name)
-    // Deduplicate by user_id
-    .filter((c: any, i: number, arr: any[]) =>
-      arr.findIndex((x: any) => x.user_id === c.user_id) === i
-    )
-    .slice(0, 8);
+    .sort((a: any, b: any) => {
+      // Brand's own creators first
+      if (a.is_brand_creator && !b.is_brand_creator) return -1;
+      if (!a.is_brand_creator && b.is_brand_creator) return 1;
+      return (b.total_followers || 0) - (a.total_followers || 0);
+    })
+    .slice(0, 10);
 
   const roleLabel = user.role === 'brand_manager' ? 'מנהל מותג' : 'משתמש מותג';
 
