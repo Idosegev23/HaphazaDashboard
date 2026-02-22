@@ -540,19 +540,19 @@ export default function AdminUsersPage() {
                       <td className="px-4 py-3 text-sm text-[#6c757d]">
                         {userProfile.created_at ? new Date(userProfile.created_at).toLocaleDateString('he-IL') : '-'}
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
+                      <td className="px-4 py-3 min-w-[200px]">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <Link href={`/admin/users/${userProfile.user_id}`}>
-                            <button className="px-3 py-1 bg-[#f2cc0d] text-[#212529] text-xs rounded hover:bg-[#d4b00b]">
+                            <button className="px-3 py-1.5 bg-[#f2cc0d] text-[#212529] text-xs rounded hover:bg-[#d4b00b] whitespace-nowrap">
                               פרטים
                             </button>
                           </Link>
-                          
+
                           {!isVerified(userProfile) && (userProfile.creators || userProfile.brands) && (
                             <button
                               onClick={() => handleVerifyUser(userProfile.user_id, userProfile.creators ? 'creator' : 'brand')}
                               disabled={processing === userProfile.user_id}
-                              className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 disabled:opacity-50"
+                              className="px-3 py-1.5 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 disabled:opacity-50 whitespace-nowrap"
                             >
                               אמת
                             </button>
@@ -563,24 +563,27 @@ export default function AdminUsersPage() {
                               <button
                                 onClick={() => handleCreatorApproval(userProfile.user_id, 'approve')}
                                 disabled={processing === userProfile.user_id}
-                                className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 disabled:opacity-50"
+                                className="px-3 py-1.5 bg-green-500 text-white text-xs rounded hover:bg-green-600 disabled:opacity-50 whitespace-nowrap"
                               >
                                 אשר
                               </button>
                               <button
-                                onClick={() => handleCreatorApproval(userProfile.user_id, 'reject')}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCreatorApproval(userProfile.user_id, 'reject');
+                                }}
                                 disabled={processing === userProfile.user_id}
-                                className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 disabled:opacity-50"
+                                className="px-3 py-1.5 bg-red-500 text-white text-xs rounded hover:bg-red-600 disabled:opacity-50 whitespace-nowrap relative z-10"
                               >
                                 דחה
                               </button>
                             </>
                           )}
-                          
+
                           <button
                             onClick={() => handleBlockUser(userProfile.user_id, !userProfile.is_blocked)}
                             disabled={processing === userProfile.user_id}
-                            className={`px-3 py-1 text-white text-xs rounded disabled:opacity-50 ${
+                            className={`px-3 py-1.5 text-white text-xs rounded disabled:opacity-50 whitespace-nowrap ${
                               userProfile.is_blocked ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
                             }`}
                           >

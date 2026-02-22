@@ -64,10 +64,7 @@ export function formatFollowers(count: number): string {
 export function StarRating({ rating, showTooltip = false }: { rating: number | null; showTooltip?: boolean }) {
   const stars = Math.round((rating || 0) * 2) / 2;
   return (
-    <div
-      className="flex items-center gap-1 relative group"
-      title={showTooltip ? 'ממוצע: איכות, תקשורת, עמידה בזמנים, תיקונים' : undefined}
-    >
+    <div className="flex items-center gap-1 relative group">
       {[1, 2, 3, 4, 5].map((i) => (
         <span
           key={i}
@@ -80,8 +77,14 @@ export function StarRating({ rating, showTooltip = false }: { rating: number | n
         <span className="text-xs text-[#6c757d] mr-1">{rating.toFixed(1)}</span>
       )}
       {showTooltip && (
-        <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-[#212529] text-white text-[10px] rounded-lg px-3 py-2 z-50 text-center leading-relaxed pointer-events-none">
-          ממוצע של 4 קריטריונים: איכות, תקשורת, עמידה בזמנים, תיקונים
+        <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-[#212529] text-white text-[11px] rounded-lg px-3 py-2.5 z-50 text-right leading-relaxed pointer-events-none shadow-xl">
+          <div className="font-bold mb-1.5 text-[#f2cc0d]">דירוג ממוצע - {rating?.toFixed(1) || '0.0'}/5</div>
+          <div className="space-y-0.5 text-[10px]">
+            <div className="flex items-center justify-between"><span>איכות תוכן</span><span className="text-[#f2cc0d]">&#9733;</span></div>
+            <div className="flex items-center justify-between"><span>תקשורת ושיתוף פעולה</span><span className="text-[#f2cc0d]">&#9733;</span></div>
+            <div className="flex items-center justify-between"><span>עמידה בזמנים</span><span className="text-[#f2cc0d]">&#9733;</span></div>
+            <div className="flex items-center justify-between"><span>תיקונים ושיפורים</span><span className="text-[#f2cc0d]">&#9733;</span></div>
+          </div>
           <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#212529]" />
         </div>
       )}

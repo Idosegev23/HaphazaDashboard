@@ -261,13 +261,8 @@ export default function CampaignPage() {
     }));
   };
 
-  // A1: Auto-set deadline from end_date
   const handleEndDateChange = (value: string) => {
-    const updates: any = { endDate: value };
-    if (value && !formData.deadline) {
-      updates.deadline = value;
-    }
-    setFormData({ ...formData, ...updates });
+    setFormData({ ...formData, endDate: value });
     if (value) setValidationErrors(prev => { const n = { ...prev }; delete n.endDate; return n; });
   };
 
@@ -277,10 +272,16 @@ export default function CampaignPage() {
   };
 
   const handleSave = async () => {
-    // A3: Validate mandatory dates
+    // Validate mandatory dates
     const errors: Record<string, string> = {};
     if (!formData.startDate) errors.startDate = 'תאריך התחלה הוא שדה חובה';
     if (!formData.endDate) errors.endDate = 'תאריך סיום הוא שדה חובה';
+    if (formData.startDate && formData.endDate && formData.startDate > formData.endDate) {
+      errors.endDate = 'תאריך סיום חייב להיות אחרי תאריך ההתחלה';
+    }
+    if (formData.submissionDeadline && formData.endDate && formData.submissionDeadline > formData.endDate) {
+      errors.submissionDeadline = 'דדליין הגשה סופית חייב להיות לפני תאריך הסיום';
+    }
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       return;
@@ -298,7 +299,6 @@ export default function CampaignPage() {
           objective: formData.objective,
           concept: formData.concept,
           fixed_price: formData.isBarter ? null : (formData.fixedPrice ? Number(formData.fixedPrice) : null),
-          deadline: formData.deadline || null,
           start_date: formData.startDate,
           end_date: formData.endDate,
           platforms: formData.platforms.length > 0 ? formData.platforms : null,
@@ -687,7 +687,7 @@ export default function CampaignPage() {
                 )}
 
                 {/* Campaign Dates - A3: mandatory validation */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Input
                       label="תאריך התחלה *"
@@ -712,12 +712,6 @@ export default function CampaignPage() {
                       <p className="text-red-500 text-xs mt-1">{validationErrors.endDate}</p>
                     )}
                   </div>
-                  <Input
-                    label="דדליין להגשת תוכן"
-                    type="date"
-                    value={formData.deadline}
-                    onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                  />
                 </div>
 
                 {/* A5: Platform Selection */}
@@ -744,12 +738,17 @@ export default function CampaignPage() {
 
                 {/* Submission deadline, Go-live, Max revisions */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Input
-                    label="דדליין הגשה סופי"
-                    type="date"
-                    value={formData.submissionDeadline}
-                    onChange={(e) => setFormData({ ...formData, submissionDeadline: e.target.value })}
-                  />
+                  <div>
+                    <Input
+                      label="דדליין הגשה סופית"
+                      type="date"
+                      value={formData.submissionDeadline}
+                      onChange={(e) => setFormData({ ...formData, submissionDeadline: e.target.value })}
+                    />
+                    {validationErrors.submissionDeadline && (
+                      <p className="text-red-500 text-xs mt-1">{validationErrors.submissionDeadline}</p>
+                    )}
+                  </div>
                   <Input
                     label="תאריך Go-Live"
                     type="date"
@@ -796,7 +795,7 @@ export default function CampaignPage() {
 
                 {/* Content Period Type */}
                 <div className="border border-[#dee2e6] rounded-lg p-4 bg-[#f8f9fa]">
-                  <label className="block text-sm font-medium text-[#212529] mb-2">תקופת פרסום תוכן</label>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">תקופת פרסום התוכן הממומן ע״י המותג</label>
                   <select
                     value={formData.contentPeriodType}
                     onChange={(e) => setFormData({ ...formData, contentPeriodType: e.target.value as any })}
