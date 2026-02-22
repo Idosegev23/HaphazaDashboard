@@ -28,7 +28,8 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
-  const [uploadingProof, setUploadingProof] = useState<string | null>(null); // payment ID being uploaded
+  const [uploadingProof, setUploadingProof] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     loadPayments();
@@ -151,8 +152,6 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
 
   const filteredPayments =
     statusFilter === 'all' ? payments : payments.filter((p) => p.status === statusFilter);
-
-  const [exporting, setExporting] = useState(false);
 
   const handleExportZip = async () => {
     setExporting(true);
@@ -366,7 +365,7 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
                           ₪{payment.amount.toLocaleString()}
                         </div>
                         <span
-                          className={`inline-block px-2 py-1 rounded text-xs font-bold text-[#212529] ${
+                          className={`inline-block px-2 py-1 rounded text-xs font-bold text-white ${
                             statusColors[payment.status || 'pending']
                           }`}
                         >
@@ -470,7 +469,7 @@ export function PaymentsTab({ campaignId }: PaymentsTabProps) {
             <span className="text-2xl">️</span>
             <div>
               <h4 className="text-[#212529] font-bold mb-1">תשלומים ממתינים</h4>
-              <p className="text-yellow-200 text-sm">
+              <p className="text-[#6c757d] text-sm">
                 יש {payments.filter((p) => p.status === 'pending').length} תשלומים ממתינים בסכום כולל של
                 ₪{pendingAmount.toLocaleString()}. תשלומים אלו נוצרו אוטומטית לאחר אישור תוכן.
               </p>

@@ -166,7 +166,7 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
                         </p>
                       </div>
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${
+                        className={`px-3 py-1 rounded-full text-xs font-bold text-white ${
                           statusColors[shipment.status || 'not_requested']
                         }`}
                       >
@@ -321,7 +321,7 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
           
           <div>
             <h4 className="text-[#212529] font-bold mb-1">איך זה עובד?</h4>
-            <p className="text-blue-200 text-sm">
+            <p className="text-[#6c757d] text-sm">
               כשתאשר משפיען לקמפיין שדורש מוצרים, ייווצר אוטומטית בקשת משלוח. המשפיען ימלא את הכתובת
               שלו והמערכת תתריע לך שהכתובת מוכנה. אחרי שתשלח את המוצר, עדכן את מספר המעקב במערכת.
             </p>

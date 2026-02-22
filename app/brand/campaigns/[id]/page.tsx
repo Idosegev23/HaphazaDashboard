@@ -284,6 +284,7 @@ export default function CampaignPage() {
     }
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     setValidationErrors({});
@@ -296,8 +297,8 @@ export default function CampaignPage() {
         .from('campaigns')
         .update({
           title: formData.title,
-          objective: formData.objective,
-          concept: formData.concept,
+          objective: formData.objective || null,
+          concept: formData.concept || null,
           fixed_price: formData.isBarter ? null : (formData.fixedPrice ? Number(formData.fixedPrice) : null),
           start_date: formData.startDate,
           end_date: formData.endDate,
@@ -1007,7 +1008,7 @@ export default function CampaignPage() {
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                  <Button onClick={handleSave} disabled={saving}>
+                  <Button type="button" onClick={handleSave} disabled={saving}>
                     {saving ? 'שומר...' : 'שמור שינויים'}
                   </Button>
                   {campaign.status === 'draft' && (

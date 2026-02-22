@@ -97,10 +97,11 @@ export default function CreatorShippingPage() {
     if (!user) return;
 
     try {
-      // Insert address
+      // Insert address linked to this shipment request
       const { error: addressError } = await supabase
         .from('shipment_addresses')
         .insert({
+          shipment_request_id: shipmentId,
           creator_id: user.id,
           full_name: addressForm.full_name,
           street: addressForm.street,
@@ -365,7 +366,7 @@ export default function CreatorShippingPage() {
                   {shipment.shipments && (
                     <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
                       <h4 className="text-[#212529] font-bold mb-2"> מידע על המשלוח</h4>
-                      <div className="text-blue-200 text-sm space-y-1">
+                      <div className="text-[#6c757d] text-sm space-y-1">
                         <p>
                           <strong>מספר מעקב:</strong> {shipment.shipments.tracking_number}
                         </p>
@@ -391,7 +392,7 @@ export default function CreatorShippingPage() {
                         
                         <div className="flex-1">
                           <h4 className="text-[#212529] font-bold mb-1">קיבלת את המשלוח?</h4>
-                          <p className="text-green-200 text-sm mb-3">
+                          <p className="text-[#6c757d] text-sm mb-3">
                             לאחר שתאשר קבלת המשלוח, תוכל להתחיל לעבוד על המשימה
                           </p>
                           <Button
@@ -412,7 +413,7 @@ export default function CreatorShippingPage() {
                         
                         <div>
                           <h4 className="text-green-400 font-bold">המשלוח נמסר בהצלחה!</h4>
-                          <p className="text-green-200 text-sm">
+                          <p className="text-[#6c757d] text-sm">
                             אתה יכול להתחיל לעבוד על המשימה
                           </p>
                         </div>
