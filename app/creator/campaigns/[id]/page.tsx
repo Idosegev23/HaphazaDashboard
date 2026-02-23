@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import Link from 'next/link';
 
 export default function CampaignDetailPage() {
   const params = useParams();
@@ -111,7 +112,7 @@ export default function CampaignDetailPage() {
                 <span className="text-3xl">📦</span>
                 <div className="flex-1">
                   <h3 className="text-[#212529] font-bold mb-1">⚠️ משלוח מוצר נדרש</h3>
-                  <p className="text-orange-200 text-sm mb-3">
+                  <p className="text-[#6c757d] text-sm mb-3">
                     קמפיין זה דורש קבלת מוצרים פיזיים מהמותג. אם תאושר/י, תצטרך/י לספק כתובת למשלוח ולהמתין לקבלת המוצרים לפני שתוכל/י להתחיל בעבודה על התוכן.
                   </p>
                   <div className="bg-[#f8f9fa] rounded-lg p-3 space-y-2">
@@ -209,6 +210,27 @@ export default function CampaignDetailPage() {
           </div>
         </Card>
 
+        {/* Shipping link when accepted and campaign has products */}
+        {application && application.status === 'accepted' && products.length > 0 && (
+          <Card className="mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">📦</span>
+                <div>
+                  <h3 className="text-[#212529] font-bold">משלוח מוצרים</h3>
+                  <p className="text-[#6c757d] text-sm">אושרת לקמפיין זה! עברי לדף המשלוחים להזנת כתובת</p>
+                </div>
+              </div>
+              <Link
+                href="/creator/shipping"
+                className="px-4 py-2 bg-[#f2cc0d] text-black font-bold rounded-lg hover:bg-[#d4b00b] transition-colors"
+              >
+                עבור למשלוחים
+              </Link>
+            </div>
+          </Card>
+        )}
+
         {!application ? (
           <Card>
             <h2 className="text-xl font-bold text-[#212529] mb-6">הגשת בקשה לקמפיין</h2>
@@ -278,10 +300,25 @@ export default function CampaignDetailPage() {
             <h2 className="text-xl font-bold text-[#212529] mb-4">הבקשה שלך</h2>
             <div className="text-[#6c757d]">
               סטטוס:{' '}
-              <span className="text-[#f2cc0d]">
-                {application.status === 'submitted' ? 'ממתין לאישור' : application.status}
+              <span className="text-[#f2cc0d] font-bold">
+                {application.status === 'submitted' && 'ממתין לאישור'}
+                {application.status === 'accepted' && 'אושרה!'}
+                {application.status === 'rejected' && 'נדחתה'}
+                {!['submitted', 'accepted', 'rejected'].includes(application.status) && application.status}
               </span>
             </div>
+            {application.status === 'accepted' && (
+              <div className="mt-4 flex gap-3">
+                <Link href="/creator/tasks" className="px-4 py-2 bg-[#f2cc0d] text-black font-bold rounded-lg hover:bg-[#d4b00b] transition-colors text-sm">
+                  עבור למשימות
+                </Link>
+                {products.length > 0 && (
+                  <Link href="/creator/shipping" className="px-4 py-2 bg-white border border-[#dee2e6] text-[#212529] font-medium rounded-lg hover:bg-[#f8f9fa] transition-colors text-sm">
+                    עבור למשלוחים
+                  </Link>
+                )}
+              </div>
+            )}
           </Card>
         )}
       </div>

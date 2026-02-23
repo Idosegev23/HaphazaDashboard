@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/Card';
-import Link from 'next/link';
 
 type ShipmentsTabProps = {
   campaignId: string;
@@ -59,7 +58,7 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
 
     const { data: shipmentsData, error } = await supabase
       .from('shipment_requests')
-      .select('id, status, created_at, creator_id, tracking_number, carrier')
+      .select('id, status, created_at, creator_id, address_id')
       .eq('campaign_id', campaignId)
       .order('created_at', { ascending: false });
 
@@ -69,7 +68,7 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
       return;
     }
 
-    // Enrich with creator data
+    // Enrich with creator data and addresses
     const enriched = await Promise.all(
       (shipmentsData || []).map(async (shipment: any) => {
         const { data: profileData } = await supabase
@@ -78,10 +77,23 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
           .eq('user_id', shipment.creator_id)
           .single();
 
-        const { data: addressData } = await supabase
-          .from('shipment_addresses')
-          .select('*')
+        // Get address via address_id FK on shipment_requests
+        let addressData = null;
+        if (shipment.address_id) {
+          const { data } = await supabase
+            .from('shipment_addresses')
+            .select('*')
+            .eq('id', shipment.address_id)
+            .single();
+          addressData = data;
+        }
+
+        // Get tracking info from shipments table
+        const { data: shipmentTracking } = await supabase
+          .from('shipments')
+          .select('tracking_number, carrier, shipped_at')
           .eq('shipment_request_id', shipment.id)
+          .limit(1)
           .single();
 
         return {
@@ -89,8 +101,8 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
           creator_name: profileData?.display_name || 'לא זמין',
           creator_avatar: profileData?.avatar_url || null,
           address: addressData,
-          tracking_number: (shipment as any).tracking_number || null,
-          carrier: (shipment as any).carrier || null,
+          tracking_number: shipmentTracking?.tracking_number || null,
+          carrier: shipmentTracking?.carrier || null,
         };
       })
     );
@@ -135,9 +147,9 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
       {shipments.length > 0 ? (
         <div className="space-y-4">
           {shipments.map((shipment) => (
-            <Card key={shipment.id} className="relative">
+            <Card key={shipment.id} className="relative overflow-hidden">
               <div className={`status-stripe ${statusColors[shipment.status || 'not_requested']}`} />
-              <div className="pl-6">
+              <div className="ps-6">
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
                   <div className="flex-shrink-0">
@@ -225,14 +237,33 @@ export function ShipmentsTab({ campaignId }: ShipmentsTabProps) {
                               }
                               setSavingTracking(true);
                               const supabase = createClient();
-                              const updates: any = {
-                                tracking_number: trackingInput.trim() || null,
-                                carrier: carrierInput || null,
-                              };
-                              if (trackingInput && shipment.status === 'address_received') {
-                                updates.status = 'shipped';
+
+                              // Save tracking info to shipments table
+                              const { data: existingShipment } = await supabase
+                                .from('shipments')
+                                .select('id')
+                                .eq('shipment_request_id', shipment.id)
+                                .limit(1)
+                                .single();
+
+                              if (existingShipment) {
+                                await supabase.from('shipments').update({
+                                  tracking_number: trackingInput.trim() || null,
+                                  carrier: carrierInput || null,
+                                }).eq('id', existingShipment.id);
+                              } else {
+                                await supabase.from('shipments').insert({
+                                  shipment_request_id: shipment.id,
+                                  tracking_number: trackingInput.trim() || null,
+                                  carrier: carrierInput || null,
+                                  shipped_at: trackingInput ? new Date().toISOString() : null,
+                                });
                               }
-                              await supabase.from('shipment_requests').update(updates).eq('id', shipment.id);
+
+                              // Update shipment_requests status if needed
+                              if (trackingInput && shipment.status === 'address_received') {
+                                await supabase.from('shipment_requests').update({ status: 'shipped' }).eq('id', shipment.id);
+                              }
                               setSavingTracking(false);
                               setEditingTracking(null);
                               setTrackingError('');

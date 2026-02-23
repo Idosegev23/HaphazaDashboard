@@ -12,9 +12,11 @@ type ShipmentRequest = {
   id: string;
   status: string;
   created_at: string;
+  address_id: string | null;
   campaigns: {
     title: string;
   } | null;
+  // shipment_addresses comes through address_id FK — single object or null
   shipment_addresses: {
     full_name: string;
     street: string;
@@ -25,18 +27,19 @@ type ShipmentRequest = {
     country: string;
     phone: string;
   } | null;
+  // shipments is a reverse FK (array)
   shipments: {
     tracking_number: string;
     carrier: string | null;
     shipped_at: string | null;
-  } | null;
+  }[];
 };
 
 export default function CreatorShippingPage() {
   const router = useRouter();
   const [shipments, setShipments] = useState<ShipmentRequest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingAddress, setEditingAddress] = useState<string | null>(null); // shipment ID being edited
+  const [editingAddress, setEditingAddress] = useState<string | null>(null);
 
   const [addressForm, setAddressForm] = useState({
     full_name: '',
@@ -62,13 +65,13 @@ export default function CreatorShippingPage() {
       return;
     }
 
-    const { data, error} = await supabase
+    const { data, error } = await supabase
       .from('shipment_requests')
       .select(`
         id,
         status,
         created_at,
-        campaign_id,
+        address_id,
         campaigns(title),
         shipment_addresses(full_name, street, house_number, apartment, city, postal_code, country, phone),
         shipments(tracking_number, carrier, shipped_at)
@@ -79,14 +82,14 @@ export default function CreatorShippingPage() {
     if (error) {
       console.error('Error loading shipments:', error);
     } else {
-      setShipments(data as any || []);
+      setShipments((data as any) || []);
     }
 
     setLoading(false);
   };
 
   const handleAddressSubmit = async (shipmentId: string) => {
-    if (!addressForm.full_name || !addressForm.street || !addressForm.house_number || !addressForm.phone || !addressForm.city || !addressForm.postal_code) {
+    if (!addressForm.full_name || !addressForm.street || !addressForm.house_number || !addressForm.phone || !addressForm.city) {
       alert('יש למלא את כל שדות החובה');
       return;
     }
@@ -97,33 +100,37 @@ export default function CreatorShippingPage() {
     if (!user) return;
 
     try {
-      // Insert address linked to this shipment request
-      const { error: addressError } = await supabase
+      // 1. Insert address (no shipment_request_id — that column doesn't exist)
+      const { data: addressData, error: addressError } = await supabase
         .from('shipment_addresses')
         .insert({
-          shipment_request_id: shipmentId,
           creator_id: user.id,
           full_name: addressForm.full_name,
           street: addressForm.street,
           house_number: addressForm.house_number,
           apartment: addressForm.apartment || null,
           city: addressForm.city,
-          postal_code: addressForm.postal_code,
+          postal_code: addressForm.postal_code || null,
           country: addressForm.country,
           phone: addressForm.phone,
-        });
+        })
+        .select('id')
+        .single();
 
       if (addressError) throw addressError;
 
-      // Update shipment status
+      // 2. Link address to shipment request via address_id
       const { error: updateError } = await supabase
         .from('shipment_requests')
-        .update({ status: 'address_received' })
+        .update({
+          address_id: addressData.id,
+          status: 'address_received',
+        })
         .eq('id', shipmentId);
 
       if (updateError) throw updateError;
 
-      alert(' הכתובת נשמרה בהצלחה!');
+      alert('הכתובת נשמרה בהצלחה!');
       setEditingAddress(null);
       setAddressForm({
         full_name: '',
@@ -150,15 +157,12 @@ export default function CreatorShippingPage() {
     try {
       const { error } = await supabase
         .from('shipment_requests')
-        .update({ 
-          status: 'delivered',
-          delivered_at: new Date().toISOString()
-        })
+        .update({ status: 'delivered' })
         .eq('id', shipmentId);
 
       if (error) throw error;
 
-      alert(' תודה על האישור! המשימה נפתחה לעבודה.');
+      alert('תודה על האישור! המשימה נפתחה לעבודה.');
       loadShipments();
     } catch (error: any) {
       console.error('Error confirming delivery:', error);
@@ -192,10 +196,17 @@ export default function CreatorShippingPage() {
     issue: 'bg-red-500',
   };
 
+  // Helper: get first shipment tracking info (shipments is an array)
+  const getTracking = (shipment: ShipmentRequest) => {
+    const arr = shipment.shipments;
+    if (Array.isArray(arr) && arr.length > 0) return arr[0];
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-white p-4 lg:p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-[#212529] mb-6"> משלוחים</h1>
+        <h1 className="text-3xl font-bold text-[#212529] mb-6">משלוחים</h1>
 
         {shipments.length === 0 ? (
           <Card>
@@ -219,8 +230,8 @@ export default function CreatorShippingPage() {
                       </p>
                     </div>
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-bold text-[#212529] ${
-                        statusColors[shipment.status]
+                      className={`px-3 py-1 rounded-full text-xs font-bold text-white ${
+                        statusColors[shipment.status] || 'bg-gray-500'
                       }`}
                     >
                       {statusLabels[shipment.status] || shipment.status}
@@ -233,7 +244,7 @@ export default function CreatorShippingPage() {
                       <div className="flex items-start gap-3">
                         <div className="flex-1">
                           <h4 className="text-[#212529] font-bold text-lg mb-2">פעולה נדרשת: יש להזין כתובת למשלוח</h4>
-                          <p className="text-yellow-800 text-sm mb-4 leading-relaxed">
+                          <p className="text-[#6c757d] text-sm mb-4 leading-relaxed">
                             המותג מחכה לכתובת שלך כדי לשלוח את המוצר. לאחר שתקבל את המוצר תוכל להתחיל לעבוד על המשימה.
                           </p>
                           <Button
@@ -250,7 +261,7 @@ export default function CreatorShippingPage() {
                   {/* Address Form */}
                   {editingAddress === shipment.id && (
                     <div className="bg-white border-2 border-[#f2cc0d] rounded-lg p-4 space-y-4">
-                      <h4 className="text-[#212529] font-bold text-lg"> כתובת למשלוח</h4>
+                      <h4 className="text-[#212529] font-bold text-lg">כתובת למשלוח</h4>
 
                       <Input
                         label="שם מלא *"
@@ -293,11 +304,10 @@ export default function CreatorShippingPage() {
                           required
                         />
                         <Input
-                          label="מיקוד *"
+                          label="מיקוד"
                           value={addressForm.postal_code}
                           onChange={(e) => setAddressForm({ ...addressForm, postal_code: e.target.value })}
                           placeholder="1234567"
-                          required
                         />
                         <Input
                           label="מדינה *"
@@ -348,14 +358,14 @@ export default function CreatorShippingPage() {
                   {/* Address Provided */}
                   {shipment.shipment_addresses && shipment.status !== 'waiting_address' && (
                     <div className="bg-white rounded-lg p-4">
-                      <h4 className="text-[#212529] font-bold mb-2"> כתובת למשלוח</h4>
+                      <h4 className="text-[#212529] font-bold mb-2">כתובת למשלוח</h4>
                       <div className="text-[#6c757d] text-sm space-y-1">
                         <p><strong>{shipment.shipment_addresses.full_name}</strong></p>
                         <p>{shipment.shipment_addresses.street} {shipment.shipment_addresses.house_number}</p>
                         {shipment.shipment_addresses.apartment && (
                           <p>דירה {shipment.shipment_addresses.apartment}</p>
                         )}
-                        <p>{shipment.shipment_addresses.city}, {shipment.shipment_addresses.postal_code}</p>
+                        <p>{shipment.shipment_addresses.city}{shipment.shipment_addresses.postal_code ? `, ${shipment.shipment_addresses.postal_code}` : ''}</p>
                         <p>{shipment.shipment_addresses.country}</p>
                         <p>טלפון: {shipment.shipment_addresses.phone}</p>
                       </div>
@@ -363,33 +373,36 @@ export default function CreatorShippingPage() {
                   )}
 
                   {/* Tracking Info */}
-                  {shipment.shipments && (
-                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                      <h4 className="text-[#212529] font-bold mb-2"> מידע על המשלוח</h4>
-                      <div className="text-[#6c757d] text-sm space-y-1">
-                        <p>
-                          <strong>מספר מעקב:</strong> {shipment.shipments.tracking_number}
-                        </p>
-                        {shipment.shipments.carrier && (
+                  {(() => {
+                    const tracking = getTracking(shipment);
+                    if (!tracking) return null;
+                    return (
+                      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                        <h4 className="text-[#212529] font-bold mb-2">מידע על המשלוח</h4>
+                        <div className="text-[#6c757d] text-sm space-y-1">
                           <p>
-                            <strong>חברת שילוח:</strong> {shipment.shipments.carrier}
+                            <strong>מספר מעקב:</strong> {tracking.tracking_number}
                           </p>
-                        )}
-                        {shipment.shipments.shipped_at && (
-                          <p>
-                            <strong>נשלח ב:</strong>{' '}
-                            {new Date(shipment.shipments.shipped_at).toLocaleDateString('he-IL')}
-                          </p>
-                        )}
+                          {tracking.carrier && (
+                            <p>
+                              <strong>חברת שילוח:</strong> {tracking.carrier}
+                            </p>
+                          )}
+                          {tracking.shipped_at && (
+                            <p>
+                              <strong>נשלח ב:</strong>{' '}
+                              {new Date(tracking.shipped_at).toLocaleDateString('he-IL')}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* Confirm Delivery Button */}
                   {shipment.status === 'shipped' && (
                     <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
                       <div className="flex items-start gap-3">
-                        
                         <div className="flex-1">
                           <h4 className="text-[#212529] font-bold mb-1">קיבלת את המשלוח?</h4>
                           <p className="text-[#6c757d] text-sm mb-3">
@@ -397,7 +410,7 @@ export default function CreatorShippingPage() {
                           </p>
                           <Button
                             onClick={() => handleConfirmDelivery(shipment.id)}
-                            className="bg-green-600 text-[#212529] hover:bg-green-700"
+                            className="bg-green-600 text-white hover:bg-green-700"
                           >
                             אשר קבלת משלוח
                           </Button>
@@ -410,9 +423,8 @@ export default function CreatorShippingPage() {
                   {shipment.status === 'delivered' && (
                     <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        
                         <div>
-                          <h4 className="text-green-400 font-bold">המשלוח נמסר בהצלחה!</h4>
+                          <h4 className="text-green-700 font-bold">המשלוח נמסר בהצלחה!</h4>
                           <p className="text-[#6c757d] text-sm">
                             אתה יכול להתחיל לעבוד על המשימה
                           </p>
