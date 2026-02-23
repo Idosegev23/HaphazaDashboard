@@ -1,54 +1,23 @@
 'use client';
 
-import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { TutorialPopup } from '@/components/ui/TutorialPopup';
 
 export default function OnboardingPage() {
-  const [roleType, setRoleType] = useState<'creator' | 'brand' | null>(null);
   const router = useRouter();
 
-  const handleRoleSelection = async (type: 'creator' | 'brand') => {
-    setRoleType(type);
-    
-    if (type === 'creator') {
-      router.push('/onboarding/creator');
-    } else {
-      router.push('/onboarding/brand');
-    }
-  };
+  useEffect(() => {
+    // Only creator onboarding available — brands are created by admin
+    router.push('/onboarding/creator');
+  }, [router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-[#f8f9fa] p-4">
       <div className="glass-panel w-full max-w-2xl p-8 rounded-xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-[#f2cc0d] mb-4">ברוכים הבאים ל-LEADERS</h1>
-          <p className="text-[#6c757d] text-lg">בחרו את סוג החשבון שלכם</p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          <button
-            onClick={() => handleRoleSelection('creator')}
-            className="glass-panel-hover p-8 rounded-xl text-center transition-all"
-          >
-            
-            <h2 className="text-2xl font-bold text-[#212529] mb-3">יוצר תוכן</h2>
-            <p className="text-[#6c757d]">
-              אני יוצר/ת תוכן UGC ורוצה לעבוד עם מותגים
-            </p>
-          </button>
-
-          <button
-            onClick={() => handleRoleSelection('brand')}
-            className="glass-panel-hover p-8 rounded-xl text-center transition-all"
-          >
-            
-            <h2 className="text-2xl font-bold text-[#212529] mb-3">מותג</h2>
-            <p className="text-[#6c757d]">
-              אני מייצג/ת מותג ומעוניין/נת לעבוד עם יוצרי תוכן
-            </p>
-          </button>
+          <p className="text-[#6c757d] text-lg">מעביר אותך להשלמת הפרופיל...</p>
         </div>
       </div>
 

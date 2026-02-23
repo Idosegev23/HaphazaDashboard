@@ -90,10 +90,10 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center">
           <a
-            href="/auth/register"
+            href="/auth/register/creator"
             className="text-sm text-[#6c757d] hover:text-[#f2cc0d] transition-colors"
           >
-            {t('register')}
+            הירשם כמשפיען
           </a>
         </div>
       </div>

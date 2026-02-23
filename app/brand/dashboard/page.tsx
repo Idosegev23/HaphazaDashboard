@@ -24,6 +24,11 @@ export default async function BrandDashboardPage() {
     .eq('id', user.brand_id!)
     .single();
 
+  // Brand needs onboarding if verified_at is not set
+  if (brand && !brand.verified_at) {
+    redirect('/onboarding/brand');
+  }
+
   // Get stats in parallel
   const [
     { count: campaignsCount },

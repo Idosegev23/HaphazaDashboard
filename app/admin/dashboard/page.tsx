@@ -252,11 +252,17 @@ export default async function AdminDashboardPage() {
         {/* Quick Actions */}
         <Card>
           <h2 className="text-xl font-bold text-[#212529] mb-4">⚡ פעולות מהירות</h2>
-          <div className="grid md:grid-cols-5 gap-4">
+          <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4">
             <Link href="/admin/users">
               <div className="glass-panel-hover p-6 rounded-lg text-center cursor-pointer">
                 <div className="text-4xl mb-2">👥</div>
                 <div className="text-[#212529] font-medium">משתמשים</div>
+              </div>
+            </Link>
+            <Link href="/admin/brands/create">
+              <div className="glass-panel-hover p-6 rounded-lg text-center cursor-pointer">
+                <div className="text-4xl mb-2">🏢</div>
+                <div className="text-[#212529] font-medium">צור מותג</div>
               </div>
             </Link>
             <Link href="/admin/campaigns">

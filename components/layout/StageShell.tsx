@@ -17,8 +17,8 @@ export function StageShell({ children }: StageShellProps) {
   const { user, loading } = useUser();
   const pathname = usePathname();
 
-  // Hide navigation on auth/onboarding pages
-  const hideNav = pathname?.startsWith('/auth') || pathname?.startsWith('/onboarding');
+  // Hide navigation on auth/onboarding pages and landing page (unauthenticated root)
+  const hideNav = pathname?.startsWith('/auth') || pathname?.startsWith('/onboarding') || (pathname === '/' && !user);
 
   if (loading) {
     return (
