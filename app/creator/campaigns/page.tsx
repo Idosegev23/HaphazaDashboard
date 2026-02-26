@@ -14,6 +14,9 @@ type Campaign = {
   fixed_price: number | null;
   currency: string | null;
   deadline: string | null;
+  is_barter: boolean | null;
+  barter_description: string | null;
+  platforms: string[] | null;
   brands: {
     name: string;
   } | null;
@@ -65,11 +68,11 @@ export default function CreatorCampaignsPage() {
     }
 
     // Get open campaigns
-    const { data: campaignsData } = await supabase
+    const { data: campaignsData } = await (supabase
       .from('campaigns')
-      .select('id, title, concept, fixed_price, currency, deadline, brands(name)')
+      .select('id, title, concept, fixed_price, currency, deadline, is_barter, barter_description, platforms, brands(name)')
       .eq('status', 'open')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false }) as any);
 
     // Get my applications
     const { data: myApplications } = await supabase
@@ -138,14 +141,24 @@ export default function CreatorCampaignsPage() {
                       </div>
 
                       {campaign.concept && (
-                        <p className="text-[#6c757d] text-sm line-clamp-3">{campaign.concept}</p>
+                        <p className="text-[#6c757d] text-sm line-clamp-3 whitespace-pre-line">{campaign.concept}</p>
+                      )}
+
+                      {campaign.platforms && campaign.platforms.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {campaign.platforms.map((p) => (
+                            <span key={p} className="px-2 py-0.5 bg-[#f2cc0d]/15 text-[#212529] rounded-full text-xs font-medium capitalize">{p}</span>
+                          ))}
+                        </div>
                       )}
 
                       <div className="flex items-center justify-between pt-4 border-t border-[#dee2e6]">
                         <div className="text-[#f2cc0d] font-bold">
-                          {campaign.fixed_price
-                            ? `₪${campaign.fixed_price.toLocaleString()}`
-                            : 'מחיר לא הוגדר'}
+                          {campaign.is_barter
+                            ? 'ברטר'
+                            : campaign.fixed_price
+                              ? `₪${campaign.fixed_price.toLocaleString()}`
+                              : 'מחיר לא הוגדר'}
                         </div>
                       </div>
                       {appStatus && (

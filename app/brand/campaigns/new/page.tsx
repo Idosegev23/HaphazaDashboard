@@ -327,24 +327,24 @@ export default function NewCampaignPage() {
             />
 
             <div>
-              <label className="block text-sm font-medium text-[#212529] mb-2">יעד הקמפיין</label>
+              <label className="block text-sm font-medium text-[#212529] mb-2">רקע ומטרת הקמפיין</label>
               <textarea
                 value={formData.objective}
                 onChange={(e) => setFormData({ ...formData, objective: e.target.value })}
                 className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                 rows={3}
-                placeholder="מה אתם מנסים להשיג עם הקמפיין?"
+                placeholder="רקע על המותג/מוצר, מטרת הקמפיין ומה תרצו להשיג"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#212529] mb-2">קונספט</label>
+              <label className="block text-sm font-medium text-[#212529] mb-2">תיאור הקמפיין והערות חשובות</label>
               <textarea
                 value={formData.concept}
                 onChange={(e) => setFormData({ ...formData, concept: e.target.value })}
                 className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                 rows={4}
-                placeholder="תארו את הקונספט של הקמפיין..."
+                placeholder="תארו את הקמפיין, הנחיות ליוצרים והערות חשובות..."
                 required
               />
             </div>

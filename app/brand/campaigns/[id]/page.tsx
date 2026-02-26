@@ -73,6 +73,7 @@ export default function CampaignPage() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
+  const [tabInitDone, setTabInitDone] = useState(false);
 
   // Form data for editing
   const [formData, setFormData] = useState({
@@ -173,11 +174,12 @@ export default function CampaignPage() {
   }, [campaign?.id]);
 
   useEffect(() => {
-    // Auto switch to overview for open campaigns
-    if (campaign && campaign.status === 'open' && activeTab === 'details') {
+    // Default to overview for open campaigns on first load only
+    if (campaign && campaign.status === 'open' && activeTab === 'details' && !tabInitDone) {
       setActiveTab('overview');
+      setTabInitDone(true);
     }
-  }, [campaign]);
+  }, [campaign?.status]);
 
   const loadCampaign = async () => {
     const supabase = createClient();
@@ -606,6 +608,15 @@ export default function CampaignPage() {
         {/* Details Tab (Edit Campaign) */}
         {activeTab === 'details' && (
           <div className="space-y-6">
+            {campaign.status === 'open' && (
+              <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 flex items-start gap-3">
+                <span className="text-xl">⚠️</span>
+                <div>
+                  <h3 className="text-[#212529] font-bold text-sm">הקמפיין פורסם ופתוח למועמדויות</h3>
+                  <p className="text-[#6c757d] text-sm">שינויים שתבצע כאן יעודכנו מיידית ויהיו גלויים למשפיענים.</p>
+                </div>
+              </div>
+            )}
             <Card>
               <h2 className="text-xl font-bold text-[#212529] mb-6">פרטי הקמפיין</h2>
 
@@ -620,24 +631,24 @@ export default function CampaignPage() {
                 />
 
                 <div>
-                  <label className="block text-sm font-medium text-[#212529] mb-2">יעד הקמפיין</label>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">רקע ומטרת הקמפיין</label>
                   <textarea
                     value={formData.objective}
                     onChange={(e) => setFormData({ ...formData, objective: e.target.value })}
                     className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                     rows={3}
-                    placeholder="מה אתם מנסים להשיג עם הקמפיין?"
+                    placeholder="רקע על המותג/מוצר, מטרת הקמפיין ומה תרצו להשיג"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#212529] mb-2">קונספט</label>
+                  <label className="block text-sm font-medium text-[#212529] mb-2">תיאור הקמפיין והערות חשובות</label>
                   <textarea
                     value={formData.concept}
                     onChange={(e) => setFormData({ ...formData, concept: e.target.value })}
                     className="w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] focus:outline-none focus:border-gold transition-colors"
                     rows={4}
-                    placeholder="תארו את הקונספט של הקמפיין..."
+                    placeholder="תארו את הקמפיין, הנחיות ליוצרים והערות חשובות..."
                     required
                   />
                 </div>

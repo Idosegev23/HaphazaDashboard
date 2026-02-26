@@ -33,7 +33,7 @@ export default function CampaignDetailPage() {
     // Load campaign
     const { data: campaignData } = await supabase
       .from('campaigns')
-      .select('id, title, concept, objective, fixed_price, deadline, status, deliverables, brief_url, brands(name)')
+      .select('id, title, concept, objective, fixed_price, deadline, status, deliverables, brief_url, is_barter, barter_description, platforms, start_date, end_date, submission_deadline, go_live_date, brands(name)')
       .eq('id', params.id as string)
       .single();
 
@@ -161,8 +161,26 @@ export default function CampaignDetailPage() {
           
           {campaign.concept && (
             <div className="mb-6">
-              <h3 className="text-[#212529] font-bold mb-2">קונספט</h3>
-              <p className="text-[#6c757d]">{campaign.concept}</p>
+              <h3 className="text-[#212529] font-bold mb-2">תיאור הקמפיין</h3>
+              <p className="text-[#6c757d] whitespace-pre-line">{campaign.concept}</p>
+            </div>
+          )}
+
+          {campaign.objective && (
+            <div className="mb-6">
+              <h3 className="text-[#212529] font-bold mb-2">רקע ומטרה</h3>
+              <p className="text-[#6c757d] whitespace-pre-line">{campaign.objective}</p>
+            </div>
+          )}
+
+          {campaign.platforms && campaign.platforms.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-[#212529] font-bold mb-2">פלטפורמות נדרשות</h3>
+              <div className="flex flex-wrap gap-2">
+                {campaign.platforms.map((p: string) => (
+                  <span key={p} className="px-3 py-1 bg-[#f2cc0d]/15 text-[#212529] rounded-full text-sm font-medium capitalize">{p}</span>
+                ))}
+              </div>
             </div>
           )}
 
@@ -191,19 +209,42 @@ export default function CampaignDetailPage() {
           )}
 
           <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-[#dee2e6]">
-            {campaign.fixed_price && (
+            <div>
+              <span className="text-[#6c757d]">{campaign.is_barter ? 'סוג תשלום: ' : 'תשלום: '}</span>
+              <span className="text-[#f2cc0d] font-bold">
+                {campaign.is_barter
+                  ? 'ברטר'
+                  : campaign.fixed_price
+                    ? `₪${campaign.fixed_price.toLocaleString()}`
+                    : 'יוגדר בהמשך'}
+              </span>
+              {campaign.is_barter && campaign.barter_description && (
+                <p className="text-[#6c757d] text-sm mt-1">{campaign.barter_description}</p>
+              )}
+            </div>
+            {(campaign.start_date || campaign.end_date) && (
               <div>
-                <span className="text-[#6c757d]">תשלום: </span>
-                <span className="text-[#f2cc0d] font-bold">
-                  ₪{campaign.fixed_price.toLocaleString()}
+                <span className="text-[#6c757d]">תקופת הקמפיין: </span>
+                <span className="text-[#212529]">
+                  {campaign.start_date && new Date(campaign.start_date).toLocaleDateString('he-IL')}
+                  {campaign.start_date && campaign.end_date && ' - '}
+                  {campaign.end_date && new Date(campaign.end_date).toLocaleDateString('he-IL')}
                 </span>
               </div>
             )}
-            {campaign.deadline && (
+            {campaign.submission_deadline && (
               <div>
-                <span className="text-[#6c757d]">תאריך יעד: </span>
+                <span className="text-[#6c757d]">דדליין הגשה: </span>
                 <span className="text-[#212529]">
-                  {new Date(campaign.deadline).toLocaleDateString('he-IL')}
+                  {new Date(campaign.submission_deadline).toLocaleDateString('he-IL')}
+                </span>
+              </div>
+            )}
+            {campaign.go_live_date && (
+              <div>
+                <span className="text-[#6c757d]">תאריך Go-Live: </span>
+                <span className="text-[#212529]">
+                  {new Date(campaign.go_live_date).toLocaleDateString('he-IL')}
                 </span>
               </div>
             )}

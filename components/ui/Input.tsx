@@ -7,8 +7,9 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, id, ...props }, ref) => {
+  ({ className, label, error, id, type, ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s/g, '-');
+    const isDateInput = type === 'date' || type === 'datetime-local';
 
     return (
       <div className="space-y-2">
@@ -20,6 +21,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           id={inputId}
+          type={type}
+          dir={isDateInput ? 'ltr' : undefined}
           className={cn(
             'w-full px-4 py-3 bg-white border border-[#dee2e6] rounded-lg text-[#212529] transition-colors',
             'focus:outline-none focus:border-gold',
